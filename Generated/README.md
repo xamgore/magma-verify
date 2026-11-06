@@ -13,7 +13,8 @@ lake build
 Charon extracts `crate::rounds` and `crate::sboxes` from the local
 RustCrypto Magma verification fork using `--preset=aeneas`. Aeneas
 translates their LLBC into `RustCrypto/Code/Types.lean` and `Funs.lean`.
-The script runs the root `lake build RustCrypto` afterwards.
+The script then runs root `lake build` and `lake lint`, including the
+`Magma/Verification.lean` import bridge between the generated model and RFC 8891.
 
 Unlike an independent hand-written model, `encrypt_block_core` and
 `decrypt_block_core` are called by production RustCrypto cipher adapters.

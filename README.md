@@ -19,9 +19,11 @@ A single Lean/Lake project on **Lean 4.36.0-rc2** containing both
 - The loop schedule is written as bounded recursion because the pinned
   Aeneas release crashes during post-processing of the original nested loops.
 
-This refactor is tested against RustCrypto's existing known-answer example,
-but **has not yet been formally proved equivalent to the unmodified upstream
-Rust implementation**. This matters for the overall verification claim.
+This refactor is checked by the RFC 8891 known-answer example and by two
+Rust unit tests in `src/rounds.rs`: one compares the refactored core against
+the original round loops on 128 deterministic key/block pairs, and the other
+checks the RFC vector and decrypt roundtrip. These are regression tests, **not
+a formal equivalence proof against the unmodified upstream implementation**.
 
 ## Tool versions
 
@@ -40,17 +42,13 @@ Rust implementation**. This matters for the overall verification claim.
 
 ```sh
 cd ~/Documents/magma-verify
-./scripts/regenerate.sh
-lake build
-lake exe fmt format --check
-lake lint
-(cd rust/magma && cargo test --locked)
+./scripts/regenerate.sh  # rustfmt + Rust tests + Charon + Aeneas + Lake build + Lean lint
 ```
 
-`regenerate.sh` always runs Charon and Aeneas, overwrites only
-`Generated/RustCrypto/Code/{Types,Funs}.lean`, and checks the output with
-the **root** Lake project. It does **not** create or overwrite any Lake
-configuration under `Generated/`. It extracts both `crate::rounds` and
+`regenerate.sh` checks Rust formatting and tests, runs Charon and Aeneas,
+overwrites only `Generated/RustCrypto/Code/{Types,Funs}.lean`, then executes
+`lake build` and `lake lint` using the **root** Lake project.
+It does **not** create or overwrite any Lake configuration under `Generated/`. It extracts both `crate::rounds` and
 `crate::sboxes`, including the RFC 8891 `Tc26` S-box.
 
 Lean formatting matches `~/Documents/magma`: pinned `lean-fmt`,
@@ -59,12 +57,16 @@ Lean formatting matches `~/Documents/magma`: pinned `lean-fmt`,
 to preserve exact reproducibility of Aeneas output.
 
 Rust source formatting is checked directly with
-`rustfmt --edition 2024 --check src/lib.rs src/rounds.rs` from
+`rustfmt --edition 2024 --check src/lib.rs src/sboxes.rs src/rounds.rs` from
 `rust/magma`. The published Cargo manifest references a missing
 `benches/mod.rs` in its registry snapshot, so `cargo fmt --all` fails
 independently of the Rust source formatting.
 
 ## Current proof boundary
+
+`Magma/Verification.lean` imports both `Magma.RFC8891` and
+`RustCrypto.Code.Funs` so they are available in the **same Lean environment**.
+This bridge module is automatically built through the root `Magma` library.
 
 The actual Aeneas Lean output includes:
 

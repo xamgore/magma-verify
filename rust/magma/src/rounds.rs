@@ -55,3 +55,76 @@ pub(crate) fn encrypt_block_core<S: Sbox>(key: &[u32; 8], block: [u8; 8]) -> [u8
 pub(crate) fn decrypt_block_core<S: Sbox>(key: &[u32; 8], block: [u8; 8]) -> [u8; 8] {
     join_block(decrypt_schedule::<S>(key, split_block(block), 0))
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::sboxes::Tc26;
+
+    // Previous implementation, retained as a regression oracle for the refactor.
+    fn old_encrypt(key: &[u32; 8], block: [u8; 8]) -> [u8; 8] {
+        let mut v = split_block(block);
+        for _ in 0..3 {
+            for i in 0..8 {
+                v = (v.1, v.0 ^ Tc26::g(v.1, key[i]));
+            }
+        }
+        for i in (0..8).rev() {
+            v = (v.1, v.0 ^ Tc26::g(v.1, key[i]));
+        }
+        join_block(v)
+    }
+
+    fn old_decrypt(key: &[u32; 8], block: [u8; 8]) -> [u8; 8] {
+        let mut v = split_block(block);
+        for i in 0..8 {
+            v = (v.1, v.0 ^ Tc26::g(v.1, key[i]));
+        }
+        for _ in 0..3 {
+            for i in (0..8).rev() {
+                v = (v.1, v.0 ^ Tc26::g(v.1, key[i]));
+            }
+        }
+        join_block(v)
+    }
+
+    #[test]
+    fn round_core_matches_original_for_sampled_inputs() {
+        for seed in 0u32..128 {
+            let key: [u32; 8] = core::array::from_fn(|i| {
+                (seed + 1)
+                    .wrapping_mul(0x9e37_79b9)
+                    .rotate_left((i * 3) as u32)
+                    ^ (i as u32).wrapping_mul(0xdead_beef)
+            });
+            let block = (seed.wrapping_mul(0x517c_c1b7) as u64)
+                .wrapping_mul(0x0102_0304_0506_0709)
+                .to_be_bytes();
+            let ciphertext = encrypt_block_core::<Tc26>(&key, block);
+            assert_eq!(ciphertext, old_encrypt(&key, block));
+            assert_eq!(decrypt_block_core::<Tc26>(&key, ciphertext), block);
+            assert_eq!(
+                decrypt_block_core::<Tc26>(&key, ciphertext),
+                old_decrypt(&key, ciphertext)
+            );
+        }
+    }
+
+    #[test]
+    fn rfc_8891_vector_at_round_core() {
+        let key = [
+            0xffee_ddcc,
+            0xbbaa_9988,
+            0x7766_5544,
+            0x3322_1100,
+            0xf0f1_f2f3,
+            0xf4f5_f6f7,
+            0xf8f9_fafb,
+            0xfcfd_feff,
+        ];
+        let plain = [0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10];
+        let expected = [0x4e, 0xe9, 0x01, 0xe5, 0xc2, 0xd8, 0xca, 0x3d];
+        assert_eq!(encrypt_block_core::<Tc26>(&key, plain), expected);
+        assert_eq!(decrypt_block_core::<Tc26>(&key, expected), plain);
+    }
+}
