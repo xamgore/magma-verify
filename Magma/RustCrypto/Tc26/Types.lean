@@ -47,22 +47,15 @@ structure sboxes.SboxExt (Self : Type _) where
     Visibility: public -/
 inductive sboxes.Tc26 where
 
-/-- [magma_tc26_slice::Block]
-    Source: 'src/lib.rs', lines 36:0-39:1
+/-- [magma_tc26_slice::adapter::InOut]
+    Source: 'src/adapter.rs', lines 5:0-8:1
     Visibility: public -/
-structure Block (T : Type _) where
-  bytes : Array Std.U8 8#usize
-  marker : core.marker.PhantomData T
-
-/-- [magma_tc26_slice::InOut]
-    Source: 'src/lib.rs', lines 59:0-62:1
-    Visibility: public -/
-structure InOut (T : Type _) where
+structure adapter.InOut (T : Type _) where
   input : T
   output : T
 
 /-- [magma_tc26_slice::Gost89]
-    Source: 'src/lib.rs', lines 77:0-80:1
+    Source: 'src/lib.rs', lines 31:0-34:1
     Visibility: public -/
 structure Gost89 (S : Type _) where
   key : Array Std.U32 8#usize

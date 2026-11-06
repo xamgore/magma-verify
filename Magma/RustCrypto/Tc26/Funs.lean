@@ -268,54 +268,36 @@ def sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox : sboxes.Sbox sboxes.Tc26 := {
   SBOX := ok sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.SBOX
 }
 
-/-- [magma_tc26_slice::{magma_tc26_slice::Block<T>}::new]:
-    Source: 'src/lib.rs', lines 41:4-46:5
+/-- [magma_tc26_slice::adapter::{magma_tc26_slice::adapter::InOut<'a, 'b, T>}::get_in]:
+    Source: 'src/adapter.rs', lines 11:4-13:5
     Visibility: public -/
-def Block.new
-  (T : Type _) (bytes : Array Std.U8 8#usize) : Result (Block T) := do
-  ok { bytes, marker := () }
-
-/-- [magma_tc26_slice::{impl core::ops::deref::DerefMut<[u8; 8usize]> for magma_tc26_slice::Block<T>}::deref_mut]:
-    Source: 'src/lib.rs', lines 55:4-57:5
-    Visibility: public -/
-def Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut
-  {T : Type _} (self : Block T) :
-  Result ((Array Std.U8 8#usize) × (Array Std.U8 8#usize → Block T))
-  := do
-  let back := fun a => { self with bytes := a }
-  ok (self.bytes, back)
-
-/-- [magma_tc26_slice::{magma_tc26_slice::InOut<'a, 'b, T>}::get_in]:
-    Source: 'src/lib.rs', lines 64:4-66:5
-    Visibility: public -/
-def InOut.get_in {T : Type _} (self : InOut T) : Result T := do
+def adapter.InOut.get_in {T : Type _} (self : adapter.InOut T) : Result T := do
   ok self.input
 
-/-- [magma_tc26_slice::{magma_tc26_slice::InOut<'a, 'b, T>}::get_out]:
-    Source: 'src/lib.rs', lines 67:4-69:5
+/-- [magma_tc26_slice::adapter::{magma_tc26_slice::adapter::InOut<'a, 'b, T>}::get_out]:
+    Source: 'src/adapter.rs', lines 15:4-17:5
     Visibility: public -/
-def InOut.get_out
-  {T : Type _} (self : InOut T) :
-  Result (T × (T → InOut T) × (InOut T → InOut T))
+def adapter.InOut.get_out
+  {T : Type _} (self : adapter.InOut T) :
+  Result (T × (T → adapter.InOut T) × (adapter.InOut T → adapter.InOut
+    T))
   := do
   let back := fun t => { self with output := t }
   let back'b := fun self1 => { self with output := self1.output }
   ok (self.output, back, back'b)
 
 /-- [magma_tc26_slice::to_u32]:
-    Source: 'src/lib.rs', lines 145:0-147:1 -/
+    Source: 'src/lib.rs', lines 99:0-101:1 -/
 def to_u32 (chunk : Slice Std.U8) : Result Std.U32 := do
   let r ←
     core.array.TryFromArrayCopySlice.try_from 4#usize core.marker.CopyU8 chunk
   let a ← core.result.Result.unwrap core.fmt.DebugTryFromSliceError r
   ok (core.num.U32.from_be_bytes a)
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 1:
-    Source: 'src/lib.rs', lines 99:12-101:13
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 1:
+    Source: 'src/lib.rs', lines 53:12-55:13 -/
 @[rust_loop_body]
-def
-  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0_loop0.body
+def Gost89Tc26.encrypt_block_loop0_loop0.body
   (self : Gost89 sboxes.Tc26) (iter : core.ops.range.Range Std.Usize)
   (i : Std.U32) (i1 : Std.U32) :
   Result (ControlFlow ((core.ops.range.Range Std.Usize) × Std.U32 × Std.U32)
@@ -333,28 +315,23 @@ def
     let i5 ← lift (i ^^^ i4)
     ok (cont (iter1, i1, i5))
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 1:
-    Source: 'src/lib.rs', lines 99:12-101:13
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 1:
+    Source: 'src/lib.rs', lines 53:12-55:13 -/
 @[rust_loop]
-def
-  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0_loop0
+def Gost89Tc26.encrypt_block_loop0_loop0
   (iter : core.ops.range.Range Std.Usize) (self : Gost89 sboxes.Tc26)
   (i : Std.U32) (i1 : Std.U32) :
   Result ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32)
   := do
   loop
-    (fun (iter1, i2, i3) =>
-      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0_loop0.body
-      self iter1 i2 i3)
+    (fun (iter1, i2, i3) => Gost89Tc26.encrypt_block_loop0_loop0.body self
+      iter1 i2 i3)
     (iter, i, i1)
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 0:
-    Source: 'src/lib.rs', lines 98:8-102:9
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 0:
+    Source: 'src/lib.rs', lines 52:8-56:9 -/
 @[rust_loop_body]
-def
-  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0.body
+def Gost89Tc26.encrypt_block_loop0.body
   (iter : core.ops.range.Range Std.I32) (self : Gost89 sboxes.Tc26)
   (i : Std.U32) (i1 : Std.U32) :
   Result (ControlFlow ((core.ops.range.Range Std.I32) × (Gost89 sboxes.Tc26)
@@ -366,31 +343,27 @@ def
   | none => ok (done (self, i, i1))
   | some _ =>
     let (self1, i2, i3) ←
-      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0_loop0
+      Gost89Tc26.encrypt_block_loop0_loop0
         { start := 0#usize, «end» := 8#usize } self i i1
     ok (cont (iter1, self1, i2, i3))
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 0:
-    Source: 'src/lib.rs', lines 98:8-102:9
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 0:
+    Source: 'src/lib.rs', lines 52:8-56:9 -/
 @[rust_loop]
-def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0
+def Gost89Tc26.encrypt_block_loop0
   (iter : core.ops.range.Range Std.I32) (self : Gost89 sboxes.Tc26)
   (i : Std.U32) (i1 : Std.U32) :
   Result ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32)
   := do
   loop
-    (fun (iter1, self1, i2, i3) =>
-      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0.body
-      iter1 self1 i2 i3)
+    (fun (iter1, self1, i2, i3) => Gost89Tc26.encrypt_block_loop0.body iter1
+      self1 i2 i3)
     (iter, self, i, i1)
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 2:
-    Source: 'src/lib.rs', lines 103:8-105:9
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 2:
+    Source: 'src/lib.rs', lines 57:8-59:9 -/
 @[rust_loop_body]
-def
-  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop1.body
+def Gost89Tc26.encrypt_block_loop1.body
   (self : Gost89 sboxes.Tc26)
   (iter : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
   (i : Std.U32) (i1 : Std.U32) :
@@ -411,82 +384,69 @@ def
     let i5 ← lift (i ^^^ i4)
     ok (cont (iter1, i1, i5))
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 2:
-    Source: 'src/lib.rs', lines 103:8-105:9
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 2:
+    Source: 'src/lib.rs', lines 57:8-59:9 -/
 @[rust_loop]
-def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop1
+def Gost89Tc26.encrypt_block_loop1
   (iter : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
   (self : Gost89 sboxes.Tc26) (i : Std.U32) (i1 : Std.U32) :
   Result (Std.U32 × Std.U32)
   := do
   loop
-    (fun (iter1, i2, i3) =>
-      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop1.body
-      self iter1 i2 i3)
+    (fun (iter1, i2, i3) => Gost89Tc26.encrypt_block_loop1.body self iter1 i2
+      i3)
     (iter, i, i1)
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]:
-    Source: 'src/lib.rs', lines 95:4-109:5
-    Visibility: public -/
-def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block
-  (self : Gost89 sboxes.Tc26) (block : InOut (Block (Gost89 sboxes.Tc26))) :
-  Result (InOut (Block (Gost89 sboxes.Tc26)))
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]:
+    Source: 'src/lib.rs', lines 49:4-63:5 -/
+def Gost89Tc26.encrypt_block
+  (self : Gost89 sboxes.Tc26) (block : adapter.InOut (Array Std.U8 8#usize)) :
+  Result (adapter.InOut (Array Std.U8 8#usize))
   := do
-  let b ← InOut.get_in block
+  let b ← adapter.InOut.get_in block
   let s ←
     core.array.Array.index (core.ops.index.IndexSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b.bytes
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b
       { start := 0#usize, «end» := 4#usize }
   let i ← to_u32 s
   let s1 ←
     core.array.Array.index (core.ops.index.IndexSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b.bytes
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b
       { start := 4#usize, «end» := 8#usize }
   let i1 ← to_u32 s1
   let (self1, i2, i3) ←
-    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0
-      { start := 0#i32, «end» := 3#i32 } self i i1
+    Gost89Tc26.encrypt_block_loop0 { start := 0#i32, «end» := 3#i32 } self i
+      i1
   let iter ←
     core.iter.traits.iterator.Iterator.rev.trait_default
       (core.iter.traits.iterator.IteratorRange core.iter.range.StepUsize)
       (core.ops.range.Range.Insts.DoubleEndedIterator
       core.iter.range.StepUsize) { start := 0#usize, «end» := 8#usize }
-  let (i4, i5) ←
-    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop1
-      iter self1 i2 i3
-  let (block1, get_out_back, get_out_back1) ← InOut.get_out block
-  let (a, deref_mut_back) ←
-    Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut block1
+  let (i4, i5) ← Gost89Tc26.encrypt_block_loop1 iter self1 i2 i3
+  let (block1, get_out_back, get_out_back1) ← adapter.InOut.get_out block
   let (s2, index_mut_back) ←
     core.array.Array.index_mut (core.ops.index.IndexMutSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) block1
       { start := 0#usize, «end» := 4#usize }
-  let a1 ← lift (core.num.U32.to_be_bytes i5)
-  let s3 ← lift (Array.to_slice a1)
+  let a ← lift (core.num.U32.to_be_bytes i5)
+  let s3 ← lift (Array.to_slice a)
   let s4 ← core.slice.Slice.copy_from_slice core.marker.CopyU8 s2 s3
-  let a2 := index_mut_back s4
-  let block2 := deref_mut_back a2
-  let (a3, deref_mut_back1) ←
-    Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut block2
+  let block2 := index_mut_back s4
   let (s5, index_mut_back1) ←
     core.array.Array.index_mut (core.ops.index.IndexMutSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a3
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) block2
       { start := 4#usize, «end» := 8#usize }
-  let a4 ← lift (core.num.U32.to_be_bytes i4)
-  let s6 ← lift (Array.to_slice a4)
+  let a1 ← lift (core.num.U32.to_be_bytes i4)
+  let s6 ← lift (Array.to_slice a1)
   let s7 ← core.slice.Slice.copy_from_slice core.marker.CopyU8 s5 s6
-  let a5 := index_mut_back1 s7
-  let block3 := deref_mut_back1 a5
+  let block3 := index_mut_back1 s7
   let io := get_out_back block3
   ok { block with output := (get_out_back1 io).output }
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 0:
-    Source: 'src/lib.rs', lines 129:8-131:9
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 0:
+    Source: 'src/lib.rs', lines 83:8-85:9 -/
 @[rust_loop_body]
-def
-  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop0.body
+def Gost89Tc26.decrypt_block_loop0.body
   (self : Gost89 sboxes.Tc26) (iter : core.ops.range.Range Std.Usize)
   (i : Std.U32) (i1 : Std.U32) :
   Result (ControlFlow ((core.ops.range.Range Std.Usize) × Std.U32 × Std.U32)
@@ -504,27 +464,23 @@ def
     let i5 ← lift (i ^^^ i4)
     ok (cont (iter1, i1, i5))
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 0:
-    Source: 'src/lib.rs', lines 129:8-131:9
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 0:
+    Source: 'src/lib.rs', lines 83:8-85:9 -/
 @[rust_loop]
-def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop0
+def Gost89Tc26.decrypt_block_loop0
   (iter : core.ops.range.Range Std.Usize) (self : Gost89 sboxes.Tc26)
   (i : Std.U32) (i1 : Std.U32) :
   Result ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32)
   := do
   loop
-    (fun (iter1, i2, i3) =>
-      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop0.body
-      self iter1 i2 i3)
+    (fun (iter1, i2, i3) => Gost89Tc26.decrypt_block_loop0.body self iter1 i2
+      i3)
     (iter, i, i1)
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 2:
-    Source: 'src/lib.rs', lines 134:12-136:13
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 2:
+    Source: 'src/lib.rs', lines 88:12-90:13 -/
 @[rust_loop_body]
-def
-  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1_loop0.body
+def Gost89Tc26.decrypt_block_loop1_loop0.body
   (self : Gost89 sboxes.Tc26)
   (iter : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
   (i : Std.U32) (i1 : Std.U32) :
@@ -546,28 +502,23 @@ def
     let i5 ← lift (i ^^^ i4)
     ok (cont (iter1, i1, i5))
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 2:
-    Source: 'src/lib.rs', lines 134:12-136:13
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 2:
+    Source: 'src/lib.rs', lines 88:12-90:13 -/
 @[rust_loop]
-def
-  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1_loop0
+def Gost89Tc26.decrypt_block_loop1_loop0
   (iter : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
   (self : Gost89 sboxes.Tc26) (i : Std.U32) (i1 : Std.U32) :
   Result ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32)
   := do
   loop
-    (fun (iter1, i2, i3) =>
-      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1_loop0.body
-      self iter1 i2 i3)
+    (fun (iter1, i2, i3) => Gost89Tc26.decrypt_block_loop1_loop0.body self
+      iter1 i2 i3)
     (iter, i, i1)
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 1:
-    Source: 'src/lib.rs', lines 133:8-137:9
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 1:
+    Source: 'src/lib.rs', lines 87:8-91:9 -/
 @[rust_loop_body]
-def
-  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1.body
+def Gost89Tc26.decrypt_block_loop1.body
   (iter : core.ops.range.Range Std.I32) (self : Gost89 sboxes.Tc26)
   (i : Std.U32) (i1 : Std.U32) :
   Result (ControlFlow ((core.ops.range.Range Std.I32) × (Gost89 sboxes.Tc26)
@@ -584,103 +535,87 @@ def
         (core.ops.range.Range.Insts.DoubleEndedIterator
         core.iter.range.StepUsize) { start := 0#usize, «end» := 8#usize }
     let (self1, i2, i3) ←
-      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1_loop0
-        iter2 self i i1
+      Gost89Tc26.decrypt_block_loop1_loop0 iter2 self i i1
     ok (cont (iter1, self1, i2, i3))
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 1:
-    Source: 'src/lib.rs', lines 133:8-137:9
-    Visibility: public -/
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 1:
+    Source: 'src/lib.rs', lines 87:8-91:9 -/
 @[rust_loop]
-def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1
+def Gost89Tc26.decrypt_block_loop1
   (iter : core.ops.range.Range Std.I32) (self : Gost89 sboxes.Tc26)
   (i : Std.U32) (i1 : Std.U32) :
   Result (Std.U32 × Std.U32)
   := do
   loop
-    (fun (iter1, self1, i2, i3) =>
-      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1.body
-      iter1 self1 i2 i3)
+    (fun (iter1, self1, i2, i3) => Gost89Tc26.decrypt_block_loop1.body iter1
+      self1 i2 i3)
     (iter, self, i, i1)
 
-/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]:
-    Source: 'src/lib.rs', lines 125:4-141:5
-    Visibility: public -/
-def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block
-  (self : Gost89 sboxes.Tc26) (block : InOut (Block (Gost89 sboxes.Tc26))) :
-  Result (InOut (Block (Gost89 sboxes.Tc26)))
+/-- [magma_tc26_slice::{magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]:
+    Source: 'src/lib.rs', lines 79:4-95:5 -/
+def Gost89Tc26.decrypt_block
+  (self : Gost89 sboxes.Tc26) (block : adapter.InOut (Array Std.U8 8#usize)) :
+  Result (adapter.InOut (Array Std.U8 8#usize))
   := do
-  let b ← InOut.get_in block
+  let b ← adapter.InOut.get_in block
   let s ←
     core.array.Array.index (core.ops.index.IndexSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b.bytes
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b
       { start := 0#usize, «end» := 4#usize }
   let i ← to_u32 s
   let s1 ←
     core.array.Array.index (core.ops.index.IndexSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b.bytes
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b
       { start := 4#usize, «end» := 8#usize }
   let i1 ← to_u32 s1
   let (self1, i2, i3) ←
-    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop0
-      { start := 0#usize, «end» := 8#usize } self i i1
+    Gost89Tc26.decrypt_block_loop0 { start := 0#usize, «end» := 8#usize }
+      self i i1
   let (i4, i5) ←
-    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1
-      { start := 0#i32, «end» := 3#i32 } self1 i2 i3
-  let (block1, get_out_back, get_out_back1) ← InOut.get_out block
-  let (a, deref_mut_back) ←
-    Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut block1
+    Gost89Tc26.decrypt_block_loop1 { start := 0#i32, «end» := 3#i32 } self1
+      i2 i3
+  let (block1, get_out_back, get_out_back1) ← adapter.InOut.get_out block
   let (s2, index_mut_back) ←
     core.array.Array.index_mut (core.ops.index.IndexMutSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) block1
       { start := 0#usize, «end» := 4#usize }
-  let a1 ← lift (core.num.U32.to_be_bytes i5)
-  let s3 ← lift (Array.to_slice a1)
+  let a ← lift (core.num.U32.to_be_bytes i5)
+  let s3 ← lift (Array.to_slice a)
   let s4 ← core.slice.Slice.copy_from_slice core.marker.CopyU8 s2 s3
-  let a2 := index_mut_back s4
-  let block2 := deref_mut_back a2
-  let (a3, deref_mut_back1) ←
-    Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut block2
+  let block2 := index_mut_back s4
   let (s5, index_mut_back1) ←
     core.array.Array.index_mut (core.ops.index.IndexMutSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a3
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) block2
       { start := 4#usize, «end» := 8#usize }
-  let a4 ← lift (core.num.U32.to_be_bytes i4)
-  let s6 ← lift (Array.to_slice a4)
+  let a1 ← lift (core.num.U32.to_be_bytes i4)
+  let s6 ← lift (Array.to_slice a1)
   let s7 ← core.slice.Slice.copy_from_slice core.marker.CopyU8 s5 s6
-  let a5 := index_mut_back1 s7
-  let block3 := deref_mut_back1 a5
+  let block3 := index_mut_back1 s7
   let io := get_out_back block3
   ok { block with output := (get_out_back1 io).output }
 
 /-- [magma_tc26_slice::encrypt_with_words]:
-    Source: 'src/lib.rs', lines 149:0-161:1
+    Source: 'src/lib.rs', lines 103:0-115:1
     Visibility: public -/
 def encrypt_with_words
   (key : Array Std.U32 8#usize) (plain : Array Std.U8 8#usize) :
   Result (Array Std.U8 8#usize)
   := do
-  let input ← Block.new (Gost89 sboxes.Tc26) plain
-  let a := Array.repeat 8#usize 0#u8
-  let output ← Block.new (Gost89 sboxes.Tc26) a
+  let output := Array.repeat 8#usize 0#u8
   let io ←
-    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block
-      { key, _p := () } { input, output }
-  ok io.output.bytes
+    Gost89Tc26.encrypt_block { key, _p := () } { input := plain, output }
+  ok io.output
 
 /-- [magma_tc26_slice::decrypt_with_words]:
-    Source: 'src/lib.rs', lines 162:0-174:1
+    Source: 'src/lib.rs', lines 116:0-128:1
     Visibility: public -/
 def decrypt_with_words
   (key : Array Std.U32 8#usize) (encrypted : Array Std.U8 8#usize) :
   Result (Array Std.U8 8#usize)
   := do
-  let input ← Block.new (Gost89 sboxes.Tc26) encrypted
-  let a := Array.repeat 8#usize 0#u8
-  let output ← Block.new (Gost89 sboxes.Tc26) a
+  let output := Array.repeat 8#usize 0#u8
   let io ←
-    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block
-      { key, _p := () } { input, output }
-  ok io.output.bytes
+    Gost89Tc26.decrypt_block { key, _p := () } { input := encrypted, output }
+  ok io.output
 
 end RustCryptoTc26

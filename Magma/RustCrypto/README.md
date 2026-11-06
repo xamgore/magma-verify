@@ -1,19 +1,16 @@
 # RustCrypto generated Lean
 
-`Code/` contains the Aeneas translation of the original RustCrypto S-box
-functions. `Tc26/` contains the generated Lean translation of the
-checked-in verification Rust crate `rust/tc26/src/lib.rs`.
+`Code/` is Aeneas output from the original RustCrypto S-boxes.
+`Tc26/` is Aeneas output from `rust/tc26/src/lib.rs`.
 
-The encryption and decryption method bodies retain their original nested
-`for` loops, `.rev()`, subkey indexing and Feistel expressions.
-Aeneas translates them into explicit Lean loop definitions.
+The specialized `encrypt_block` and `decrypt_block` retain the original
+nested `for` loops and `.rev()`, all subkey accesses, and Feistel steps.
+Aeneas translates them into Lean loop definitions.
 
-Only Tc26 specialization and copying the input from the simplified
-`InOut` adapter are permitted changes to the method bodies. The script
-`scripts/check-tc26-source.py` checks them against original RustCrypto.
+The only verification-side I/O shim lives in `rust/tc26/src/adapter.rs`;
+it uses plain eight-byte arrays with input/output borrows, not a copied
+implementation of `cipher`'s traits and `Block` type. The source checker
+ensures the round algorithms still match the original RustCrypto.
 
-Run `./scripts/build.sh` to regenerate Lean. Do not edit the generated
-Lean files manually.
-
-The simplified adapter is covered by Rust tests against the unmodified
-upstream implementation; formal adapter equivalence is still to be proved.
+Run `./scripts/build.sh` to regenerate and compile Lean. Do not edit
+generated files manually. Formal adapter equivalence is still open.
