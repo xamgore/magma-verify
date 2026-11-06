@@ -28,7 +28,10 @@ tests, generates Lean using Charon/Aeneas, and runs `lake build` and
 - `Magma/RustCrypto/Code/` — generated model of upstream S-boxes.
 - `Magma/RustCrypto/Tc26/` — generated model of the Tc26 methods,
   **with loops intact**.
-- `Magma/Verification.lean` — imports the RFC and generated models.
+- `Magma/RustCrypto/Correctness.lean` — table and arithmetic proofs.
+- `Magma/RustCrypto/Rounds.lean` — encryption and decryption inner-loop steps
+  correspond to RFC Feistel rounds, under explicit iterator/key/S-box premises.
+- `Magma/Verification.lean` — imports the RFC, models, and proofs.
 
 ```sh
 ./scripts/setup-rustcrypto.sh
@@ -56,8 +59,20 @@ in method signatures (`Block<Self>` to `[u8; 8]`), input copying, and
 `S::g` specialization — **not in the cryptographic rounds**.
 
 Rust tests compare 256 deterministic inputs and a known RFC vector against
-unmodified RustCrypto. The generated Lean code type-checks, but **formal
-equivalence of the adapter and correctness against RFC 8891 are still open**.
+unmodified RustCrypto. In Lean, `Magma/RustCrypto/Correctness.lean` now proves:
+all 128 Tc26 S-box entries match RFC 8891, Rust's 32-bit wrapping addition
+and left rotation agree with the RFC operations, and the Aeneas model of the
+adapter's input read satisfies its contract (using `step*`). It also proves
+that RustCrypto's `g` agrees with RFC `g` **conditional on** the still-open
+proof that the generated `apply_sbox` loop implements RFC `t`.
+The generated **inner Feistel loop-body steps**, including both forward
+and reverse decryption loops, are also proved equal to `Magma.G` when the
+iterator, key lookup, and S-box premises are satisfied.
+
+**Open:** executable S-box loop correctness, all round-loop/key-schedule
+correctness, original `cipher` adapter equivalence, and the final theorem
+`RustCryptoTc26.encrypt_with_words = Magma.encrypt` (with representations
+converted). No theorem claiming full cipher correctness has been proved.
 
 For other architectures, select a compatible binary archive from
 [Aeneas releases](https://github.com/AeneasVerif/aeneas/releases) and set

@@ -12,5 +12,15 @@ it uses plain eight-byte arrays with input/output borrows, not a copied
 implementation of `cipher`'s traits and `Block` type. The source checker
 ensures the round algorithms still match the original RustCrypto.
 
+`Correctness.lean` proves equality of all 128 original Tc26 table entries
+with the RFC, the 32-bit arithmetic bridge, and the generated adapter's
+input-read contract using Aeneas's `step*` tactic. The `g` correspondence
+lemma explicitly assumes the unproved executable S-box loop specification.
+`Rounds.lean` proves that generated encryption and decryption inner-loop
+steps (including reverse traversal) compute exactly `Magma.G`, conditional
+on the explicit iterator, key lookup, and substitution hypotheses. The full
+iteration invariants are not yet proved.
+
 Run `./scripts/build.sh` to regenerate and compile Lean. Do not edit
-generated files manually. Formal adapter equivalence is still open.
+generated files manually. Formal cipher adapter and full encryption
+correctness remain open.

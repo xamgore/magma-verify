@@ -2,16 +2,18 @@ module
 
 public import Magma.RFC8891
 public import Magma.RustCrypto
+public import Magma.RustCrypto.Rounds
 
 @[expose] public section
 
 /-!
-# RFC 8891 and unmodified RustCrypto
+# RFC 8891 and RustCrypto Tc26
 
-The RFC specification, original S-box model, and Tc26-specialized
-model of the original encrypt/decrypt method bodies are available together.
-The specialized bodies preserve the original RustCrypto loops and use a
-simplified InOut<[u8; 8]> adapter: equivalence with upstream RustCrypto is NOT proved.
+S-box table and 32-bit arithmetic bridges are proved in
+`Magma.RustCrypto.Correctness`. The first generated Feistel loop-body step
+is related to `Magma.G` in `Magma.RustCrypto.Rounds`.
+Executable S-box loop correctness, all iterations of the key schedule,
+and full encryption/decryption equivalence remain open.
 -/
 
 namespace Magma.Verification
@@ -20,7 +22,11 @@ namespace Magma.Verification
 
 #check Magma.decrypt
 
-#check RustCrypto.sboxes.SboxExt.g.default
+#check Magma.RustCrypto.tc26_table_matches_rfc
+
+#check Magma.RustCrypto.tc26_g_if_substitution
+
+#check Magma.RustCrypto.encrypt_inner_step_rfc
 
 #check RustCryptoTc26.encrypt_with_words
 
