@@ -24,8 +24,16 @@ grep -q '::decrypt_block' "$pretty"
 PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::sboxes --dest-file="$ROOT/tools/magma-sboxes.llbc"
 "$BIN/aeneas" -backend lean "$ROOT/tools/magma-sboxes.llbc" -dest "$ROOT" -subdir /Magma/RustCrypto/Code -split-files -namespace RustCrypto
 
+# Extract the original method bodies, specialize to Tc26, and mechanically
+# expand their finite loops. No modifications to the upstream crate.
+python3 "$ROOT/scripts/extract-tc26.py" "$ROOT"
+cargo test --manifest-path "$ROOT/tools/tc26-source/Cargo.toml"
+cd "$ROOT/tools/tc26-source"
+PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::encrypt_with_words,crate::decrypt_with_words --dest-file="$ROOT/tools/magma-tc26.llbc"
+"$BIN/aeneas" -backend lean "$ROOT/tools/magma-tc26.llbc" -dest "$ROOT" -subdir /Magma/RustCrypto/Tc26 -namespace RustCryptoTc26 -split-files
+
 cd "$ROOT"
 lake build
 lake lint
-echo "Verified the original RustCrypto source and generated the S-box Lean model."
-echo "Full encryption/decryption methods remain in tools/magma-full.llbc."
+echo "Built the original S-box model and the Tc26-specialized original method bodies."
+echo "Note: the Tc26 adapter and mechanical loop expansion are not yet formally proved equivalent."

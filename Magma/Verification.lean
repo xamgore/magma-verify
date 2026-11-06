@@ -8,10 +8,10 @@ public import Magma.RustCrypto
 /-!
 # RFC 8891 and unmodified RustCrypto
 
-The RFC specification and Aeneas's model of the original RustCrypto S-box
-computations are available together. The original encryption/decryption
-methods are extracted into full LLBC but not yet translated into Lean.
-No equivalence theorem is claimed.
+The RFC specification, original S-box model, and Tc26-specialized
+model of the original encrypt/decrypt method bodies are available together.
+The specialized bodies are mechanically unrolled and use a simplified
+Block/InOut adapter: equivalence with upstream RustCrypto is NOT proved.
 -/
 
 namespace Magma.Verification
@@ -21,5 +21,9 @@ namespace Magma.Verification
 #check Magma.decrypt
 
 #check RustCrypto.sboxes.SboxExt.g.default
+
+#check RustCryptoTc26.encrypt_with_words
+
+#check RustCryptoTc26.decrypt_with_words
 
 end Magma.Verification

@@ -1,7 +1,15 @@
-# RustCrypto Magma — generated Lean
+# RustCrypto models
 
-Aeneas generates `Code/Types.lean` and `Code/Funs.lean` directly from the original RustCrypto Magma S-box source. Do not edit these files manually.
+`Code/` contains the direct Aeneas translation of the original S-box
+functions. `Tc26/` contains generated Lean for original
+`encrypt_block`/`decrypt_block` bodies, mechanically specialized to
+Tc26 and expanded to 32 explicit rounds.
 
-Run `./scripts/build.sh` from the repository root. The output belongs to the root Lake library `Magma`; there is no second Lake project.
+Run `./scripts/build.sh` at the repository root to regenerate both.
+Do not edit the generated Lean files.
 
-Charon also extracts the original `encrypt_block` and `decrypt_block` methods to `tools/magma-full.llbc`. Their full Aeneas translation remains blocked by the external `cipher` / `hybrid-array` type graph. This does **not** constitute a correctness proof.
+The full original method signatures are preserved in
+`tools/magma-full.llbc`. The Tc26 extraction uses a simplified
+`Block`/`InOut` adapter. Rust tests compare it against the actual
+RustCrypto implementation, but the adapter and loop expansion still
+require formal justification.
