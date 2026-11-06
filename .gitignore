@@ -1,0 +1,8 @@
+.DS_Store
+.idea/
+.lake/
+tools/
+*.log
+rust/magma/target/
+rust/magma/*.llbc
+Generated/.lake/
