@@ -4,6 +4,5 @@
 .lean-fmt-cache/
 tools/
 *.log
-rust/magma/target/
-rust/magma/*.llbc
+/rust/magma/
 Generated/.lake/

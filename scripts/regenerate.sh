@@ -4,25 +4,31 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/tools/aeneas"
 CRATE="$ROOT/rust/magma"
 OUTPUT="$ROOT/Generated"
+"$ROOT/scripts/setup-rustcrypto.sh"
 "$ROOT/scripts/setup-tools.sh"
 "$ROOT/scripts/prepare-aeneas-backend.sh"
-if [[ ! -x "$BIN/charon" || ! -x "$BIN/aeneas" ]]; then
-  echo "Missing Aeneas release binaries in $BIN" >&2
-  exit 1
-fi
+
 cd "$CRATE"
-# Cargo snapshot has a missing bench file, so check sources with rustfmt directly.
-rustfmt --edition 2024 --check src/lib.rs src/sboxes.rs src/rounds.rs
-# Exercise both the extracted core and the production cipher API.
+cargo fmt --all --check
 cargo test --locked
+
+# Keep the original RustCrypto encryption/decryption methods in the complete
+# LLBC model. Aeneas cannot yet translate the cipher/hybrid-array trait graph.
 PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas \
-  --start-from=crate::rounds,crate::sboxes --dest-file="$CRATE/magma-core.llbc"
-"$BIN/aeneas" -backend lean "$CRATE/magma-core.llbc" \
-  -dest "$OUTPUT" -subdir /RustCrypto/Code \
-  -split-files -namespace RustCrypto
+  --dest-file="$ROOT/tools/magma-full.llbc"
+"$BIN/charon" pretty-print "$ROOT/tools/magma-full.llbc" \
+  > "$ROOT/tools/magma-full.pretty.txt"
+grep -q '::encrypt_block' "$ROOT/tools/magma-full.pretty.txt"
+grep -q '::decrypt_block' "$ROOT/tools/magma-full.pretty.txt"
+
+# Translate only real code from the original crate, without rewriting it.
+PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas \
+  --start-from=crate::sboxes --dest-file="$ROOT/tools/magma-sboxes.llbc"
+"$BIN/aeneas" -backend lean "$ROOT/tools/magma-sboxes.llbc" \
+  -dest "$OUTPUT" -subdir /RustCrypto/Code -split-files -namespace RustCrypto
+
 cd "$ROOT"
-# Check the generated model, the RFC spec, and the shared bridge.
 lake build
-# Generated/** is excluded from formatting; manually edited Lean is not.
 lake lint
-echo "Regenerated and checked RFC 8891 + RustCrypto core under Lean 4.36.0-rc2"
+echo "Verified unchanged RustCrypto source and generated original S-box model."
+echo "Full original encrypt/decrypt methods are preserved in magma-full.llbc; Lean translation remains open."

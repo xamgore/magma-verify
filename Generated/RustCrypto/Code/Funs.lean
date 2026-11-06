@@ -21,102 +21,6 @@ set_option maxRecDepth 2048
 
 namespace RustCrypto
 
-/-- [magma::rounds::split_block]:
-    Source: 'src/rounds.rs', lines 7:0-12:1 -/
-def rounds.split_block
-  (block : Array Std.U8 8#usize) : Result (Std.U32 × Std.U32) := do
-  let i ← Array.index_usize block 0#usize
-  let i1 ← Array.index_usize block 1#usize
-  let i2 ← Array.index_usize block 2#usize
-  let i3 ← Array.index_usize block 3#usize
-  let i4 ←
-    lift (core.num.U32.from_be_bytes (Array.make 4#usize [ i, i1, i2, i3 ]))
-  let i5 ← Array.index_usize block 4#usize
-  let i6 ← Array.index_usize block 5#usize
-  let i7 ← Array.index_usize block 6#usize
-  let i8 ← Array.index_usize block 7#usize
-  let i9 ←
-    lift (core.num.U32.from_be_bytes (Array.make 4#usize [ i5, i6, i7, i8 ]))
-  ok (i4, i9)
-
-/-- [magma::rounds::join_block]:
-    Source: 'src/rounds.rs', lines 15:0-19:1 -/
-def rounds.join_block
-  (v : (Std.U32 × Std.U32)) : Result (Array Std.U8 8#usize) := do
-  let (i, i1) := v
-  let a ← lift (core.num.U32.to_be_bytes i1)
-  let b ← lift (core.num.U32.to_be_bytes i)
-  let i2 ← Array.index_usize a 0#usize
-  let i3 ← Array.index_usize a 1#usize
-  let i4 ← Array.index_usize a 2#usize
-  let i5 ← Array.index_usize a 3#usize
-  let i6 ← Array.index_usize b 0#usize
-  let i7 ← Array.index_usize b 1#usize
-  let i8 ← Array.index_usize b 2#usize
-  let i9 ← Array.index_usize b 3#usize
-  ok (Array.make 8#usize [ i2, i3, i4, i5, i6, i7, i8, i9 ])
-
-/-- [magma::sboxes::SboxExt::g]:
-    Source: 'src/sboxes.rs', lines 52:4-54:5 -/
-@[trait_default]
-def sboxes.SboxExt.g.default
-  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32)
-  (k : Std.U32) :
-  Result Std.U32
-  := do
-  let i ← lift (core.num.U32.wrapping_add a k)
-  let i1 ← SboxExtInst.apply_sbox i
-  ok (core.num.U32.rotate_left i1 11#u32)
-
-/-- [magma::sboxes::SboxExt::apply_sbox]: loop body 0:
-    Source: 'src/sboxes.rs', lines 43:8-47:9 -/
-@[rust_loop_body, trait_default]
-def sboxes.SboxExt.apply_sbox.default_loop.body
-  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32)
-  (iter : core.ops.range.Range Std.Usize) (v : Std.U32) :
-  Result (ControlFlow ((core.ops.range.Range Std.Usize) × Std.U32) Std.U32)
-  := do
-  let (o, iter1) ←
-    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
-  match o with
-  | none => ok (done v)
-  | some i =>
-    let shift ← 8#usize * i
-    let i1 ← 255#u32 <<< shift
-    let i2 ← lift (a &&& i1)
-    let i3 ← i2 >>> shift
-    let k ← lift (UScalar.cast .Usize i3)
-    let a1 ← SboxExtInst.EXP_SBOX
-    let a2 ← Array.index_usize a1 i
-    let i4 ← Array.index_usize a2 k
-    let i5 ← lift (UScalar.cast .U32 i4)
-    let i6 ← i5 <<< shift
-    let v1 ← v + i6
-    ok (cont (iter1, v1))
-
-/-- [magma::sboxes::SboxExt::apply_sbox]: loop 0:
-    Source: 'src/sboxes.rs', lines 43:8-47:9 -/
-@[rust_loop, trait_default]
-def sboxes.SboxExt.apply_sbox.default_loop
-  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self)
-  (iter : core.ops.range.Range Std.Usize) (a : Std.U32) (v : Std.U32) :
-  Result Std.U32
-  := do
-  loop
-    (fun (iter1, v1) => sboxes.SboxExt.apply_sbox.default_loop.body SboxExtInst
-      a iter1 v1)
-    (iter, v)
-
-/-- [magma::sboxes::SboxExt::apply_sbox]:
-    Source: 'src/sboxes.rs', lines 41:4-49:5 -/
-@[reducible, trait_default]
-def sboxes.SboxExt.apply_sbox.default
-  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32) :
-  Result Std.U32
-  := do
-  sboxes.SboxExt.apply_sbox.default_loop SboxExtInst
-    { start := 0#usize, «end» := 4#usize } a 0#u32
-
 /-- [magma::sboxes::gen_exp_sbox]: loop body 2:
     Source: 'src/sboxes.rs', lines 13:12-18:13 -/
 @[rust_loop_body]
@@ -235,6 +139,67 @@ def sboxes.SboxExt.EXP_SBOX.default {Self : Type _} (SboxExtInst :
   let a ← SboxExtInst.SboxInst.SBOX
   sboxes.gen_exp_sbox a
 
+/-- [magma::sboxes::SboxExt::apply_sbox]: loop body 0:
+    Source: 'src/sboxes.rs', lines 43:8-47:9 -/
+@[rust_loop_body, trait_default]
+def sboxes.SboxExt.apply_sbox.default_loop.body
+  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32)
+  (iter : core.ops.range.Range Std.Usize) (v : Std.U32) :
+  Result (ControlFlow ((core.ops.range.Range Std.Usize) × Std.U32) Std.U32)
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
+  match o with
+  | none => ok (done v)
+  | some i =>
+    let shift ← 8#usize * i
+    let i1 ← 255#u32 <<< shift
+    let i2 ← lift (a &&& i1)
+    let i3 ← i2 >>> shift
+    let k ← lift (UScalar.cast .Usize i3)
+    let a1 ← SboxExtInst.EXP_SBOX
+    let a2 ← Array.index_usize a1 i
+    let i4 ← Array.index_usize a2 k
+    let i5 ← lift (UScalar.cast .U32 i4)
+    let i6 ← i5 <<< shift
+    let v1 ← v + i6
+    ok (cont (iter1, v1))
+
+/-- [magma::sboxes::SboxExt::apply_sbox]: loop 0:
+    Source: 'src/sboxes.rs', lines 43:8-47:9 -/
+@[rust_loop, trait_default]
+def sboxes.SboxExt.apply_sbox.default_loop
+  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self)
+  (iter : core.ops.range.Range Std.Usize) (a : Std.U32) (v : Std.U32) :
+  Result Std.U32
+  := do
+  loop
+    (fun (iter1, v1) => sboxes.SboxExt.apply_sbox.default_loop.body SboxExtInst
+      a iter1 v1)
+    (iter, v)
+
+/-- [magma::sboxes::SboxExt::apply_sbox]:
+    Source: 'src/sboxes.rs', lines 41:4-49:5 -/
+@[reducible, trait_default]
+def sboxes.SboxExt.apply_sbox.default
+  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32) :
+  Result Std.U32
+  := do
+  sboxes.SboxExt.apply_sbox.default_loop SboxExtInst
+    { start := 0#usize, «end» := 4#usize } a 0#u32
+
+/-- [magma::sboxes::SboxExt::g]:
+    Source: 'src/sboxes.rs', lines 52:4-54:5 -/
+@[trait_default]
+def sboxes.SboxExt.g.default
+  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32)
+  (k : Std.U32) :
+  Result Std.U32
+  := do
+  let i ← lift (core.num.U32.wrapping_add a k)
+  let i1 ← SboxExtInst.apply_sbox i
+  ok (core.num.U32.rotate_left i1 11#u32)
+
 /-- Trait implementation: [magma::sboxes::{impl magma::sboxes::SboxExt for T}]
     Source: 'src/sboxes.rs', lines 57:0-57:30 -/
 @[reducible]
@@ -247,83 +212,6 @@ impl_def sboxes.SboxExt.Blanket {T : Type _} (SboxInst1 : sboxes.Sbox T) :
     SboxInst1)
   g := sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket SboxInst1)
 }
-
-/-- [magma::rounds::encrypt_schedule]:
-    Source: 'src/rounds.rs', lines 22:0-33:1 -/
-def rounds.encrypt_schedule
-  {S : Type _} (sboxesSboxInst : sboxes.Sbox S) (key : Array Std.U32 8#usize)
-  (v : (Std.U32 × Std.U32)) (round : Std.U32) :
-  Result (Std.U32 × Std.U32)
-  := do
-  if round = 32#u32
-  then ok v
-  else
-    let key_index ←
-      if round < 24#u32
-      then do
-           let i ← round % 8#u32
-           ok (UScalar.cast .Usize i)
-      else do
-           let i ← 31#u32 - round
-           ok (UScalar.cast .Usize i)
-    let (i, i1) := v
-    let i2 ← Array.index_usize key key_index
-    let i3 ←
-      sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket sboxesSboxInst) i1 i2
-    let i4 ← lift (i ^^^ i3)
-    let i5 ← round + 1#u32
-    rounds.encrypt_schedule sboxesSboxInst key (i1, i4) i5
-partial_fixpoint
-
-/-- [magma::rounds::decrypt_schedule]:
-    Source: 'src/rounds.rs', lines 36:0-47:1 -/
-def rounds.decrypt_schedule
-  {S : Type _} (sboxesSboxInst : sboxes.Sbox S) (key : Array Std.U32 8#usize)
-  (v : (Std.U32 × Std.U32)) (round : Std.U32) :
-  Result (Std.U32 × Std.U32)
-  := do
-  if round = 32#u32
-  then ok v
-  else
-    let key_index ←
-      if round < 8#u32
-      then ok (UScalar.cast .Usize round)
-      else
-        do
-        let i ← round - 8#u32
-        let i1 ← i % 8#u32
-        let i2 ← 7#u32 - i1
-        ok (UScalar.cast .Usize i2)
-    let (i, i1) := v
-    let i2 ← Array.index_usize key key_index
-    let i3 ←
-      sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket sboxesSboxInst) i1 i2
-    let i4 ← lift (i ^^^ i3)
-    let i5 ← round + 1#u32
-    rounds.decrypt_schedule sboxesSboxInst key (i1, i4) i5
-partial_fixpoint
-
-/-- [magma::rounds::encrypt_block_core]:
-    Source: 'src/rounds.rs', lines 50:0-52:1 -/
-def rounds.encrypt_block_core
-  {S : Type _} (sboxesSboxInst : sboxes.Sbox S) (key : Array Std.U32 8#usize)
-  (block : Array Std.U8 8#usize) :
-  Result (Array Std.U8 8#usize)
-  := do
-  let p ← rounds.split_block block
-  let p1 ← rounds.encrypt_schedule sboxesSboxInst key p 0#u32
-  rounds.join_block p1
-
-/-- [magma::rounds::decrypt_block_core]:
-    Source: 'src/rounds.rs', lines 55:0-57:1 -/
-def rounds.decrypt_block_core
-  {S : Type _} (sboxesSboxInst : sboxes.Sbox S) (key : Array Std.U32 8#usize)
-  (block : Array Std.U8 8#usize) :
-  Result (Array Std.U8 8#usize)
-  := do
-  let p ← rounds.split_block block
-  let p1 ← rounds.decrypt_schedule sboxesSboxInst key p 0#u32
-  rounds.join_block p1
 
 /-- [magma::sboxes::{impl magma::sboxes::Sbox for magma::sboxes::Tc26}::SBOX]
     Source: 'src/sboxes.rs', lines 63:4-72:6

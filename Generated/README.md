@@ -1,28 +1,12 @@
-# Generated RustCrypto model
+# Aeneas-generated original RustCrypto S-box model
 
-This directory contains **Aeneas output in the root Lean 4.36 project**.
-There is intentionally no nested Lake project, toolchain, or manifest.
+`RustCrypto/Code/{Types,Funs}.lean` is generated from the **unmodified**
+RustCrypto `magma 0.10.0` crate with `charon cargo --preset=aeneas
+--start-from=crate::sboxes` and Aeneas.
 
-Run from the repository root:
+Do not edit generated files. Run `../scripts/regenerate.sh` from this folder
+or `./scripts/regenerate.sh` from the root.
 
-```sh
-./scripts/regenerate.sh
-lake build
-```
-
-Charon extracts `crate::rounds` and `crate::sboxes` from the local
-RustCrypto Magma verification fork using `--preset=aeneas`. Aeneas
-translates their LLBC into `RustCrypto/Code/Types.lean` and `Funs.lean`.
-The script then runs root `lake build` and `lake lint`, including the
-`Magma/Verification.lean` import bridge between the generated model and RFC 8891.
-
-Unlike an independent hand-written model, `encrypt_block_core` and
-`decrypt_block_core` are called by production RustCrypto cipher adapters.
-
-**Limitations:** the `cipher::InOut` adapters themselves have not been
-translated, and recursive round schedules use Lean `partial_fixpoint`
-until termination is formally established. No equivalence theorem
-against `Magma/RFC8891.lean` has been proved yet.
-
-Do not hand-format or edit generated Lean files: edit the Rust source,
-then regenerate. The project's `lean-fmt.toml` excludes this directory.
+The original `encrypt_block` / `decrypt_block` Rust methods are preserved
+in `../tools/magma-full.llbc`, but they have **not** been translated
+into Lean. No functional correctness theorem has been proved yet.
