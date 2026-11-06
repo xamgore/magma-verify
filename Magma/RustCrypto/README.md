@@ -39,3 +39,9 @@ succeeds on four-byte slices and matches big-endian BitVec conversion.
 `encrypt_block` and no panics or buffer errors, conditional on `Tc26::g`.
 The specialized Rust source still needs separate equivalence justification
 with the upstream trait dispatch and external adapter.
+
+`Equivalence.lean` now proves byte-level `encrypt_with_words`
+refinement to the RFC 8891 cipher for all keys/blocks, **assuming** the
+generated `Tc26::g` implementation agrees with RFC `g`. The `native_decide`
+shortcut was rejected because it introduces a separate native evaluator
+trust axiom. The expanded S-box and substitution loops still need induction.
