@@ -1,50 +1,32 @@
-# Magma / RustCrypto verification workspace
+# Magma verification
 
-The target of verification is the **unmodified** RustCrypto `magma 0.10.0`
-crate. Its published source is restored by `scripts/setup-rustcrypto.sh`,
-not committed or patched in this repository.
+Lean 4.36.0-rc2 project for checking the **unmodified** RustCrypto Magma implementation against `Magma/RFC8891.lean`.
 
-## Reproduce
+## Build
 
 ```sh
-cd ~/Documents/magma-verify
-./scripts/regenerate.sh
+./scripts/build.sh
 ```
 
-The script:
-- fetches `magma-0.10.0.crate` from the local Cargo cache or crates.io,
-  verifies SHA-256 `84fcdd6a71a6af65297be074d9d26cda7a2e98b86294ee0de0732b00c2063a61`,
-  and refuses to use a modified source tree;
-- checks original Rust code using `cargo fmt --all --check` and `cargo test --locked`;
-- runs Charon with `--preset=aeneas` over the **entire original crate**,
-  saving `tools/magma-full.llbc` (with the real `encrypt_block` and
-  `decrypt_block` implementations);
-- separately extracts `crate::sboxes` and generates Lean from it in
-  `Generated/RustCrypto/Code/{Types,Funs}.lean`;
-- builds the root Lean 4.36.0-rc2 Lake project and checks formatting.
+The build installs the pinned Aeneas/Charon release, restores RustCrypto `magma 0.10.0` from a SHA-256-verified published archive, runs Rust formatting and tests, extracts LLBC, generates Lean for the original S-box computations, and runs `lake build` and `lake lint`.
 
-`Magma/RFC8891.lean` remains a byte-identical copy from `~/Documents/magma`.
-`Magma/Verification.lean` imports that specification and the generated S-box
-model in the same Lean environment.
+`rust/magma/` is a **managed, ignored extraction**: each build replaces its contents with the verified release. Do not keep local edits there. The source archive is reused from Cargo's cache when available; downloads and extraction temporaries are deleted automatically. Build artifacts are kept in ignored `tools/`.
 
-## Scope / open issue
+## Layout
 
-Aeneas currently **does not** translate the original `encrypt_block` and
-`decrypt_block` trait methods: the full `cipher`/`hybrid-array` dependency
-graph triggers an internal error. The complete original functions *are* in
-`magma-full.llbc`; that is not yet a verified Lean model.
+- `Magma/RFC8891.lean` — unchanged formal specification.
+- `Magma/RustCrypto/Code/` — generated Aeneas Lean source.
+- `Magma/RustCrypto/README.md` — generated code and verification boundary.
+- `Magma/Verification.lean` — imports the RFC and generated model.
+- `scripts/setup-rustcrypto.sh` — restore the exact RustCrypto source.
+- `scripts/setup-tools.sh` — install a compatible Aeneas/Charon release.
+- `scripts/patch_aeneas_backend.py` — idempotent Lean 4.36 compatibility patches.
+- `scripts/build.sh` — complete reproducible build.
 
-Do not substitute a separately written round-core implementation.
-The previous `rounds.rs` and its recursive replacement have been removed.
-There is no claim of RFC functional equivalence yet.
+For Linux or other platforms, select a suitable binary archive from [Aeneas releases](https://github.com/AeneasVerif/aeneas/releases), and configure `AENEAS_ARCHIVE_URL` and `AENEAS_ARCHIVE_SHA256` before running `build.sh`. The macOS ARM64 release is preconfigured. See `scripts/setup-tools.sh`.
 
-## Toolchain / formatting
+## Verification status
 
-Aeneas `nightly-2026.11.06-4acbb6d` for macOS arm64 bundles Charon
-`0.1.312` (commit `6cc2b5f80b7edc2383cba3dab1f1e3b4059aebe2`).
-`scripts/setup-tools.sh` downloads and verifies the archive if missing.
-`scripts/prepare-aeneas-backend.sh` adapts the Aeneas Lean backend to
-Lean/Mathlib `4.36.0-rc2`.
+The original `encrypt_block` and `decrypt_block` implementations are present in `tools/magma-full.llbc`, but Aeneas cannot yet translate their `cipher` / `hybrid-array` dependency graph. The original S-box code is translated and type-checked. **No functional-equivalence theorem has been proved.** We do not replace RustCrypto's encryption code with a verification-specific implementation.
 
-Formatting matches `~/Documents/magma` (pinned `lean-fmt`, 100 columns,
-`lake lint`). Generated Lean is deliberately excluded from formatting.
+The root project's `lean-fmt` configuration matches `~/Documents/magma`, excluding generated Lean files from reformatting.

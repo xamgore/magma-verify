@@ -1,6 +1,6 @@
 name = "magma_verify"
 version = "0.1.0"
-defaultTargets = ["Magma", "RustCrypto"]
+defaultTargets = ["Magma"]
 lintDriver = "fmt"
 lintDriverArgs = ["format", "--check", "--workers", "2"]
 
@@ -25,10 +25,6 @@ rev = "4ed3cda34c63e71d57b001dd15b814c9920f7b65"
 
 [[lean_lib]]
 name = "Magma"
-
-[[lean_lib]]
-name = "RustCrypto"
-srcDir = "Generated"
 
 [[lean_exe]]
 name = "fmt"

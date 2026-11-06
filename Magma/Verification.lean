@@ -1,16 +1,16 @@
 module
 
 public import Magma.RFC8891
-public import RustCrypto.Code.Funs
+public import Magma.RustCrypto
 
 @[expose] public section
 
 /-!
 # RFC 8891 and unmodified RustCrypto
 
-This module brings the RFC specification together with Aeneas's model
-of RustCrypto's original S-box computations. The original encrypt/decrypt
-methods are present in the full Charon LLBC, not yet translated to Lean.
+The RFC specification and Aeneas's model of the original RustCrypto S-box
+computations are available together. The original encryption/decryption
+methods are extracted into full LLBC but not yet translated into Lean.
 No equivalence theorem is claimed.
 -/
 

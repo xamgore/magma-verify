@@ -1,6 +1,6 @@
-# Research iterations run only when explicitly selected.
+# Generated Lean belongs to Aeneas, not the formatter.
 exclude = [
-  "Generated/**",
+  "Magma/RustCrypto/Code/**",
 ]
 
 [format]

@@ -2,7 +2,7 @@
 -- [magma]: function definitions
 module
 public import Aeneas
-public import RustCrypto.Code.Types
+public import Magma.RustCrypto.Code.Types
 @[expose] public section
 open Aeneas Aeneas.Std Result ControlFlow Error
 set_option linter.dupNamespace false
