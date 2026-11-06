@@ -8,3 +8,5 @@ tools/
 
 __pycache__/
 *.pyc
+
+/rust/tc26/target/

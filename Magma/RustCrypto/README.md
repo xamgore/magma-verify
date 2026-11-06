@@ -1,15 +1,19 @@
-# RustCrypto models
+# RustCrypto generated Lean
 
-`Code/` contains the direct Aeneas translation of the original S-box
-functions. `Tc26/` contains generated Lean for original
-`encrypt_block`/`decrypt_block` bodies, mechanically specialized to
-Tc26 and expanded to 32 explicit rounds.
+`Code/` is Aeneas output from original RustCrypto S-box functions.
+`Tc26/` is Aeneas output from the checked-in verification Rust crate
+`rust/tc26/src/lib.rs`. It specializes the original `encrypt_block` and
+`decrypt_block` bodies to Tc26 and explicitly lists their 32 rounds.
 
-Run `./scripts/build.sh` at the repository root to regenerate both.
-Do not edit the generated Lean files.
+Review or edit the verification Rust code directly in an IDE. Build it with:
 
-The full original method signatures are preserved in
-`tools/magma-full.llbc`. The Tc26 extraction uses a simplified
-`Block`/`InOut` adapter. Rust tests compare it against the actual
-RustCrypto implementation, but the adapter and loop expansion still
-require formal justification.
+```sh
+cargo check --manifest-path rust/tc26/Cargo.toml --locked
+```
+
+Run `./scripts/build.sh` to regenerate Lean. Never edit generated files
+manually.
+
+The original trait methods remain in `tools/magma-full.llbc`. The
+verification-side adapter and loop expansion are tested against RustCrypto,
+but their equivalence is not formally proved.

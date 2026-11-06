@@ -27,45 +27,45 @@ namespace RustCryptoTc26
 @[reducible, rust_type "core::marker::PhantomData"]
 def core.marker.PhantomData (T : Type _) := Unit
 
-/-- [magma_tc26_slice::Block]
-    Source: 'src/lib.rs', lines 8:0-8:62
-    Visibility: public -/
-structure Block (T : Type _) where
-  bytes : Array Std.U8 8#usize
-  marker : core.marker.PhantomData T
-
-/-- [magma_tc26_slice::InOut]
-    Source: 'src/lib.rs', lines 19:0-19:63
-    Visibility: public -/
-structure InOut (T : Type _) where
-  input : T
-  output : T
-
-/-- [magma_tc26_slice::Gost89]
-    Source: 'src/lib.rs', lines 30:0-30:64
-    Visibility: public -/
-structure Gost89 (S : Type _) where
-  key : Array Std.U32 8#usize
-  _p : core.marker.PhantomData S
-
-/-- [magma_tc26_slice::sboxes::Tc26]
-    Source: 'src/sboxes.rs', lines 59:0-59:16
-    Visibility: public -/
-inductive sboxes.Tc26 where
-
 /-- Trait declaration: [magma_tc26_slice::sboxes::Sbox]
-    Source: 'src/sboxes.rs', lines 27:0-32:1
+    Source: 'src/../../magma/src/sboxes.rs', lines 27:0-32:1
     Visibility: public -/
 structure sboxes.Sbox (Self : Type _) where
   NAME : Result Str
   SBOX : Result (Array (Array Std.U8 16#usize) 8#usize)
 
 /-- Trait declaration: [magma_tc26_slice::sboxes::SboxExt]
-    Source: 'src/sboxes.rs', lines 36:0-55:1 -/
+    Source: 'src/../../magma/src/sboxes.rs', lines 36:0-55:1 -/
 structure sboxes.SboxExt (Self : Type _) where
   EXP_SBOX : Result (Array (Array Std.U8 256#usize) 4#usize)
   SboxInst : sboxes.Sbox Self
   apply_sbox : Std.U32 → Result Std.U32
   g : Std.U32 → Std.U32 → Result Std.U32
+
+/-- [magma_tc26_slice::sboxes::Tc26]
+    Source: 'src/../../magma/src/sboxes.rs', lines 59:0-59:16
+    Visibility: public -/
+inductive sboxes.Tc26 where
+
+/-- [magma_tc26_slice::Block]
+    Source: 'src/lib.rs', lines 36:0-39:1
+    Visibility: public -/
+structure Block (T : Type _) where
+  bytes : Array Std.U8 8#usize
+  marker : core.marker.PhantomData T
+
+/-- [magma_tc26_slice::InOut]
+    Source: 'src/lib.rs', lines 59:0-62:1
+    Visibility: public -/
+structure InOut (T : Type _) where
+  input : T
+  output : T
+
+/-- [magma_tc26_slice::Gost89]
+    Source: 'src/lib.rs', lines 77:0-80:1
+    Visibility: public -/
+structure Gost89 (S : Type _) where
+  key : Array Std.U32 8#usize
+  _p : core.marker.PhantomData S
 
 end RustCryptoTc26

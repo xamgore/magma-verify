@@ -21,49 +21,200 @@ set_option maxRecDepth 2048
 
 namespace RustCryptoTc26
 
-/-- [magma_tc26_slice::{magma_tc26_slice::Block<T>}::new]:
-    Source: 'src/lib.rs', lines 10:4-10:78
-    Visibility: public -/
-def Block.new
-  (T : Type _) (bytes : Array Std.U8 8#usize) : Result (Block T) := do
-  ok { bytes, marker := () }
-
-/-- [magma_tc26_slice::{impl core::ops::deref::Deref<[u8; 8usize]> for magma_tc26_slice::Block<T>}::deref]:
-    Source: 'src/lib.rs', lines 14:4-14:52
-    Visibility: public -/
-def Block.Insts.CoreOpsDerefDerefArrayU88.deref
-  {T : Type _} (self : Block T) : Result (Array Std.U8 8#usize) := do
-  ok self.bytes
-
-/-- [magma_tc26_slice::{impl core::ops::deref::DerefMut<[u8; 8usize]> for magma_tc26_slice::Block<T>}::deref_mut]:
-    Source: 'src/lib.rs', lines 17:4-17:68
-    Visibility: public -/
-def Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut
-  {T : Type _} (self : Block T) :
-  Result ((Array Std.U8 8#usize) × (Array Std.U8 8#usize → Block T))
+/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop body 2:
+    Source: 'src/../../magma/src/sboxes.rs', lines 13:12-18:13 -/
+@[rust_loop_body]
+def sboxes.gen_exp_sbox_loop0_loop0_loop0.body
+  (sbox : Array (Array Std.U8 16#usize) 8#usize) (i : Std.Usize)
+  (j : Std.Usize) (out : Array (Array Std.U8 256#usize) 4#usize)
+  (k : Std.Usize) :
+  Result (ControlFlow ((Array (Array Std.U8 256#usize) 4#usize) × Std.Usize)
+    (Array (Array Std.U8 256#usize) 4#usize))
   := do
-  let back := fun a => { self with bytes := a }
-  ok (self.bytes, back)
+  if k < 16#usize
+  then
+    let i1 ← 2#usize * i
+    let a ← Array.index_usize sbox i1
+    let i2 ← Array.index_usize a j
+    let i3 ← i1 + 1#usize
+    let a1 ← Array.index_usize sbox i3
+    let i4 ← Array.index_usize a1 k
+    let i5 ← i4 <<< 4#i32
+    let v ← i2 + i5
+    let i6 ← k <<< 4#i32
+    let c ← j + i6
+    let (a2, index_mut_back) ← Array.index_mut_usize out i
+    let a3 ← Array.update a2 c v
+    let k1 ← k + 1#usize
+    let a4 := index_mut_back a3
+    ok (cont (a4, k1))
+  else ok (done out)
 
-/-- [magma_tc26_slice::{magma_tc26_slice::InOut<'a, 'b, T>}::get_in]:
-    Source: 'src/lib.rs', lines 21:4-21:45
-    Visibility: public -/
-def InOut.get_in {T : Type _} (self : InOut T) : Result T := do
-  ok self.input
-
-/-- [magma_tc26_slice::{magma_tc26_slice::InOut<'a, 'b, T>}::get_out]:
-    Source: 'src/lib.rs', lines 22:4-22:55
-    Visibility: public -/
-def InOut.get_out
-  {T : Type _} (self : InOut T) :
-  Result (T × (T → InOut T) × (InOut T → InOut T))
+/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop 2:
+    Source: 'src/../../magma/src/sboxes.rs', lines 13:12-18:13 -/
+@[rust_loop]
+def sboxes.gen_exp_sbox_loop0_loop0_loop0
+  (sbox : Array (Array Std.U8 16#usize) 8#usize)
+  (out : Array (Array Std.U8 256#usize) 4#usize) (i : Std.Usize)
+  (j : Std.Usize) (k : Std.Usize) :
+  Result (Array (Array Std.U8 256#usize) 4#usize)
   := do
-  let back := fun t => { self with output := t }
-  let back'b := fun self1 => { self with output := self1.output }
-  ok (self.output, back, back'b)
+  loop
+    (fun (out1, k1) => sboxes.gen_exp_sbox_loop0_loop0_loop0.body sbox i j out1
+      k1)
+    (out, k)
+
+/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop body 1:
+    Source: 'src/../../magma/src/sboxes.rs', lines 11:8-20:9 -/
+@[rust_loop_body]
+def sboxes.gen_exp_sbox_loop0_loop0.body
+  (sbox : Array (Array Std.U8 16#usize) 8#usize) (i : Std.Usize)
+  (out : Array (Array Std.U8 256#usize) 4#usize) (j : Std.Usize) :
+  Result (ControlFlow ((Array (Array Std.U8 256#usize) 4#usize) × Std.Usize)
+    (Array (Array Std.U8 256#usize) 4#usize))
+  := do
+  if j < 16#usize
+  then
+    let out1 ← sboxes.gen_exp_sbox_loop0_loop0_loop0 sbox out i j 0#usize
+    let j1 ← j + 1#usize
+    ok (cont (out1, j1))
+  else ok (done out)
+
+/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop 1:
+    Source: 'src/../../magma/src/sboxes.rs', lines 11:8-20:9 -/
+@[rust_loop]
+def sboxes.gen_exp_sbox_loop0_loop0
+  (sbox : Array (Array Std.U8 16#usize) 8#usize)
+  (out : Array (Array Std.U8 256#usize) 4#usize) (i : Std.Usize)
+  (j : Std.Usize) :
+  Result (Array (Array Std.U8 256#usize) 4#usize)
+  := do
+  loop
+    (fun (out1, j1) => sboxes.gen_exp_sbox_loop0_loop0.body sbox i out1 j1)
+    (out, j)
+
+/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop body 0:
+    Source: 'src/../../magma/src/sboxes.rs', lines 9:4-22:5 -/
+@[rust_loop_body]
+def sboxes.gen_exp_sbox_loop0.body
+  (sbox : Array (Array Std.U8 16#usize) 8#usize)
+  (out : Array (Array Std.U8 256#usize) 4#usize) (i : Std.Usize) :
+  Result (ControlFlow ((Array (Array Std.U8 256#usize) 4#usize) × Std.Usize)
+    (Array (Array Std.U8 256#usize) 4#usize))
+  := do
+  if i < 4#usize
+  then
+    let out1 ← sboxes.gen_exp_sbox_loop0_loop0 sbox out i 0#usize
+    let i1 ← i + 1#usize
+    ok (cont (out1, i1))
+  else ok (done out)
+
+/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop 0:
+    Source: 'src/../../magma/src/sboxes.rs', lines 9:4-22:5 -/
+@[rust_loop]
+def sboxes.gen_exp_sbox_loop0
+  (sbox : Array (Array Std.U8 16#usize) 8#usize)
+  (out : Array (Array Std.U8 256#usize) 4#usize) (i : Std.Usize) :
+  Result (Array (Array Std.U8 256#usize) 4#usize)
+  := do
+  loop
+    (fun (out1, i1) => sboxes.gen_exp_sbox_loop0.body sbox out1 i1)
+    (out, i)
+
+/-- [magma_tc26_slice::sboxes::gen_exp_sbox]:
+    Source: 'src/../../magma/src/sboxes.rs', lines 6:0-24:1 -/
+def sboxes.gen_exp_sbox
+  (sbox : Array (Array Std.U8 16#usize) 8#usize) :
+  Result (Array (Array Std.U8 256#usize) 4#usize)
+  := do
+  let a := Array.repeat 256#usize 0#u8
+  let out := Array.repeat 4#usize a
+  sboxes.gen_exp_sbox_loop0 sbox out 0#usize
+
+/-- [magma_tc26_slice::sboxes::SboxExt::EXP_SBOX]
+    Source: 'src/../../magma/src/sboxes.rs', lines 38:4-38:56 -/
+@[global_simps, irreducible, trait_default]
+def sboxes.SboxExt.EXP_SBOX.default {Self : Type _} (SboxExtInst :
+  sboxes.SboxExt Self) : Result (Array (Array Std.U8 256#usize) 4#usize) := do
+  let a ← SboxExtInst.SboxInst.SBOX
+  sboxes.gen_exp_sbox a
+
+/-- [magma_tc26_slice::sboxes::SboxExt::apply_sbox]: loop body 0:
+    Source: 'src/../../magma/src/sboxes.rs', lines 43:8-47:9 -/
+@[rust_loop_body, trait_default]
+def sboxes.SboxExt.apply_sbox.default_loop.body
+  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32)
+  (iter : core.ops.range.Range Std.Usize) (v : Std.U32) :
+  Result (ControlFlow ((core.ops.range.Range Std.Usize) × Std.U32) Std.U32)
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
+  match o with
+  | none => ok (done v)
+  | some i =>
+    let shift ← 8#usize * i
+    let i1 ← 255#u32 <<< shift
+    let i2 ← lift (a &&& i1)
+    let i3 ← i2 >>> shift
+    let k ← lift (UScalar.cast .Usize i3)
+    let a1 ← SboxExtInst.EXP_SBOX
+    let a2 ← Array.index_usize a1 i
+    let i4 ← Array.index_usize a2 k
+    let i5 ← lift (UScalar.cast .U32 i4)
+    let i6 ← i5 <<< shift
+    let v1 ← v + i6
+    ok (cont (iter1, v1))
+
+/-- [magma_tc26_slice::sboxes::SboxExt::apply_sbox]: loop 0:
+    Source: 'src/../../magma/src/sboxes.rs', lines 43:8-47:9 -/
+@[rust_loop, trait_default]
+def sboxes.SboxExt.apply_sbox.default_loop
+  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self)
+  (iter : core.ops.range.Range Std.Usize) (a : Std.U32) (v : Std.U32) :
+  Result Std.U32
+  := do
+  loop
+    (fun (iter1, v1) => sboxes.SboxExt.apply_sbox.default_loop.body SboxExtInst
+      a iter1 v1)
+    (iter, v)
+
+/-- [magma_tc26_slice::sboxes::SboxExt::apply_sbox]:
+    Source: 'src/../../magma/src/sboxes.rs', lines 41:4-49:5 -/
+@[reducible, trait_default]
+def sboxes.SboxExt.apply_sbox.default
+  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32) :
+  Result Std.U32
+  := do
+  sboxes.SboxExt.apply_sbox.default_loop SboxExtInst
+    { start := 0#usize, «end» := 4#usize } a 0#u32
+
+/-- [magma_tc26_slice::sboxes::SboxExt::g]:
+    Source: 'src/../../magma/src/sboxes.rs', lines 52:4-54:5 -/
+@[trait_default]
+def sboxes.SboxExt.g.default
+  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32)
+  (k : Std.U32) :
+  Result Std.U32
+  := do
+  let i ← lift (core.num.U32.wrapping_add a k)
+  let i1 ← SboxExtInst.apply_sbox i
+  ok (core.num.U32.rotate_left i1 11#u32)
+
+/-- Trait implementation: [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::SboxExt for T}]
+    Source: 'src/../../magma/src/sboxes.rs', lines 57:0-57:30 -/
+@[reducible]
+impl_def sboxes.SboxExt.Blanket {T : Type _} (SboxInst1 : sboxes.Sbox T) :
+  sboxes.SboxExt T := {
+  EXP_SBOX := sboxes.SboxExt.EXP_SBOX.default (sboxes.SboxExt.Blanket
+    SboxInst1)
+  SboxInst := SboxInst1
+  apply_sbox := sboxes.SboxExt.apply_sbox.default (sboxes.SboxExt.Blanket
+    SboxInst1)
+  g := sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket SboxInst1)
+}
 
 /-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::Tc26}::SBOX]
-    Source: 'src/sboxes.rs', lines 63:4-72:6
+    Source: 'src/../../magma/src/sboxes.rs', lines 63:4-72:6
     Visibility: public -/
 @[global_simps, irreducible]
 def sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.SBOX
@@ -104,213 +255,62 @@ def sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.SBOX
     ]
 
 /-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::Tc26}::NAME]
-    Source: 'src/sboxes.rs', lines 62:4-62:38
+    Source: 'src/../../magma/src/sboxes.rs', lines 62:4-62:38
     Visibility: public -/
 @[global_simps, irreducible]
 def sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.NAME : Str := toStr "Tc26"
 
 /-- Trait implementation: [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::Tc26}]
-    Source: 'src/sboxes.rs', lines 61:0-73:1 -/
+    Source: 'src/../../magma/src/sboxes.rs', lines 61:0-73:1 -/
 @[reducible]
 def sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox : sboxes.Sbox sboxes.Tc26 := {
   NAME := ok sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.NAME
   SBOX := ok sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.SBOX
 }
 
-/-- [magma_tc26_slice::sboxes::SboxExt::g]:
-    Source: 'src/sboxes.rs', lines 52:4-54:5 -/
-@[trait_default]
-def sboxes.SboxExt.g.default
-  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32)
-  (k : Std.U32) :
-  Result Std.U32
+/-- [magma_tc26_slice::{magma_tc26_slice::Block<T>}::new]:
+    Source: 'src/lib.rs', lines 41:4-46:5
+    Visibility: public -/
+def Block.new
+  (T : Type _) (bytes : Array Std.U8 8#usize) : Result (Block T) := do
+  ok { bytes, marker := () }
+
+/-- [magma_tc26_slice::{impl core::ops::deref::Deref<[u8; 8usize]> for magma_tc26_slice::Block<T>}::deref]:
+    Source: 'src/lib.rs', lines 50:4-52:5
+    Visibility: public -/
+def Block.Insts.CoreOpsDerefDerefArrayU88.deref
+  {T : Type _} (self : Block T) : Result (Array Std.U8 8#usize) := do
+  ok self.bytes
+
+/-- [magma_tc26_slice::{impl core::ops::deref::DerefMut<[u8; 8usize]> for magma_tc26_slice::Block<T>}::deref_mut]:
+    Source: 'src/lib.rs', lines 55:4-57:5
+    Visibility: public -/
+def Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut
+  {T : Type _} (self : Block T) :
+  Result ((Array Std.U8 8#usize) × (Array Std.U8 8#usize → Block T))
   := do
-  let i ← lift (core.num.U32.wrapping_add a k)
-  let i1 ← SboxExtInst.apply_sbox i
-  ok (core.num.U32.rotate_left i1 11#u32)
+  let back := fun a => { self with bytes := a }
+  ok (self.bytes, back)
 
-/-- [magma_tc26_slice::sboxes::SboxExt::apply_sbox]: loop body 0:
-    Source: 'src/sboxes.rs', lines 43:8-47:9 -/
-@[rust_loop_body, trait_default]
-def sboxes.SboxExt.apply_sbox.default_loop.body
-  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32)
-  (iter : core.ops.range.Range Std.Usize) (v : Std.U32) :
-  Result (ControlFlow ((core.ops.range.Range Std.Usize) × Std.U32) Std.U32)
+/-- [magma_tc26_slice::{magma_tc26_slice::InOut<'a, 'b, T>}::get_in]:
+    Source: 'src/lib.rs', lines 64:4-66:5
+    Visibility: public -/
+def InOut.get_in {T : Type _} (self : InOut T) : Result T := do
+  ok self.input
+
+/-- [magma_tc26_slice::{magma_tc26_slice::InOut<'a, 'b, T>}::get_out]:
+    Source: 'src/lib.rs', lines 67:4-69:5
+    Visibility: public -/
+def InOut.get_out
+  {T : Type _} (self : InOut T) :
+  Result (T × (T → InOut T) × (InOut T → InOut T))
   := do
-  let (o, iter1) ←
-    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
-  match o with
-  | none => ok (done v)
-  | some i =>
-    let shift ← 8#usize * i
-    let i1 ← 255#u32 <<< shift
-    let i2 ← lift (a &&& i1)
-    let i3 ← i2 >>> shift
-    let k ← lift (UScalar.cast .Usize i3)
-    let a1 ← SboxExtInst.EXP_SBOX
-    let a2 ← Array.index_usize a1 i
-    let i4 ← Array.index_usize a2 k
-    let i5 ← lift (UScalar.cast .U32 i4)
-    let i6 ← i5 <<< shift
-    let v1 ← v + i6
-    ok (cont (iter1, v1))
-
-/-- [magma_tc26_slice::sboxes::SboxExt::apply_sbox]: loop 0:
-    Source: 'src/sboxes.rs', lines 43:8-47:9 -/
-@[rust_loop, trait_default]
-def sboxes.SboxExt.apply_sbox.default_loop
-  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self)
-  (iter : core.ops.range.Range Std.Usize) (a : Std.U32) (v : Std.U32) :
-  Result Std.U32
-  := do
-  loop
-    (fun (iter1, v1) => sboxes.SboxExt.apply_sbox.default_loop.body SboxExtInst
-      a iter1 v1)
-    (iter, v)
-
-/-- [magma_tc26_slice::sboxes::SboxExt::apply_sbox]:
-    Source: 'src/sboxes.rs', lines 41:4-49:5 -/
-@[reducible, trait_default]
-def sboxes.SboxExt.apply_sbox.default
-  {Self : Type _} (SboxExtInst : sboxes.SboxExt Self) (a : Std.U32) :
-  Result Std.U32
-  := do
-  sboxes.SboxExt.apply_sbox.default_loop SboxExtInst
-    { start := 0#usize, «end» := 4#usize } a 0#u32
-
-/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop body 2:
-    Source: 'src/sboxes.rs', lines 13:12-18:13 -/
-@[rust_loop_body]
-def sboxes.gen_exp_sbox_loop0_loop0_loop0.body
-  (sbox : Array (Array Std.U8 16#usize) 8#usize) (i : Std.Usize)
-  (j : Std.Usize) (out : Array (Array Std.U8 256#usize) 4#usize)
-  (k : Std.Usize) :
-  Result (ControlFlow ((Array (Array Std.U8 256#usize) 4#usize) × Std.Usize)
-    (Array (Array Std.U8 256#usize) 4#usize))
-  := do
-  if k < 16#usize
-  then
-    let i1 ← 2#usize * i
-    let a ← Array.index_usize sbox i1
-    let i2 ← Array.index_usize a j
-    let i3 ← i1 + 1#usize
-    let a1 ← Array.index_usize sbox i3
-    let i4 ← Array.index_usize a1 k
-    let i5 ← i4 <<< 4#i32
-    let v ← i2 + i5
-    let i6 ← k <<< 4#i32
-    let c ← j + i6
-    let (a2, index_mut_back) ← Array.index_mut_usize out i
-    let a3 ← Array.update a2 c v
-    let k1 ← k + 1#usize
-    let a4 := index_mut_back a3
-    ok (cont (a4, k1))
-  else ok (done out)
-
-/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop 2:
-    Source: 'src/sboxes.rs', lines 13:12-18:13 -/
-@[rust_loop]
-def sboxes.gen_exp_sbox_loop0_loop0_loop0
-  (sbox : Array (Array Std.U8 16#usize) 8#usize)
-  (out : Array (Array Std.U8 256#usize) 4#usize) (i : Std.Usize)
-  (j : Std.Usize) (k : Std.Usize) :
-  Result (Array (Array Std.U8 256#usize) 4#usize)
-  := do
-  loop
-    (fun (out1, k1) => sboxes.gen_exp_sbox_loop0_loop0_loop0.body sbox i j out1
-      k1)
-    (out, k)
-
-/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop body 1:
-    Source: 'src/sboxes.rs', lines 11:8-20:9 -/
-@[rust_loop_body]
-def sboxes.gen_exp_sbox_loop0_loop0.body
-  (sbox : Array (Array Std.U8 16#usize) 8#usize) (i : Std.Usize)
-  (out : Array (Array Std.U8 256#usize) 4#usize) (j : Std.Usize) :
-  Result (ControlFlow ((Array (Array Std.U8 256#usize) 4#usize) × Std.Usize)
-    (Array (Array Std.U8 256#usize) 4#usize))
-  := do
-  if j < 16#usize
-  then
-    let out1 ← sboxes.gen_exp_sbox_loop0_loop0_loop0 sbox out i j 0#usize
-    let j1 ← j + 1#usize
-    ok (cont (out1, j1))
-  else ok (done out)
-
-/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop 1:
-    Source: 'src/sboxes.rs', lines 11:8-20:9 -/
-@[rust_loop]
-def sboxes.gen_exp_sbox_loop0_loop0
-  (sbox : Array (Array Std.U8 16#usize) 8#usize)
-  (out : Array (Array Std.U8 256#usize) 4#usize) (i : Std.Usize)
-  (j : Std.Usize) :
-  Result (Array (Array Std.U8 256#usize) 4#usize)
-  := do
-  loop
-    (fun (out1, j1) => sboxes.gen_exp_sbox_loop0_loop0.body sbox i out1 j1)
-    (out, j)
-
-/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop body 0:
-    Source: 'src/sboxes.rs', lines 9:4-22:5 -/
-@[rust_loop_body]
-def sboxes.gen_exp_sbox_loop0.body
-  (sbox : Array (Array Std.U8 16#usize) 8#usize)
-  (out : Array (Array Std.U8 256#usize) 4#usize) (i : Std.Usize) :
-  Result (ControlFlow ((Array (Array Std.U8 256#usize) 4#usize) × Std.Usize)
-    (Array (Array Std.U8 256#usize) 4#usize))
-  := do
-  if i < 4#usize
-  then
-    let out1 ← sboxes.gen_exp_sbox_loop0_loop0 sbox out i 0#usize
-    let i1 ← i + 1#usize
-    ok (cont (out1, i1))
-  else ok (done out)
-
-/-- [magma_tc26_slice::sboxes::gen_exp_sbox]: loop 0:
-    Source: 'src/sboxes.rs', lines 9:4-22:5 -/
-@[rust_loop]
-def sboxes.gen_exp_sbox_loop0
-  (sbox : Array (Array Std.U8 16#usize) 8#usize)
-  (out : Array (Array Std.U8 256#usize) 4#usize) (i : Std.Usize) :
-  Result (Array (Array Std.U8 256#usize) 4#usize)
-  := do
-  loop
-    (fun (out1, i1) => sboxes.gen_exp_sbox_loop0.body sbox out1 i1)
-    (out, i)
-
-/-- [magma_tc26_slice::sboxes::gen_exp_sbox]:
-    Source: 'src/sboxes.rs', lines 6:0-24:1 -/
-def sboxes.gen_exp_sbox
-  (sbox : Array (Array Std.U8 16#usize) 8#usize) :
-  Result (Array (Array Std.U8 256#usize) 4#usize)
-  := do
-  let a := Array.repeat 256#usize 0#u8
-  let out := Array.repeat 4#usize a
-  sboxes.gen_exp_sbox_loop0 sbox out 0#usize
-
-/-- [magma_tc26_slice::sboxes::SboxExt::EXP_SBOX]
-    Source: 'src/sboxes.rs', lines 38:4-38:56 -/
-@[global_simps, irreducible, trait_default]
-def sboxes.SboxExt.EXP_SBOX.default {Self : Type _} (SboxExtInst :
-  sboxes.SboxExt Self) : Result (Array (Array Std.U8 256#usize) 4#usize) := do
-  let a ← SboxExtInst.SboxInst.SBOX
-  sboxes.gen_exp_sbox a
-
-/-- Trait implementation: [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::SboxExt for T}]
-    Source: 'src/sboxes.rs', lines 57:0-57:30 -/
-@[reducible]
-impl_def sboxes.SboxExt.Blanket {T : Type _} (SboxInst1 : sboxes.Sbox T) :
-  sboxes.SboxExt T := {
-  EXP_SBOX := sboxes.SboxExt.EXP_SBOX.default (sboxes.SboxExt.Blanket
-    SboxInst1)
-  SboxInst := SboxInst1
-  apply_sbox := sboxes.SboxExt.apply_sbox.default (sboxes.SboxExt.Blanket
-    SboxInst1)
-  g := sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket SboxInst1)
-}
+  let back := fun t => { self with output := t }
+  let back'b := fun self1 => { self with output := self1.output }
+  ok (self.output, back, back'b)
 
 /-- [magma_tc26_slice::to_u32]:
-    Source: 'src/lib.rs', lines 121:0-123:1 -/
+    Source: 'src/lib.rs', lines 198:0-200:1 -/
 def to_u32 (chunk : Slice Std.U8) : Result Std.U32 := do
   let r ←
     core.array.TryFromArrayCopySlice.try_from 4#usize core.marker.CopyU8 chunk
@@ -318,7 +318,7 @@ def to_u32 (chunk : Slice Std.U8) : Result Std.U32 := do
   ok (core.num.U32.from_be_bytes a)
 
 /-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]:
-    Source: 'src/lib.rs', lines 35:4-73:5
+    Source: 'src/lib.rs', lines 94:4-136:5
     Visibility: public -/
 def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block
   (self : Gost89 sboxes.Tc26) (block : InOut (Block (Gost89 sboxes.Tc26))) :
@@ -499,7 +499,7 @@ def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block
   ok { block with output := (get_out_back1 io).output }
 
 /-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]:
-    Source: 'src/lib.rs', lines 78:4-117:5
+    Source: 'src/lib.rs', lines 151:4-194:5
     Visibility: public -/
 def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block
   (self : Gost89 sboxes.Tc26) (block : InOut (Block (Gost89 sboxes.Tc26))) :
@@ -680,7 +680,7 @@ def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block
   ok { block with output := (get_out_back1 io).output }
 
 /-- [magma_tc26_slice::encrypt_with_words]:
-    Source: 'src/lib.rs', lines 126:0-132:1
+    Source: 'src/lib.rs', lines 202:0-214:1
     Visibility: public -/
 def encrypt_with_words
   (key : Array Std.U32 8#usize) (plain : Array Std.U8 8#usize) :
@@ -695,7 +695,7 @@ def encrypt_with_words
   ok io.output.bytes
 
 /-- [magma_tc26_slice::decrypt_with_words]:
-    Source: 'src/lib.rs', lines 133:0-139:1
+    Source: 'src/lib.rs', lines 215:0-227:1
     Visibility: public -/
 def decrypt_with_words
   (key : Array Std.U32 8#usize) (encrypted : Array Std.U8 8#usize) :
