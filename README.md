@@ -1,6 +1,6 @@
 # Magma verification
 
-Lean 4.36.0-rc2 project for checking RustCrypto Magma against `Magma/RFC8891.lean`.
+Lean 4.36.0-rc2 workspace for verifying RustCrypto Magma against `Magma/RFC8891.lean`.
 
 ## Build
 
@@ -8,51 +8,53 @@ Lean 4.36.0-rc2 project for checking RustCrypto Magma against `Magma/RFC8891.lea
 ./scripts/build.sh
 ```
 
-The build installs Aeneas/Charon if needed, restores the SHA-256-verified
-original RustCrypto `magma 0.10.0` crate, checks both Rust crates, runs
-Charon/Aeneas, then runs `lake build` and `lake lint`.
+The build restores the SHA-256-verified original RustCrypto `magma 0.10.0`,
+checks the verification Rust source against the original methods, runs Cargo
+checks/tests, extracts models using Charon/Aeneas, and runs `lake build` and
+`lake lint`.
 
 ## Layout
 
 - `Magma/RFC8891.lean` — unchanged RFC specification.
-- `rust/magma/` — ignored, pristine copy of the published RustCrypto crate;
-  `setup-rustcrypto.sh` restores it at the start of every build.
-- `rust/tc26/src/lib.rs` — **checked-in, editable Rust verification view**.
-  This is the actual source passed to Charon for Tc26 encryption/decryption.
-  It contains the original loop snippets and explanations of the three
-  transformations: specialization, loop unrolling and the minimal I/O adapter.
-- `rust/tc26/Cargo.toml` — independently checkable with Cargo and rust-analyzer.
-  Its S-box module is imported directly from `rust/magma/src/sboxes.rs`.
-- `Magma/RustCrypto/Code/` — generated Lean model of the original S-boxes.
-- `Magma/RustCrypto/Tc26/` — generated Lean model of the Tc26 Rust crate.
+- `rust/magma/` — ignored, pristine upstream crate, restored on each build.
+- `rust/tc26/src/lib.rs` — **checked-in Rust verification view**, readable
+  in an IDE. Its encrypt/decrypt functions preserve the original RustCrypto
+  `for` loops and Feistel operations.
+- `rust/tc26/Cargo.toml` — separately checkable using Cargo/rust-analyzer.
+  It imports the original S-box source directly from `rust/magma/src/sboxes.rs`.
+- `scripts/check-tc26-source.py` — checks that both method bodies match
+  upstream exactly after the two documented substitutions.
+- `Magma/RustCrypto/Code/` — generated model of upstream S-boxes.
+- `Magma/RustCrypto/Tc26/` — generated model of the Tc26-specialized
+  methods, **with loops intact**.
 - `Magma/Verification.lean` — imports both generated models and RFC 8891.
 
-To inspect or validate the verification-side Rust crate:
+To inspect the Rust verification crate independently:
 
 ```sh
 ./scripts/setup-rustcrypto.sh
+python3 scripts/check-tc26-source.py .
 cargo check --manifest-path rust/tc26/Cargo.toml --locked
 cargo test --manifest-path rust/tc26/Cargo.toml --locked
 ```
 
-There is no Python script generating Rust code. The checked-in
-`rust/tc26/src/lib.rs` is the authoritative verification-side Rust input.
-
-For Linux and other architectures, configure `AENEAS_ARCHIVE_URL` and
-`AENEAS_ARCHIVE_SHA256` using a compatible archive from
-[the Aeneas releases page](https://github.com/AeneasVerif/aeneas/releases).
+For other architectures, configure `AENEAS_ARCHIVE_URL` and
+`AENEAS_ARCHIVE_SHA256` from the
+[Aeneas releases](https://github.com/AeneasVerif/aeneas/releases).
 
 ## Verification boundary
 
-The exact upstream `encrypt_block` and `decrypt_block` bodies are preserved
-in `tools/magma-full.llbc`, but the original `cipher`/`hybrid-array`
-interfaces are not translated by Aeneas. The checked-in Tc26 view keeps
-their Feistel operations and byte packing, specializes `S::g` to `Tc26::g`,
-expands the 32 rounds, and models `Block`/`InOut` with a small adapter.
+The exact original RustCrypto `encrypt_block` and `decrypt_block` methods
+remain in `tools/magma-full.llbc`. Their `cipher`/`hybrid-array` signatures
+are not directly supported by the current Aeneas release.
 
-Cargo tests compare the specialized view with the real RustCrypto Magma
-on 256 deterministic key/block pairs and the RFC test vector. The generated
-Lean files compile, but **formal proof of the adapter equivalence, the
-source transformation, and equality to the RFC remains open**.
+The checked-in Tc26 view retains the original round loops, key indexing,
+and block byte-packing logic. Only two changes are made to the method bodies:
+`S::g` is specialized to `sboxes::Tc26::g`, and the verification-only
+`InOut` adapter copies its eight-byte input before entering the loops.
+The source checker fails if any other method-body change is detected.
 
-Generated Lean modules are excluded from lean-fmt.
+Rust regression tests compare against upstream RustCrypto on 256
+deterministic inputs and an RFC vector. The generated Lean modules compile,
+but **formal equivalence of the adapter and a correctness theorem against
+the RFC remain open**. No loops are unrolled.

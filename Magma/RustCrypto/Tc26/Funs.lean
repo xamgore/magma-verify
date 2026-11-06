@@ -275,13 +275,6 @@ def Block.new
   (T : Type _) (bytes : Array Std.U8 8#usize) : Result (Block T) := do
   ok { bytes, marker := () }
 
-/-- [magma_tc26_slice::{impl core::ops::deref::Deref<[u8; 8usize]> for magma_tc26_slice::Block<T>}::deref]:
-    Source: 'src/lib.rs', lines 50:4-52:5
-    Visibility: public -/
-def Block.Insts.CoreOpsDerefDerefArrayU88.deref
-  {T : Type _} (self : Block T) : Result (Array Std.U8 8#usize) := do
-  ok self.bytes
-
 /-- [magma_tc26_slice::{impl core::ops::deref::DerefMut<[u8; 8usize]> for magma_tc26_slice::Block<T>}::deref_mut]:
     Source: 'src/lib.rs', lines 55:4-57:5
     Visibility: public -/
@@ -310,377 +303,358 @@ def InOut.get_out
   ok (self.output, back, back'b)
 
 /-- [magma_tc26_slice::to_u32]:
-    Source: 'src/lib.rs', lines 198:0-200:1 -/
+    Source: 'src/lib.rs', lines 145:0-147:1 -/
 def to_u32 (chunk : Slice Std.U8) : Result Std.U32 := do
   let r ←
     core.array.TryFromArrayCopySlice.try_from 4#usize core.marker.CopyU8 chunk
   let a ← core.result.Result.unwrap core.fmt.DebugTryFromSliceError r
   ok (core.num.U32.from_be_bytes a)
 
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 1:
+    Source: 'src/lib.rs', lines 99:12-101:13
+    Visibility: public -/
+@[rust_loop_body]
+def
+  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0_loop0.body
+  (self : Gost89 sboxes.Tc26) (iter : core.ops.range.Range Std.Usize)
+  (i : Std.U32) (i1 : Std.U32) :
+  Result (ControlFlow ((core.ops.range.Range Std.Usize) × Std.U32 × Std.U32)
+    ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32))
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
+  match o with
+  | none => ok (done (self, i, i1))
+  | some i2 =>
+    let i3 ← Array.index_usize self.key i2
+    let i4 ←
+      sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
+        sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i1 i3
+    let i5 ← lift (i ^^^ i4)
+    ok (cont (iter1, i1, i5))
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 1:
+    Source: 'src/lib.rs', lines 99:12-101:13
+    Visibility: public -/
+@[rust_loop]
+def
+  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0_loop0
+  (iter : core.ops.range.Range Std.Usize) (self : Gost89 sboxes.Tc26)
+  (i : Std.U32) (i1 : Std.U32) :
+  Result ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32)
+  := do
+  loop
+    (fun (iter1, i2, i3) =>
+      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0_loop0.body
+      self iter1 i2 i3)
+    (iter, i, i1)
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 0:
+    Source: 'src/lib.rs', lines 98:8-102:9
+    Visibility: public -/
+@[rust_loop_body]
+def
+  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0.body
+  (iter : core.ops.range.Range Std.I32) (self : Gost89 sboxes.Tc26)
+  (i : Std.U32) (i1 : Std.U32) :
+  Result (ControlFlow ((core.ops.range.Range Std.I32) × (Gost89 sboxes.Tc26)
+    × Std.U32 × Std.U32) ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32))
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepI32 iter
+  match o with
+  | none => ok (done (self, i, i1))
+  | some _ =>
+    let (self1, i2, i3) ←
+      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0_loop0
+        { start := 0#usize, «end» := 8#usize } self i i1
+    ok (cont (iter1, self1, i2, i3))
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 0:
+    Source: 'src/lib.rs', lines 98:8-102:9
+    Visibility: public -/
+@[rust_loop]
+def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0
+  (iter : core.ops.range.Range Std.I32) (self : Gost89 sboxes.Tc26)
+  (i : Std.U32) (i1 : Std.U32) :
+  Result ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32)
+  := do
+  loop
+    (fun (iter1, self1, i2, i3) =>
+      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0.body
+      iter1 self1 i2 i3)
+    (iter, self, i, i1)
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop body 2:
+    Source: 'src/lib.rs', lines 103:8-105:9
+    Visibility: public -/
+@[rust_loop_body]
+def
+  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop1.body
+  (self : Gost89 sboxes.Tc26)
+  (iter : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
+  (i : Std.U32) (i1 : Std.U32) :
+  Result (ControlFlow ((core.iter.adapters.rev.Rev (core.ops.range.Range
+    Std.Usize)) × Std.U32 × Std.U32) (Std.U32 × Std.U32))
+  := do
+  let (o, iter1) ←
+    core.iter.adapters.rev.Rev.Insts.CoreIterTraitsIteratorIterator.next
+      (core.ops.range.Range.Insts.DoubleEndedIterator
+      core.iter.range.StepUsize) iter
+  match o with
+  | none => ok (done (i, i1))
+  | some i2 =>
+    let i3 ← Array.index_usize self.key i2
+    let i4 ←
+      sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
+        sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i1 i3
+    let i5 ← lift (i ^^^ i4)
+    ok (cont (iter1, i1, i5))
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]: loop 2:
+    Source: 'src/lib.rs', lines 103:8-105:9
+    Visibility: public -/
+@[rust_loop]
+def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop1
+  (iter : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
+  (self : Gost89 sboxes.Tc26) (i : Std.U32) (i1 : Std.U32) :
+  Result (Std.U32 × Std.U32)
+  := do
+  loop
+    (fun (iter1, i2, i3) =>
+      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop1.body
+      self iter1 i2 i3)
+    (iter, i, i1)
+
 /-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherEncBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::encrypt_block]:
-    Source: 'src/lib.rs', lines 94:4-136:5
+    Source: 'src/lib.rs', lines 95:4-109:5
     Visibility: public -/
 def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block
   (self : Gost89 sboxes.Tc26) (block : InOut (Block (Gost89 sboxes.Tc26))) :
   Result (InOut (Block (Gost89 sboxes.Tc26)))
   := do
   let b ← InOut.get_in block
-  let a ← Block.Insts.CoreOpsDerefDerefArrayU88.deref b
   let s ←
     core.array.Array.index (core.ops.index.IndexSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b.bytes
       { start := 0#usize, «end» := 4#usize }
   let i ← to_u32 s
   let s1 ←
     core.array.Array.index (core.ops.index.IndexSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b.bytes
       { start := 4#usize, «end» := 8#usize }
   let i1 ← to_u32 s1
-  let i2 ← Array.index_usize self.key 0#usize
-  let i3 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i1 i2
-  let i4 ← lift (i ^^^ i3)
-  let i5 ← Array.index_usize self.key 1#usize
-  let i6 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i4 i5
-  let i7 ← lift (i1 ^^^ i6)
-  let i8 ← Array.index_usize self.key 2#usize
-  let i9 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i7 i8
-  let i10 ← lift (i4 ^^^ i9)
-  let i11 ← Array.index_usize self.key 3#usize
-  let i12 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i10 i11
-  let i13 ← lift (i7 ^^^ i12)
-  let i14 ← Array.index_usize self.key 4#usize
-  let i15 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i13 i14
-  let i16 ← lift (i10 ^^^ i15)
-  let i17 ← Array.index_usize self.key 5#usize
-  let i18 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i16 i17
-  let i19 ← lift (i13 ^^^ i18)
-  let i20 ← Array.index_usize self.key 6#usize
-  let i21 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i19 i20
-  let i22 ← lift (i16 ^^^ i21)
-  let i23 ← Array.index_usize self.key 7#usize
-  let i24 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i22 i23
-  let i25 ← lift (i19 ^^^ i24)
-  let i26 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i25 i2
-  let i27 ← lift (i22 ^^^ i26)
-  let i28 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i27 i5
-  let i29 ← lift (i25 ^^^ i28)
-  let i30 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i29 i8
-  let i31 ← lift (i27 ^^^ i30)
-  let i32 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i31 i11
-  let i33 ← lift (i29 ^^^ i32)
-  let i34 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i33 i14
-  let i35 ← lift (i31 ^^^ i34)
-  let i36 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i35 i17
-  let i37 ← lift (i33 ^^^ i36)
-  let i38 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i37 i20
-  let i39 ← lift (i35 ^^^ i38)
-  let i40 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i39 i23
-  let i41 ← lift (i37 ^^^ i40)
-  let i42 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i41 i2
-  let i43 ← lift (i39 ^^^ i42)
-  let i44 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i43 i5
-  let i45 ← lift (i41 ^^^ i44)
-  let i46 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i45 i8
-  let i47 ← lift (i43 ^^^ i46)
-  let i48 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i47 i11
-  let i49 ← lift (i45 ^^^ i48)
-  let i50 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i49 i14
-  let i51 ← lift (i47 ^^^ i50)
-  let i52 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i51 i17
-  let i53 ← lift (i49 ^^^ i52)
-  let i54 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i53 i20
-  let i55 ← lift (i51 ^^^ i54)
-  let i56 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i55 i23
-  let i57 ← lift (i53 ^^^ i56)
-  let i58 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i57 i23
-  let i59 ← lift (i55 ^^^ i58)
-  let i60 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i59 i20
-  let i61 ← lift (i57 ^^^ i60)
-  let i62 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i61 i17
-  let i63 ← lift (i59 ^^^ i62)
-  let i64 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i63 i14
-  let i65 ← lift (i61 ^^^ i64)
-  let i66 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i65 i11
-  let i67 ← lift (i63 ^^^ i66)
-  let i68 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i67 i8
-  let i69 ← lift (i65 ^^^ i68)
-  let i70 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i69 i5
-  let i71 ← lift (i67 ^^^ i70)
-  let i72 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i71 i2
-  let i73 ← lift (i69 ^^^ i72)
+  let (self1, i2, i3) ←
+    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop0
+      { start := 0#i32, «end» := 3#i32 } self i i1
+  let iter ←
+    core.iter.traits.iterator.Iterator.rev.trait_default
+      (core.iter.traits.iterator.IteratorRange core.iter.range.StepUsize)
+      (core.ops.range.Range.Insts.DoubleEndedIterator
+      core.iter.range.StepUsize) { start := 0#usize, «end» := 8#usize }
+  let (i4, i5) ←
+    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherEncBackend.encrypt_block_loop1
+      iter self1 i2 i3
   let (block1, get_out_back, get_out_back1) ← InOut.get_out block
-  let (a1, deref_mut_back) ←
+  let (a, deref_mut_back) ←
     Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut block1
   let (s2, index_mut_back) ←
     core.array.Array.index_mut (core.ops.index.IndexMutSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a1
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a
       { start := 0#usize, «end» := 4#usize }
-  let a2 ← lift (core.num.U32.to_be_bytes i73)
-  let s3 ← lift (Array.to_slice a2)
+  let a1 ← lift (core.num.U32.to_be_bytes i5)
+  let s3 ← lift (Array.to_slice a1)
   let s4 ← core.slice.Slice.copy_from_slice core.marker.CopyU8 s2 s3
-  let a3 := index_mut_back s4
-  let block2 := deref_mut_back a3
-  let (a4, deref_mut_back1) ←
+  let a2 := index_mut_back s4
+  let block2 := deref_mut_back a2
+  let (a3, deref_mut_back1) ←
     Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut block2
   let (s5, index_mut_back1) ←
     core.array.Array.index_mut (core.ops.index.IndexMutSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a4
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a3
       { start := 4#usize, «end» := 8#usize }
-  let a5 ← lift (core.num.U32.to_be_bytes i71)
-  let s6 ← lift (Array.to_slice a5)
+  let a4 ← lift (core.num.U32.to_be_bytes i4)
+  let s6 ← lift (Array.to_slice a4)
   let s7 ← core.slice.Slice.copy_from_slice core.marker.CopyU8 s5 s6
-  let a6 := index_mut_back1 s7
-  let block3 := deref_mut_back1 a6
+  let a5 := index_mut_back1 s7
+  let block3 := deref_mut_back1 a5
   let io := get_out_back block3
   ok { block with output := (get_out_back1 io).output }
 
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 0:
+    Source: 'src/lib.rs', lines 129:8-131:9
+    Visibility: public -/
+@[rust_loop_body]
+def
+  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop0.body
+  (self : Gost89 sboxes.Tc26) (iter : core.ops.range.Range Std.Usize)
+  (i : Std.U32) (i1 : Std.U32) :
+  Result (ControlFlow ((core.ops.range.Range Std.Usize) × Std.U32 × Std.U32)
+    ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32))
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
+  match o with
+  | none => ok (done (self, i, i1))
+  | some i2 =>
+    let i3 ← Array.index_usize self.key i2
+    let i4 ←
+      sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
+        sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i1 i3
+    let i5 ← lift (i ^^^ i4)
+    ok (cont (iter1, i1, i5))
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 0:
+    Source: 'src/lib.rs', lines 129:8-131:9
+    Visibility: public -/
+@[rust_loop]
+def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop0
+  (iter : core.ops.range.Range Std.Usize) (self : Gost89 sboxes.Tc26)
+  (i : Std.U32) (i1 : Std.U32) :
+  Result ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32)
+  := do
+  loop
+    (fun (iter1, i2, i3) =>
+      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop0.body
+      self iter1 i2 i3)
+    (iter, i, i1)
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 2:
+    Source: 'src/lib.rs', lines 134:12-136:13
+    Visibility: public -/
+@[rust_loop_body]
+def
+  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1_loop0.body
+  (self : Gost89 sboxes.Tc26)
+  (iter : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
+  (i : Std.U32) (i1 : Std.U32) :
+  Result (ControlFlow ((core.iter.adapters.rev.Rev (core.ops.range.Range
+    Std.Usize)) × Std.U32 × Std.U32) ((Gost89 sboxes.Tc26) × Std.U32 ×
+    Std.U32))
+  := do
+  let (o, iter1) ←
+    core.iter.adapters.rev.Rev.Insts.CoreIterTraitsIteratorIterator.next
+      (core.ops.range.Range.Insts.DoubleEndedIterator
+      core.iter.range.StepUsize) iter
+  match o with
+  | none => ok (done (self, i, i1))
+  | some i2 =>
+    let i3 ← Array.index_usize self.key i2
+    let i4 ←
+      sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
+        sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i1 i3
+    let i5 ← lift (i ^^^ i4)
+    ok (cont (iter1, i1, i5))
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 2:
+    Source: 'src/lib.rs', lines 134:12-136:13
+    Visibility: public -/
+@[rust_loop]
+def
+  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1_loop0
+  (iter : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
+  (self : Gost89 sboxes.Tc26) (i : Std.U32) (i1 : Std.U32) :
+  Result ((Gost89 sboxes.Tc26) × Std.U32 × Std.U32)
+  := do
+  loop
+    (fun (iter1, i2, i3) =>
+      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1_loop0.body
+      self iter1 i2 i3)
+    (iter, i, i1)
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop body 1:
+    Source: 'src/lib.rs', lines 133:8-137:9
+    Visibility: public -/
+@[rust_loop_body]
+def
+  Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1.body
+  (iter : core.ops.range.Range Std.I32) (self : Gost89 sboxes.Tc26)
+  (i : Std.U32) (i1 : Std.U32) :
+  Result (ControlFlow ((core.ops.range.Range Std.I32) × (Gost89 sboxes.Tc26)
+    × Std.U32 × Std.U32) (Std.U32 × Std.U32))
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepI32 iter
+  match o with
+  | none => ok (done (i, i1))
+  | some _ =>
+    let iter2 ←
+      core.iter.traits.iterator.Iterator.rev.trait_default
+        (core.iter.traits.iterator.IteratorRange core.iter.range.StepUsize)
+        (core.ops.range.Range.Insts.DoubleEndedIterator
+        core.iter.range.StepUsize) { start := 0#usize, «end» := 8#usize }
+    let (self1, i2, i3) ←
+      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1_loop0
+        iter2 self i i1
+    ok (cont (iter1, self1, i2, i3))
+
+/-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]: loop 1:
+    Source: 'src/lib.rs', lines 133:8-137:9
+    Visibility: public -/
+@[rust_loop]
+def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1
+  (iter : core.ops.range.Range Std.I32) (self : Gost89 sboxes.Tc26)
+  (i : Std.U32) (i1 : Std.U32) :
+  Result (Std.U32 × Std.U32)
+  := do
+  loop
+    (fun (iter1, self1, i2, i3) =>
+      Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1.body
+      iter1 self1 i2 i3)
+    (iter, self, i, i1)
+
 /-- [magma_tc26_slice::{impl magma_tc26_slice::BlockCipherDecBackend for magma_tc26_slice::Gost89<magma_tc26_slice::sboxes::Tc26>}::decrypt_block]:
-    Source: 'src/lib.rs', lines 151:4-194:5
+    Source: 'src/lib.rs', lines 125:4-141:5
     Visibility: public -/
 def Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block
   (self : Gost89 sboxes.Tc26) (block : InOut (Block (Gost89 sboxes.Tc26))) :
   Result (InOut (Block (Gost89 sboxes.Tc26)))
   := do
   let b ← InOut.get_in block
-  let a ← Block.Insts.CoreOpsDerefDerefArrayU88.deref b
   let s ←
     core.array.Array.index (core.ops.index.IndexSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b.bytes
       { start := 0#usize, «end» := 4#usize }
   let i ← to_u32 s
   let s1 ←
     core.array.Array.index (core.ops.index.IndexSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) b.bytes
       { start := 4#usize, «end» := 8#usize }
   let i1 ← to_u32 s1
-  let i2 ← Array.index_usize self.key 0#usize
-  let i3 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i1 i2
-  let i4 ← lift (i ^^^ i3)
-  let i5 ← Array.index_usize self.key 1#usize
-  let i6 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i4 i5
-  let i7 ← lift (i1 ^^^ i6)
-  let i8 ← Array.index_usize self.key 2#usize
-  let i9 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i7 i8
-  let i10 ← lift (i4 ^^^ i9)
-  let i11 ← Array.index_usize self.key 3#usize
-  let i12 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i10 i11
-  let i13 ← lift (i7 ^^^ i12)
-  let i14 ← Array.index_usize self.key 4#usize
-  let i15 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i13 i14
-  let i16 ← lift (i10 ^^^ i15)
-  let i17 ← Array.index_usize self.key 5#usize
-  let i18 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i16 i17
-  let i19 ← lift (i13 ^^^ i18)
-  let i20 ← Array.index_usize self.key 6#usize
-  let i21 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i19 i20
-  let i22 ← lift (i16 ^^^ i21)
-  let i23 ← Array.index_usize self.key 7#usize
-  let i24 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i22 i23
-  let i25 ← lift (i19 ^^^ i24)
-  let i26 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i25 i23
-  let i27 ← lift (i22 ^^^ i26)
-  let i28 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i27 i20
-  let i29 ← lift (i25 ^^^ i28)
-  let i30 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i29 i17
-  let i31 ← lift (i27 ^^^ i30)
-  let i32 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i31 i14
-  let i33 ← lift (i29 ^^^ i32)
-  let i34 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i33 i11
-  let i35 ← lift (i31 ^^^ i34)
-  let i36 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i35 i8
-  let i37 ← lift (i33 ^^^ i36)
-  let i38 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i37 i5
-  let i39 ← lift (i35 ^^^ i38)
-  let i40 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i39 i2
-  let i41 ← lift (i37 ^^^ i40)
-  let i42 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i41 i23
-  let i43 ← lift (i39 ^^^ i42)
-  let i44 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i43 i20
-  let i45 ← lift (i41 ^^^ i44)
-  let i46 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i45 i17
-  let i47 ← lift (i43 ^^^ i46)
-  let i48 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i47 i14
-  let i49 ← lift (i45 ^^^ i48)
-  let i50 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i49 i11
-  let i51 ← lift (i47 ^^^ i50)
-  let i52 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i51 i8
-  let i53 ← lift (i49 ^^^ i52)
-  let i54 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i53 i5
-  let i55 ← lift (i51 ^^^ i54)
-  let i56 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i55 i2
-  let i57 ← lift (i53 ^^^ i56)
-  let i58 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i57 i23
-  let i59 ← lift (i55 ^^^ i58)
-  let i60 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i59 i20
-  let i61 ← lift (i57 ^^^ i60)
-  let i62 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i61 i17
-  let i63 ← lift (i59 ^^^ i62)
-  let i64 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i63 i14
-  let i65 ← lift (i61 ^^^ i64)
-  let i66 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i65 i11
-  let i67 ← lift (i63 ^^^ i66)
-  let i68 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i67 i8
-  let i69 ← lift (i65 ^^^ i68)
-  let i70 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i69 i5
-  let i71 ← lift (i67 ^^^ i70)
-  let i72 ←
-    sboxes.SboxExt.g.default (sboxes.SboxExt.Blanket
-      sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) i71 i2
-  let i73 ← lift (i69 ^^^ i72)
+  let (self1, i2, i3) ←
+    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop0
+      { start := 0#usize, «end» := 8#usize } self i i1
+  let (i4, i5) ←
+    Gost89Tc26.Insts.Magma_tc26_sliceBlockCipherDecBackend.decrypt_block_loop1
+      { start := 0#i32, «end» := 3#i32 } self1 i2 i3
   let (block1, get_out_back, get_out_back1) ← InOut.get_out block
-  let (a1, deref_mut_back) ←
+  let (a, deref_mut_back) ←
     Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut block1
   let (s2, index_mut_back) ←
     core.array.Array.index_mut (core.ops.index.IndexMutSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a1
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a
       { start := 0#usize, «end» := 4#usize }
-  let a2 ← lift (core.num.U32.to_be_bytes i73)
-  let s3 ← lift (Array.to_slice a2)
+  let a1 ← lift (core.num.U32.to_be_bytes i5)
+  let s3 ← lift (Array.to_slice a1)
   let s4 ← core.slice.Slice.copy_from_slice core.marker.CopyU8 s2 s3
-  let a3 := index_mut_back s4
-  let block2 := deref_mut_back a3
-  let (a4, deref_mut_back1) ←
+  let a2 := index_mut_back s4
+  let block2 := deref_mut_back a2
+  let (a3, deref_mut_back1) ←
     Block.Insts.CoreOpsDerefDerefMutArrayU88.deref_mut block2
   let (s5, index_mut_back1) ←
     core.array.Array.index_mut (core.ops.index.IndexMutSlice
-      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a4
+      (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) a3
       { start := 4#usize, «end» := 8#usize }
-  let a5 ← lift (core.num.U32.to_be_bytes i71)
-  let s6 ← lift (Array.to_slice a5)
+  let a4 ← lift (core.num.U32.to_be_bytes i4)
+  let s6 ← lift (Array.to_slice a4)
   let s7 ← core.slice.Slice.copy_from_slice core.marker.CopyU8 s5 s6
-  let a6 := index_mut_back1 s7
-  let block3 := deref_mut_back1 a6
+  let a5 := index_mut_back1 s7
+  let block3 := deref_mut_back1 a5
   let io := get_out_back block3
   ok { block with output := (get_out_back1 io).output }
 
 /-- [magma_tc26_slice::encrypt_with_words]:
-    Source: 'src/lib.rs', lines 202:0-214:1
+    Source: 'src/lib.rs', lines 149:0-161:1
     Visibility: public -/
 def encrypt_with_words
   (key : Array Std.U32 8#usize) (plain : Array Std.U8 8#usize) :
@@ -695,7 +669,7 @@ def encrypt_with_words
   ok io.output.bytes
 
 /-- [magma_tc26_slice::decrypt_with_words]:
-    Source: 'src/lib.rs', lines 215:0-227:1
+    Source: 'src/lib.rs', lines 162:0-174:1
     Visibility: public -/
 def decrypt_with_words
   (key : Array Std.U32 8#usize) (encrypted : Array Std.U8 8#usize) :

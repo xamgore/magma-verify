@@ -10,8 +10,8 @@ public import Magma.RustCrypto
 
 The RFC specification, original S-box model, and Tc26-specialized
 model of the original encrypt/decrypt method bodies are available together.
-The specialized bodies are mechanically unrolled and use a simplified
-Block/InOut adapter: equivalence with upstream RustCrypto is NOT proved.
+The specialized bodies preserve the original RustCrypto loops and use a
+simplified Block/InOut adapter: equivalence with upstream RustCrypto is NOT proved.
 -/
 
 namespace Magma.Verification

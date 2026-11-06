@@ -7,9 +7,9 @@
 //! Transformations relative to RustCrypto's ORIGINAL method bodies:
 //! 1. Instantiate Gost89<S: Sbox> for S = sboxes::Tc26, used by Magma.
 //!    Every S::g(..) becomes sboxes::Tc26::g(..).
-//! 2. Replace the original finite for loops with their explicit 32 iterations.
-//!    This works around Aeneas's loop translation error, but equivalence of
-//!    this mechanical expansion still requires a formal justification.
+//! 2. PRESERVE the original for loops, iteration bounds and key indexing.
+//!    Aeneas needs the InOut input copied to eight owned bytes before loops;
+//!    this changes input borrowing, not the encryption round computations.
 //! 3. Use the small Block/InOut adapter below instead of the original
 //!    cipher/hybrid-array API, which Aeneas cannot currently translate.
 //!    Equivalence of the adapter to the real cipher API is NOT proved.
@@ -88,48 +88,21 @@ pub struct Gost89<S: Sbox> {
 //   for i in (0..8).rev() { v = (v.1, v.0 ^ S::g(v.1, self.key[i])); }
 //   ... block[0..4].copy_from_slice(&v.1.to_be_bytes()); ...
 // }
-// Below: SAME Feistel expression, specialized S=Tc26, with loops unrolled.
+// Below: the original loops and Feistel expression, specialized S=Tc26.
+// InOut::get_in().bytes copies the fixed-size input before the loops.
 impl BlockCipherEncBackend for Gost89<sboxes::Tc26> {
     #[inline]
     fn encrypt_block(&self, mut block: InOut<'_, '_, Block<Self>>) {
-        let b = block.get_in();
+        let b = block.get_in().bytes;
         let mut v = (to_u32(&b[0..4]), to_u32(&b[4..8]));
-        // original forward loop, repetition 1/3
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[0]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[1]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[2]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[3]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[4]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[5]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[6]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[7]));
-        // original forward loop, repetition 2/3
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[0]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[1]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[2]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[3]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[4]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[5]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[6]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[7]));
-        // original forward loop, repetition 3/3
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[0]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[1]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[2]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[3]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[4]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[5]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[6]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[7]));
-        // original final reverse loop
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[7]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[6]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[5]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[4]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[3]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[2]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[1]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[0]));
+        for _ in 0..3 {
+            for i in 0..8 {
+                v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[i]));
+            }
+        }
+        for i in (0..8).rev() {
+            v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[i]));
+        }
         let block = block.get_out();
         block[0..4].copy_from_slice(&v.1.to_be_bytes());
         block[4..8].copy_from_slice(&v.0.to_be_bytes());
@@ -145,49 +118,23 @@ impl BlockCipherEncBackend for Gost89<sboxes::Tc26> {
 //   }
 //   ... block[0..4].copy_from_slice(&v.1.to_be_bytes()); ...
 // }
-// Below: SAME Feistel expression, specialized S=Tc26, with loops unrolled.
+// Below: the original loops and Feistel expression, specialized S=Tc26.
+// InOut::get_in().bytes copies the fixed-size input before the loops.
 impl BlockCipherDecBackend for Gost89<sboxes::Tc26> {
     #[inline]
     fn decrypt_block(&self, mut block: InOut<'_, '_, Block<Self>>) {
-        let b = block.get_in();
+        let b = block.get_in().bytes;
         let mut v = (to_u32(&b[0..4]), to_u32(&b[4..8]));
 
-        // original first forward loop
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[0]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[1]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[2]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[3]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[4]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[5]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[6]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[7]));
-        // original reverse loop, repetition 1/3
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[7]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[6]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[5]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[4]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[3]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[2]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[1]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[0]));
-        // original reverse loop, repetition 2/3
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[7]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[6]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[5]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[4]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[3]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[2]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[1]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[0]));
-        // original reverse loop, repetition 3/3
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[7]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[6]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[5]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[4]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[3]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[2]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[1]));
-        v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[0]));
+        for i in 0..8 {
+            v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[i]));
+        }
+
+        for _ in 0..3 {
+            for i in (0..8).rev() {
+                v = (v.1, v.0 ^ sboxes::Tc26::g(v.1, self.key[i]));
+            }
+        }
         let block = block.get_out();
         block[0..4].copy_from_slice(&v.1.to_be_bytes());
         block[4..8].copy_from_slice(&v.0.to_be_bytes());
