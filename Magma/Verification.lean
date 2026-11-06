@@ -2,7 +2,7 @@ module
 
 public import Magma.RFC8891
 public import Magma.RustCrypto
-public import Magma.RustCrypto.Loops
+public import Magma.RustCrypto.Reverse
 
 @[expose] public section
 
@@ -12,8 +12,8 @@ public import Magma.RustCrypto.Loops
 S-box table and 32-bit arithmetic bridges are proved in
 `Magma.RustCrypto.Correctness`. The first generated Feistel loop-body step
 is related to `Magma.G` in `Magma.RustCrypto.Rounds`.
-Executable S-box loop correctness, outer/reverse loop invariants,
-and full encryption/decryption equivalence remain open.
+Executable S-box loop correctness, byte packing, reverse decryption
+outer loop, and full encryption/decryption equivalence remain open.
 -/
 
 namespace Magma.Verification
@@ -31,6 +31,10 @@ namespace Magma.Verification
 #check Magma.RustCrypto.rfc_round_key_of_words
 
 #check Magma.RustCrypto.encrypt_inner_loop_spec
+
+#check Magma.RustCrypto.encrypt_three_loops_spec
+
+#check Magma.RustCrypto.encrypt_reverse_loop_spec
 
 #check RustCryptoTc26.encrypt_with_words
 

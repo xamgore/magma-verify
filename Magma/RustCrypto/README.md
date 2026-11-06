@@ -19,7 +19,7 @@ lemma explicitly assumes the unproved executable S-box loop specification.
 `Rounds.lean` proves that generated encryption and decryption inner-loop
 steps (including reverse traversal) compute exactly `Magma.G`, conditional
 on the explicit iterator, key lookup, and substitution hypotheses. The full
-outer-loop invariants are not yet proved. `Loops.lean` proves the
+the outer 24 forward rounds and final eight reverse rounds are now proved in `Outer.lean` and `Reverse.lean`. `Loops.lean` proves the
 **entire eight-round generated encryption and initial decryption loops** under an explicit
 Rust `g` correctness premise. `Keys.lean` verifies the
 representation of all eight key words and the complete 32-key RFC schedule.

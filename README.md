@@ -31,8 +31,10 @@ tests, generates Lean using Charon/Aeneas, and runs `lake build` and
 - `Magma/RustCrypto/Correctness.lean` — table and arithmetic proofs.
 - `Magma/RustCrypto/Rounds.lean` — generated Feistel loop-body steps.
 - `Magma/RustCrypto/Keys.lean` — eight Rust words, all 32 RFC subkeys, and in-bounds array reads.
-- `Magma/RustCrypto/Loops.lean` — termination and correctness of all eight
-  generated inner-loop steps, conditional on Rust `g`.
+- `Magma/RustCrypto/Loops.lean` — eight generated inner-loop steps.
+- `Magma/RustCrypto/Outer.lean` — all three forward passes (24 rounds).
+- `Magma/RustCrypto/Reverse.lean` — reverse iterator and the final eight rounds.
+  These loop proofs assume that the Aeneas `g` implementation equals RFC `g`.
 - `Magma/Verification.lean` — imports the RFC, models, and proofs.
 
 ```sh
@@ -73,8 +75,8 @@ iterator, key lookup, and S-box premises are satisfied. The full
 eight-step inner encryption loop is now proved to terminate and match
 a pure sequence of RFC rounds, assuming correctness of Rust `g`.
 
-**Open:** executable S-box loop correctness and proof that the
-actual iterators execute the proved 32-key schedule, original `cipher` adapter equivalence, and the final theorem
+**Open:** executable S-box loop correctness, final block packing,
+full decryption loop invariants, original `cipher` adapter equivalence, and the final theorem
 `RustCryptoTc26.encrypt_with_words = Magma.encrypt` (with representations
 converted). No theorem claiming full cipher correctness has been proved.
 
