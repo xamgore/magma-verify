@@ -57,11 +57,10 @@ use core::{fmt, marker::PhantomData};
 #[cfg(feature = "zeroize")]
 use cipher::zeroize::{Zeroize, ZeroizeOnDrop};
 
+mod rounds;
 mod sboxes;
 
 pub use sboxes::Sbox;
-
-use sboxes::SboxExt;
 
 /// Block cipher defined in GOST 28147-89 generic over S-box
 pub struct Gost89<S: Sbox> {
@@ -98,19 +97,10 @@ impl<S: Sbox> ParBlocksSizeUser for Gost89<S> {
 impl<S: Sbox> BlockCipherEncBackend for Gost89<S> {
     #[inline]
     fn encrypt_block(&self, mut block: InOut<'_, '_, Block<Self>>) {
-        let b = block.get_in();
-        let mut v = (to_u32(&b[0..4]), to_u32(&b[4..8]));
-        for _ in 0..3 {
-            for i in 0..8 {
-                v = (v.1, v.0 ^ S::g(v.1, self.key[i]));
-            }
-        }
-        for i in (0..8).rev() {
-            v = (v.1, v.0 ^ S::g(v.1, self.key[i]));
-        }
-        let block = block.get_out();
-        block[0..4].copy_from_slice(&v.1.to_be_bytes());
-        block[4..8].copy_from_slice(&v.0.to_be_bytes());
+        let mut input = [0u8; 8];
+        input.copy_from_slice(block.get_in());
+        let output = rounds::encrypt_block_core::<S>(&self.key, input);
+        block.get_out().copy_from_slice(&output);
     }
 }
 
@@ -124,21 +114,10 @@ impl<S: Sbox> BlockCipherEncrypt for Gost89<S> {
 impl<S: Sbox> BlockCipherDecBackend for Gost89<S> {
     #[inline]
     fn decrypt_block(&self, mut block: InOut<'_, '_, Block<Self>>) {
-        let b = block.get_in();
-        let mut v = (to_u32(&b[0..4]), to_u32(&b[4..8]));
-
-        for i in 0..8 {
-            v = (v.1, v.0 ^ S::g(v.1, self.key[i]));
-        }
-
-        for _ in 0..3 {
-            for i in (0..8).rev() {
-                v = (v.1, v.0 ^ S::g(v.1, self.key[i]));
-            }
-        }
-        let block = block.get_out();
-        block[0..4].copy_from_slice(&v.1.to_be_bytes());
-        block[4..8].copy_from_slice(&v.0.to_be_bytes());
+        let mut input = [0u8; 8];
+        input.copy_from_slice(block.get_in());
+        let output = rounds::decrypt_block_core::<S>(&self.key, input);
+        block.get_out().copy_from_slice(&output);
     }
 }
 

@@ -1,6 +1,7 @@
 .DS_Store
 .idea/
 .lake/
+.lean-fmt-cache/
 tools/
 *.log
 rust/magma/target/

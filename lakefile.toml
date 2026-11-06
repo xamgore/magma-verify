@@ -1,6 +1,8 @@
 name = "magma_verify"
 version = "0.1.0"
-defaultTargets = ["Magma"]
+defaultTargets = ["Magma", "RustCrypto"]
+lintDriver = "fmt"
+lintDriverArgs = ["format", "--check", "--workers", "2"]
 
 leanOptions = [
   { name = "backward.privateInPublic", value = true },
@@ -12,5 +14,24 @@ name = "mathlib"
 git = "https://github.com/leanprover-community/mathlib4.git"
 rev = "v4.36.0-rc2"
 
+[[require]]
+name = "aeneas"
+path = "tools/aeneas/backends/lean"
+
+[[require]]
+name = "lean-fmt"
+git = "https://github.com/jcreinhold/lean-fmt.git"
+rev = "4ed3cda34c63e71d57b001dd15b814c9920f7b65"
+
 [[lean_lib]]
 name = "Magma"
+
+[[lean_lib]]
+name = "RustCrypto"
+srcDir = "Generated"
+
+[[lean_exe]]
+name = "fmt"
+root = "Fmt"
+supportInterpreter = true
+weakLinkArgs = ["-lLake"]

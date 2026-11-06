@@ -1,0 +1,8 @@
+# Research iterations run only when explicitly selected.
+exclude = [
+  "Generated/**",
+]
+
+[format]
+line-width = 100
+reflow-comments = false

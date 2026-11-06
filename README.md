@@ -1,53 +1,87 @@
-# RustCrypto Magma — Aeneas/Lean verification workspace
+# Magma verification (RustCrypto → Charon → Aeneas → Lean)
 
-Independent experiment; original repository at `~/Documents/magma` is untouched.
+A single Lean/Lake project on **Lean 4.36.0-rc2** containing both
+`Magma/RFC8891.lean` and the Aeneas-translated implementation model.
 
-## Sources
+## Source and trust boundary
 
-- `Magma/RFC8891.lean`: byte-identical copy of the formal RFC 8891 spec
-  from `~/Documents/magma/Magma/RFC8891.lean`.
-- `rust/magma/`: RustCrypto `magma` v0.10.0 crate snapshot from local
-  Cargo registry, upstream Git SHA `c69a235c1289b8743aa66db6e6ed1bdfcf1e956d`.
-- `tools/aeneas/`: untracked Aeneas nightly archive, includes Charon.
-- `Generated/RustCrypto/Code/`: actual Lean output from Aeneas.
-- `scripts/regenerate.sh`: reproducible translation of S-box core.
+- `Magma/RFC8891.lean`: byte-identical copy of the specification from
+  `~/Documents/magma`. The original repository is not modified.
+- `rust/magma/`: **local verification fork** of RustCrypto `magma v0.10.0`
+  (Cargo registry snapshot, Git SHA `c69a235c1289b8743aa66db6e6ed1bdfcf1e956d`).
+  The initial import is in commit `dfd0140`.
+- This fork has **one intentional implementation refactor**:
+  `src/rounds.rs` contains both 32-round algorithms; production
+  `BlockCipherEncBackend::encrypt_block` and
+  `BlockCipherDecBackend::decrypt_block` call them.
+  Charon/Aeneas can translate these core functions without importing the
+  unsupported `cipher` / `hybrid-array` type graph.
+- The loop schedule is written as bounded recursion because the pinned
+  Aeneas release crashes during post-processing of the original nested loops.
 
-## Toolchain
+This refactor is tested against RustCrypto's existing known-answer example,
+but **has not yet been formally proved equivalent to the unmodified upstream
+Rust implementation**. This matters for the overall verification claim.
 
-- Aeneas nightly `2026.11.06-4acbb6d` (macOS ARM64).
-- Charon `0.1.312`, commit `6cc2b5f80b7edc2383cba3dab1f1e3b4059aebe2`.
-- Charon Rust: `nightly-2026-09-17` (installed automatically).
-- Root Lake project: Lean `4.36.0-rc2`, Mathlib `v4.36.0-rc2`.
-- `Generated/` Lake project: Lean `4.35.0`, Mathlib `v4.35.0`.
+## Tool versions
 
-The macOS Aeneas release is available at:
-https://github.com/AeneasVerif/aeneas/releases/download/nightly-2026.11.06-4acbb6d/aeneas-macos-aarch64.tar.gz
-SHA-256: `4e8ed96cf4f02478d1645c04d7f74ed1124913da588029a5743e85de8500e75c`.
-The archive bundles `aeneas`, `charon`, `charon-driver`, and a prebuilt Lean backend.
+- Lean/Mathlib: `4.36.0-rc2`.
+- Aeneas: `nightly-2026.11.06-4acbb6d`.
+- Charon: `0.1.312` (`6cc2b5f80b7edc2383cba3dab1f1e3b4059aebe2`),
+  bundled inside the macOS Aeneas release; **opam not needed**.
+- Charon Rust: `nightly-2026-09-17`.
+- `scripts/setup-tools.sh` verifies the release's SHA-256
+  (`4e8ed96cf4f02478d1645c04d7f74ed1124913da588029a5743e85de8500e75c`).
+- `scripts/prepare-aeneas-backend.sh` pins the Aeneas Lean backend to
+  4.36 and reapplies two idempotent upstream API compatibility patches.
+  The release's prebuilt Lean 4.35 artifacts are discarded, not reused.
 
-## Commands
+## Regenerate and verify
 
 ```sh
 cd ~/Documents/magma-verify
-lake build Magma                  # RFC 8891 — passes
-cd rust/magma && cargo check --locked && cd ../..
-./scripts/regenerate.sh           # Charon LLBC -> Aeneas Lean — passes
-cd Generated && lake build RustCrypto
+./scripts/regenerate.sh
+lake build
+lake exe fmt format --check
+lake lint
+(cd rust/magma && cargo test --locked)
 ```
 
-The root project currently reuses `~/Documents/magma/.lake/packages`
-via an ignored symlink; regenerate dependencies via Lake for portability.
+`regenerate.sh` always runs Charon and Aeneas, overwrites only
+`Generated/RustCrypto/Code/{Types,Funs}.lean`, and checks the output with
+the **root** Lake project. It does **not** create or overwrite any Lake
+configuration under `Generated/`. It extracts both `crate::rounds` and
+`crate::sboxes`, including the RFC 8891 `Tc26` S-box.
 
-## Limitations
+Lean formatting matches `~/Documents/magma`: pinned `lean-fmt`,
+100-column line width, no comment reflow, `Fmt.lean`, and the Lake
+`fmt` lint driver. `Generated/**` is excluded from formatting
+to preserve exact reproducibility of Aeneas output.
 
-Full-crate Charon extraction succeeds (`rust/magma/magma.llbc`).
-Full-crate Aeneas translation **fails** on mixed mutually recursive type/trait
-declarations in the `hybrid-array` / `cipher` dependency graph.
-Targeted extraction `--start-from=crate::sboxes` succeeds, producing
-`Types.lean` and `Funs.lean` with `Tc26`, `gen_exp_sbox`,
-`apply_sbox`, and `g`. Those modules build successfully.
+Rust source formatting is checked directly with
+`rustfmt --edition 2024 --check src/lib.rs src/rounds.rs` from
+`rust/magma`. The published Cargo manifest references a missing
+`benches/mod.rs` in its registry snapshot, so `cargo fmt --all` fails
+independently of the Rust source formatting.
 
-Neither `Gost89::encrypt_block` nor `decrypt_block` is translated yet.
-No implementation-vs-RFC correctness theorem has been proved.
-Aeneas's Lean backend is on Lean 4.35, whereas this unchanged RFC formalization
-requires Lean 4.36-rc2; unification of the toolchains remains necessary.
+## Current proof boundary
+
+The actual Aeneas Lean output includes:
+
+- `RustCrypto.rounds.encrypt_block_core` and `decrypt_block_core`;
+- `RustCrypto.rounds.encrypt_schedule` and `decrypt_schedule`;
+- `split_block`, `join_block`, the `g` transformation, and `Tc26` S-box.
+
+**This is not a proof of RFC equivalence.** The generated recursions use
+`partial_fixpoint`: their termination and the equality of the model to the
+RFC spec are still proof obligations.
+
+The external `cipher::InOut` adapters and `KeyInit` wrapper are also
+not translated. Full-crate Aeneas translation still fails on
+`hybrid-array` GAT/type-trait cycles; Charon `--opaque` and `--exclude`
+experiments did not resolve it. A complete end-to-end proof must connect
+those thin adapters to the verified core (or model the dependency graph),
+and separately address the equivalence of this refactor to upstream RustCrypto.
+
+The local `.lake/packages` is independent of the original project;
+generated build caches and release binaries are excluded from Git.
