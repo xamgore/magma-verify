@@ -37,6 +37,8 @@ tests, generates Lean using Charon/Aeneas, and runs `lake build` and
 - `Magma/RustCrypto/Cipher.lean` — the full pure 32-round result equals
   `Magma.encrypt` for every key and block.
 - `Magma/RustCrypto/Bytes.lean` — original four-byte big-endian input conversion.
+- `Magma/RustCrypto/Block.lean` — byte-exact execution and output of the
+  generated, complete `encrypt_block`, conditional on Rust `g` matching RFC `g`.
   The Aeneas loop proofs assume that the Rust `g` implementation equals RFC `g`.
 - `Magma/Verification.lean` — imports the RFC, models, and proofs.
 

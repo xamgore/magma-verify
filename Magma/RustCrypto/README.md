@@ -34,3 +34,8 @@ correctness remain open.
 
 `Bytes.lean` proves that the Aeneas-generated `to_u32` conversion
 succeeds on four-byte slices and matches big-endian BitVec conversion.
+
+`Block.lean` proves byte-exact output for the full generated
+`encrypt_block` and no panics or buffer errors, conditional on `Tc26::g`.
+The specialized Rust source still needs separate equivalence justification
+with the upstream trait dispatch and external adapter.
