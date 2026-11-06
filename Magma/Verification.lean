@@ -2,7 +2,7 @@ module
 
 public import Magma.RFC8891
 public import Magma.RustCrypto
-public import Magma.RustCrypto.Reverse
+public import Magma.RustCrypto.Bytes
 
 @[expose] public section
 
@@ -35,6 +35,10 @@ namespace Magma.Verification
 #check Magma.RustCrypto.encrypt_three_loops_spec
 
 #check Magma.RustCrypto.encrypt_reverse_loop_spec
+
+#check Magma.RustCrypto.pure_32_rounds_match_rfc
+
+#check Magma.RustCrypto.to_u32_spec
 
 #check RustCryptoTc26.encrypt_with_words
 

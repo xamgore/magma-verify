@@ -27,3 +27,10 @@ representation of all eight key words and the complete 32-key RFC schedule.
 Run `./scripts/build.sh` to regenerate and compile Lean. Do not edit
 generated files manually. Formal cipher adapter and full encryption
 correctness remain open.
+
+
+`Cipher.lean` also proves that the combined 32 rounds agree with
+`Magma.encrypt` for all 256-bit keys and 64-bit blocks.
+
+`Bytes.lean` proves that the Aeneas-generated `to_u32` conversion
+succeeds on four-byte slices and matches big-endian BitVec conversion.

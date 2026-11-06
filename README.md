@@ -34,7 +34,10 @@ tests, generates Lean using Charon/Aeneas, and runs `lake build` and
 - `Magma/RustCrypto/Loops.lean` — eight generated inner-loop steps.
 - `Magma/RustCrypto/Outer.lean` — all three forward passes (24 rounds).
 - `Magma/RustCrypto/Reverse.lean` — reverse iterator and the final eight rounds.
-  These loop proofs assume that the Aeneas `g` implementation equals RFC `g`.
+- `Magma/RustCrypto/Cipher.lean` — the full pure 32-round result equals
+  `Magma.encrypt` for every key and block.
+- `Magma/RustCrypto/Bytes.lean` — original four-byte big-endian input conversion.
+  The Aeneas loop proofs assume that the Rust `g` implementation equals RFC `g`.
 - `Magma/Verification.lean` — imports the RFC, models, and proofs.
 
 ```sh
