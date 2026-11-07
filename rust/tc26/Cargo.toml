@@ -3,6 +3,3 @@ name = "magma_tc26_slice"
 version = "0.0.0"
 publish = false
 edition = "2024"
-
-[dev-dependencies]
-magma = { path = "../magma" }

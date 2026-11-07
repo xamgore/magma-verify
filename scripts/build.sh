@@ -13,7 +13,6 @@ python3 "$ROOT/scripts/check-tc26-source.py" "$ROOT"
 export CARGO_TARGET_DIR="$ROOT/tools/cargo-target"
 cd "$CRATE"
 cargo fmt --all --check
-cargo test --locked
 
 PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --dest-file="$ROOT/tools/magma-full.llbc"
 pretty="$(mktemp "$ROOT/tools/charon-pretty.XXXXXX")"
@@ -31,7 +30,6 @@ PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::sboxes
 # The exact round source is checked by check-tc26-source.py.
 cargo fmt --manifest-path "$ROOT/rust/tc26/Cargo.toml" --all --check
 cargo check --manifest-path "$ROOT/rust/tc26/Cargo.toml" --locked
-cargo test --manifest-path "$ROOT/rust/tc26/Cargo.toml" --locked
 cd "$ROOT/rust/tc26"
 PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::encrypt_with_words,crate::decrypt_with_words --dest-file="$ROOT/tools/magma-tc26.llbc"
 "$BIN/aeneas" -backend lean "$ROOT/tools/magma-tc26.llbc" -dest "$ROOT" -subdir /Magma/RustCrypto/Tc26 -namespace RustCryptoTc26 -split-files

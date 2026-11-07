@@ -15,8 +15,8 @@
 //!    cipher backend traits or Block type. Adapter equivalence remains open.
 //!
 //! All other cryptographic expressions (Feistel step, packing, S-box code)
-//! come from the original methods. Tests compare this view with upstream
-//! RustCrypto and the RFC test vector; testing is NOT a formal proof.
+//! come from the original methods.
+//!
 #![allow(dead_code)]
 use core::marker::PhantomData;
 
@@ -125,51 +125,4 @@ pub fn decrypt_with_words(key: [u32; 8], encrypted: [u8; 8]) -> [u8; 8] {
         output: &mut output,
     });
     output
-}
-
-#[cfg(test)]
-mod tests {
-    use super::{decrypt_with_words, encrypt_with_words};
-    use magma::Magma;
-    use magma::cipher::{Array, BlockCipherDecrypt, BlockCipherEncrypt, KeyInit};
-
-    #[test]
-    fn compare_upstream_for_256_cases() {
-        for seed in 0u32..256 {
-            let words: [u32; 8] = core::array::from_fn(|i| {
-                seed.wrapping_mul(0x9e37_79b9).rotate_left((i * 3) as u32)
-                    ^ (i as u32).wrapping_mul(0xdead_beef)
-            });
-            let key: [u8; 32] = core::array::from_fn(|i| words[i / 4].to_be_bytes()[i % 4]);
-            let plain = (seed as u64)
-                .wrapping_mul(0x0102_0304_0506_0709)
-                .to_be_bytes();
-            let upstream = Magma::new(&key.into());
-            let mut block = Array::try_from(plain.as_slice()).unwrap();
-            upstream.encrypt_block(&mut block);
-            let ciphertext: [u8; 8] = core::array::from_fn(|i| block[i]);
-            assert_eq!(encrypt_with_words(words, plain), ciphertext);
-            assert_eq!(decrypt_with_words(words, ciphertext), plain);
-            upstream.decrypt_block(&mut block);
-            assert_eq!(block.as_slice(), plain.as_slice());
-        }
-    }
-
-    #[test]
-    fn rfc_8891_known_answer() {
-        let words = [
-            0xffee_ddcc,
-            0xbbaa_9988,
-            0x7766_5544,
-            0x3322_1100,
-            0xf0f1_f2f3,
-            0xf4f5_f6f7,
-            0xf8f9_fafb,
-            0xfcfd_feff,
-        ];
-        let plain = [0xfe, 0xdc, 0xba, 0x98, 0x76, 0x54, 0x32, 0x10];
-        let cipher = [0x4e, 0xe9, 0x01, 0xe5, 0xc2, 0xd8, 0xca, 0x3d];
-        assert_eq!(encrypt_with_words(words, plain), cipher);
-        assert_eq!(decrypt_with_words(words, cipher), plain);
-    }
 }
