@@ -1,45 +1,45 @@
 # Magma verification
 
-Formal verification workspace for the [magma](https://crates.io/crates/magma) crate from RustCrypto ecosystem.
+Formal verification workspace for the [magma](https://crates.io/crates/magma) crate from the RustCrypto ecosystem.
 
 This project uses [Lean 4](https://lean-lang.org) to prove the crate's functional correctness. The verification is done against the executable [RFC 8891](https://www.rfc-editor.org/info/rfc8891/) specification from [xamgore/magma](https://github.com/xamgore/magma) repository.
 
-## Dependencies
+### How it works
 
-- [Lean 4](https://lean-lang.org/) — the proof assistant used for the formal specification and correctness proofs.
-- [Charon](https://github.com/AeneasVerif/charon) — extracts the LLBC intermediate representation from the Rust compiler.
-- [Aeneas](https://github.com/AeneasVerif/aeneas) — translates Charon's LLBC output into pure Lean 4 functions and structures.
+[Charon](https://github.com/AeneasVerif/charon) extracts Rust’s MIR into LLBC, which tracks borrows. [Aeneas](https://github.com/AeneasVerif/aeneas) translates it into pure Lean functions, representing Rust state changes as return values rather than mutations.
 
-## What is proved
+The basis for transferring proofs is **forward simulation** between Rust’s operational semantics and its functional model in Lean. Aeneas guarantees that every execution step of the source program is mathematically simulated by the Lean model.
 
-The TC26 block encryption and decryption methods match RFC 8891 for every 256-bit key and 64-bit block. Lean covers the original S-box constants, all 1024 expanded entries, the substitution and round functions, all 32 rounds, key selection and byte order. Both methods terminate without modeled panics, including out-of-bounds accesses and checked-arithmetic overflow.
+Because any concrete Rust trace maps to a corresponding Lean trace, proving a property—such as functional correctness or panic freedom—for the Lean function mathematically guarantees that the source Rust code cannot diverge from this behavior. This soundness [is formally established](https://arxiv.org/abs/2404.02680) through a verified chain of simulation relations linking concrete execution to the functional model.
 
-## What is open
+#### What is proved
 
-Equivalence with the public cipher adapter, cryptographic strength, side channels and compiled machine code are outside this proof.
+The crate's [`encrypt_block`](https://docs.rs/magma/0.10.0/src/magma/lib.rs.html#98-115) and [`decrypt_block`](https://docs.rs/magma/0.10.0/src/magma/lib.rs.html#124-143) method bodies match RFC 8891 for every possible secret key and text input. Both methods terminate without panics from out-of-bounds access, checked arithmetic overflow or failed byte conversions.
 
-## How it works
+#### What is open
 
-`scripts/fetch-magma.sh` restores the original `magma 0.10.0` source from a SHA-256-checked archive. Charon extracts the Rust program into LLBC[^llbc]; Aeneas translates the supported safe subset into pure Lean functions. The generated definitions are in `Magma/RustCrypto/Code/` and `Magma/RustCrypto/Tc26/`. The proofs compare their behavior with `Magma/RFC8891.lean`.
+The MIR/LLBC-level model omits timing and microarchitectural effects, so the proof gives no guarantees about side-channel resistance. It also cannot rule out bugs introduced by rustc or LLVM.
 
-Aeneas replaces ownership and borrowing with value passing and backward functions that propagate updates. Its [functional translation](https://arxiv.org/abs/2206.07185) is justified by a *simulation relation*: executions of the source semantics correspond to executions of the pure model, preserving observable results. A [soundness result for LLBC](https://arxiv.org/abs/2404.02680) also connects its borrow-aware semantics to a pointer-based execution model. This is why proofs about translated functions can establish properties of the supported Rust code. It is not a machine-checked guarantee about the actual Charon/Aeneas executables: the extraction tools and external library models remain trusted.
+### Limitations
 
-## Changes to the verification crate
+Aeneas cannot translate the `unsafe` code behind the pointer-based [`InOut`](https://docs.rs/inout/0.2.2/inout/struct.InOut.html), so we replace it with a safe I/O adapter. [`Block<Self>`](https://docs.rs/cipher/0.5.1/cipher/type.Block.html) depends on [`hybrid-array`](https://docs.rs/hybrid-array/0.4.10/hybrid_array/struct.Array.html)'s generic associated types, which Aeneas cannot handle under its default `--lift-associated-types` flag; we use `[u8; 8]` instead. We also specialize `S::g` to the specific [`Tc26`](https://docs.rs/magma/0.10.0/src/magma/sboxes.rs.html#49-55) implementation.
 
-The upstream `magma` source is unchanged. Aeneas [does not yet support `unsafe` Rust](https://github.com/AeneasVerif/aeneas#targeted-subset-and-current-limitations); the `cipher` interface uses `InOut` from the `inout` crate, which stores raw pointers and dereferences them through `unsafe`. Its `hybrid-array` types also trigger an unsupported trait cycle during translation. For this reason, `rust/tc26/` contains a separate, safe verification view with an eight-byte input/output adapter.
+### Aeneas backend patches
 
-The original block methods are specialized from `S::g` to `Tc26::g`, their `Block<Self>` argument becomes `[u8; 8]`, and `get_in()` is copied into an owned array to avoid a borrow-analysis failure. The round computations do not change. `scripts/check-tc26-source.py` enforces these exact differences, but does not establish equivalence with the public `cipher` API.
+To upgrade the Aeneas Lean backend from version `4.35.0` to `4.36.0-rc2`, we apply the following patches:
 
-## Aeneas backend patches
+- Four `Set` membership lemmas in `ScalarTac/Lemmas.lean` are restated with equivalent proofs for the updated Mathlib API.
+- The Lean and Mathlib versions are pinned to 4.36.0-rc2, and incompatible prebuilt artifacts are discarded.
+- In `BvEnumToBitVec.lean`, obsolete private-name construction is replaced by `mkPrivateName` to keep `bv_decide` proof generation compatible with the new Lean API.
 
-`scripts/patch_aeneas_backend.py` adapts the Aeneas Lean library to Lean 4.36.0-rc2: it aligns Lean/Mathlib versions, discards incompatible build artifacts, updates `bv_decide` private-name construction and rewrites four `Set` membership lemmas for the current API. These changes affect the Lean proof infrastructure, not the Rust program or translation executables. The script rejects unexpected source layouts; final proof terms are still checked by Lean.
+These changes do not affect the correctness of Magma's verification.
 
-## Build
+### Build
 
 ```sh
 ./scripts/build.sh
 ```
 
-The build checks archive hashes and the Rust source comparison, regenerates Lean, compiles the crates, runs `lake build` and `lake lint`. The pinned Aeneas/Charon archive covers macOS arm64; other systems require `AENEAS_ARCHIVE_URL` and `AENEAS_ARCHIVE_SHA256`.
+The script fetches `magma 0.10.0` and the pinned [Aeneas/Charon](https://github.com/AeneasVerif/aeneas/releases/tag/nightly-2026.11.06-4acbb6d) release, applies Aeneas backend patches, checks the Rust specialization, extracts LLBC, generates Lean, and runs Rust compilation/format checks, `lake build`, `lake lint` and the axiom audit.
 
-[^llbc]: **Low-Level Borrow Calculus**: the borrow-aware intermediate representation extracted by Charon and consumed by Aeneas.
+`fetch-aeneas.sh` selects the release archive for macOS ARM64, Linux ARM64 or Linux x86-64. Other platforms can pass `AENEAS_ARCHIVE_URL` and `AENEAS_ARCHIVE_SHA256` environment variables to the script.
