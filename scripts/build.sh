@@ -39,5 +39,6 @@ PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::encryp
 cd "$ROOT"
 lake build
 lake lint
-echo "Built the original S-box model and the Tc26-specialized original method bodies."
-echo "Note: the simplified Tc26 input/output adapter is not yet formally proved equivalent to cipher."
+python3 "$ROOT/scripts/audit-lean-axioms.py"
+echo "Verified the original Tc26-specific S-box and encryption bodies against RFC 8891."
+echo "Scope: upstream cipher adapter and full decryption equivalence are not proved."

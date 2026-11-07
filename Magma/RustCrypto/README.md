@@ -1,71 +1,49 @@
-# RustCrypto generated Lean
+# RustCrypto Tc26 verification
 
-`Code/` is Aeneas output from the original RustCrypto S-boxes.
-`Tc26/` is Aeneas output from `rust/tc26/src/lib.rs`.
+`Code/` is Aeneas output for the original RustCrypto Magma S-boxes.
+`Tc26/` is Aeneas output for the checked Tc26-specialized source in
+`rust/tc26/src/lib.rs`. Generated files must not be edited manually.
 
-The specialized `encrypt_block` and `decrypt_block` retain the original
-nested `for` loops and `.rev()`, all subkey accesses, and Feistel steps.
-Aeneas translates them into Lean loop definitions.
+The specialized Rust `encrypt_block` and `decrypt_block` preserve
+the original nested loops, reverse traversal, key accesses, Feistel
+rounds, and byte packing. `scripts/check-tc26-source.py` rejects
+unpermitted source changes. The verification-only I/O adapter lives
+in `rust/tc26/src/adapter.rs`.
 
-The only verification-side I/O shim lives in `rust/tc26/src/adapter.rs`;
-it uses plain eight-byte arrays with input/output borrows, not a copied
-implementation of `cipher`'s traits and `Block` type. The source checker
-ensures the round algorithms still match the original RustCrypto.
+## Lean proofs
 
-`Correctness.lean` proves equality of all 128 original Tc26 table entries
-with the RFC, the 32-bit arithmetic bridge, and the generated adapter's
-input-read contract using Aeneas's `step*` tactic. The `g` correspondence
-lemma explicitly assumes the unproved executable S-box loop specification.
-`Rounds.lean` proves that generated encryption and decryption inner-loop
-steps (including reverse traversal) compute exactly `Magma.G`, conditional
-on the explicit iterator, key lookup, and substitution hypotheses. The full
-the outer 24 forward rounds and final eight reverse rounds are now proved in `Outer.lean` and `Reverse.lean`. `Loops.lean` proves the
-**entire eight-round generated encryption and initial decryption loops** under an explicit
-Rust `g` correctness premise. `Keys.lean` verifies the
-representation of all eight key words and the complete 32-key RFC schedule.
+- `Correctness.lean`: RustCrypto's original Tc26 S-box entries match
+  RFC 8891; word addition and rotation agree with RFC operations;
+  the earlier `g` bridge is available as a conditional lemma.
+- `Rounds.lean`, `Keys.lean`, `Loops.lean`, `Outer.lean`,
+  `Reverse.lean`, `Cipher.lean`: original loop bodies,
+  iteration bounds and subkeys, and the full encryption Feistel
+  schedule equivalent to RFC 8891.
+- `Bytes.lean`, `Block.lean`, `Equivalence.lean`: original block
+  byte representation and the complete encrypted output. The
+  intermediate statements retain an explicit `g` premise.
+- `SboxGeneration.lean`, `SboxLoops.lean`, `SboxTables.lean`:
+  exact execution of all three original expanded-table loops.
+- `SboxCell.lean`, `SboxOrdinal.lean`, `SboxPrefix.lean`:
+  exact value of every generated expanded table entry.
+- `SboxApply.lean`, `SboxApplyLoops.lean`,
+  `SboxApplyValue.lean`, `SboxApplyValueLoop.lean`:
+  safety, termination, and exact return value of the original
+  four-iteration `apply_sbox` loop.
+- `SboxRFC.lean`, `SboxMasks.lean`, `SboxNibbles.lean`,
+  `SboxByte.lean`, `SboxPacking.lean`: exact RFC bit/nibble
+  equivalence and full output-word assembly.
+- `SboxFinal.lean`: unconditional theorems
+  `tc26_apply_sbox_correct`, `tc26_g_correct`, and
+  `encrypt_with_words_correct`. The last proves the generated
+  specialized encryption succeeds with precisely the RFC 8891
+  ciphertext bytes for all input keys and blocks. No `hg` is needed.
 
-Run `./scripts/build.sh` to regenerate and compile Lean. Do not edit
-generated files manually. Formal cipher adapter and full encryption
-correctness remain open.
+These are Lean proofs of the source-derived specialized Tc26 model,
+not a new handwritten cipher implementation. They do not assert
+formal equivalence of the I/O adapter to external `cipher` types:
+that proof is intentionally out of scope. End-to-end decryption
+equivalence has not yet been established.
 
-
-`Cipher.lean` also proves that the combined 32 rounds agree with
-`Magma.encrypt` for all 256-bit keys and 64-bit blocks.
-
-`Bytes.lean` proves that the Aeneas-generated `to_u32` conversion
-succeeds on four-byte slices and matches big-endian BitVec conversion.
-
-`Block.lean` proves byte-exact output for the full generated
-`encrypt_block` and no panics or buffer errors, conditional on `Tc26::g`.
-The specialized Rust source still needs separate equivalence justification
-with the upstream trait dispatch and external adapter.
-
-`Equivalence.lean` now proves byte-level `encrypt_with_words`
-refinement to the RFC 8891 cipher for all keys/blocks, **assuming** the
-generated `Tc26::g` implementation agrees with RFC `g`. The `native_decide`
-shortcut was rejected because it introduces a separate native evaluator
-trust axiom. The expanded S-box and substitution loops still need induction.
-
-`SboxGeneration.lean` verifies the exact innermost body of the source-derived
-`gen_exp_sbox` loop (including byte arithmetic and two-dimensional indexing)
-under the explicit 4-bit-entry precondition. Its three nested loop
-invariants and the `apply_sbox` iteration theorem remain open.
-
-`SboxLoops.lean` closes all 4×16×16 original generator loop iterations;
-`SboxTables.lean` connects their pure result to the concrete Tc26 instance.
-`SboxApply.lean` proves an iteration of the original `apply_sbox` body is
-in bounds and non-overflowing when preceding bytes satisfy the invariant.
-The remaining proof obligations are exact expanded table lookups, the full
-`apply_sbox` loop, and removal of the premise on `g`.
-
-`SboxApplyLoops.lean` lifts the per-byte proof to the entire
-four-iteration Aeneas-translated `apply_sbox` loop: all executions
-terminate without out-of-bounds access or overflow. Byte-for-byte
-equality of its output to `Magma.t` is still unproved.
-
-`SboxApplyValue.lean` proves the **exact** result of one original
-`apply_sbox` step; `SboxApplyValueLoop.lean` proves the full original
-loop returns `tc26ApplyModel`. `SboxCell.lean`, `SboxOrdinal.lean`,
-and `SboxPrefix.lean` prove every one of the 1024 expanded table
-entries agrees with its two source S-box values.
-Linking this to `Magma.t` for arbitrary input remains to be proved.
+Run `./scripts/build.sh` to regenerate the model, run Rust tests,
+compile the Lean proofs, and check formatting.

@@ -10,8 +10,9 @@ Lean 4.36.0-rc2 workspace for verifying RustCrypto Magma against `Magma/RFC8891.
 
 The build restores the SHA-256-verified original RustCrypto `magma 0.10.0`,
 checks the verification Rust source against the upstream methods, runs Cargo
-tests, generates Lean using Charon/Aeneas, and runs `lake build` and
-`lake lint`.
+tests, generates Lean using Charon/Aeneas, runs `lake build` and
+`lake lint`, then audits the final theorem dependencies using `#print axioms`
+to reject any axioms beyond Lean's standard logical axioms.
 
 ## Layout
 
@@ -56,7 +57,10 @@ tests, generates Lean using Charon/Aeneas, and runs `lake build` and
   and whole-loop pure result of original `apply_sbox`.
 - `Magma/RustCrypto/Sbox{Cell,Ordinal,Prefix}.lean` — pointwise correctness
   of all 1024 generated expanded S-box entries.
-  The Aeneas loop proofs assume that the Rust `g` implementation equals RFC `g`.
+- `Magma/RustCrypto/Sbox{RFC,Masks,Nibbles,Byte,Packing}.lean` — byte and
+  nibble indexing, exact RFC substitutions, and final 32-bit word packing.
+- `Magma/RustCrypto/SboxFinal.lean` — unconditional Tc26 S-box, `g`, and
+  end-to-end encryption correctness, discharging the older `g` premises.
 - `Magma/Verification.lean` — imports the RFC, models, and proofs.
 
 ```sh
@@ -88,19 +92,23 @@ Rust tests compare 256 deterministic inputs and a known RFC vector against
 unmodified RustCrypto. In Lean, `Magma/RustCrypto/Correctness.lean` now proves:
 all 128 Tc26 S-box entries match RFC 8891, Rust's 32-bit wrapping addition
 and left rotation agree with the RFC operations, and the Aeneas model of the
-adapter's input read satisfies its contract (using `step*`). It also proves
-that RustCrypto's `g` agrees with RFC `g` **conditional on** the still-open
-proof that the generated `apply_sbox` loop implements RFC `t`.
+adapter's input read satisfies its contract (using `step*`). The earlier
+conditional `g` lemma is now discharged in `SboxFinal.lean` using the
+verified original S-box generation and substitution loops.
 The generated **inner Feistel loop-body steps**, including both forward
 and reverse decryption loops, are also proved equal to `Magma.G` when the
 iterator, key lookup, and S-box premises are satisfied. The full
 eight-step inner encryption loop is now proved to terminate and match
 a pure sequence of RFC rounds, assuming correctness of Rust `g`.
 
-**Open:** executable S-box loop correctness, final block packing,
-full decryption loop invariants, original `cipher` adapter equivalence, and the final theorem
-`RustCryptoTc26.encrypt_with_words = Magma.encrypt` (with representations
-converted). No theorem claiming full cipher correctness has been proved.
+**Proved:** `Magma.RustCrypto.encrypt_with_words_correct` in
+`Magma/RustCrypto/SboxFinal.lean`: the source-derived Tc26-specialized
+Aeneas encryption terminates with exactly the RFC 8891 ciphertext bytes
+for every 256-bit key and 64-bit block, with no `g` premise or `sorry`.
+
+**Outside this proof:** equivalence between the verification I/O adapter
+and the upstream `cipher` traits (intentionally excluded), and full
+end-to-end decryption equivalence.
 
 For other architectures, select a compatible binary archive from
 [Aeneas releases](https://github.com/AeneasVerif/aeneas/releases) and set
