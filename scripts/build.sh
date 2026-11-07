@@ -5,8 +5,8 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 BIN="$ROOT/tools/aeneas"
 CRATE="$ROOT/rust/magma"
 
-"$ROOT/scripts/setup-rustcrypto.sh"
-"$ROOT/scripts/setup-tools.sh"
+"$ROOT/scripts/fetch-magma.sh"
+"$ROOT/scripts/fetch-aeneas.sh"
 python3 "$ROOT/scripts/patch_aeneas_backend.py" "$BIN/backends/lean" "$ROOT/lean-toolchain"
 python3 "$ROOT/scripts/check-tc26-source.py" "$ROOT"
 

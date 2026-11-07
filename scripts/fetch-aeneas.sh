@@ -25,7 +25,7 @@ else
 No Aeneas binary has been configured for $platform.
 Select the appropriate archive at $RELEASES_URL and run:
   AENEAS_ARCHIVE_URL=<download-url> AENEAS_ARCHIVE_SHA256=<sha256> ./scripts/build.sh
-Alternatively adapt scripts/setup-tools.sh to your platform.
+Alternatively adapt scripts/fetch-aeneas.sh to your platform.
 EOF
   exit 1
 fi
