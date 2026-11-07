@@ -42,6 +42,8 @@ tests, generates Lean using Charon/Aeneas, and runs `lake build` and
 - `Magma/RustCrypto/Equivalence.lean` — end-to-end generated
   `encrypt_with_words` byte output equals RFC ciphertext for all inputs,
   conditional on correctness of Rust `g`.
+- `Magma/RustCrypto/SboxGeneration.lean` — original innermost expanded
+  S-box generation step (bounds, arithmetic, and output write).
   The Aeneas loop proofs assume that the Rust `g` implementation equals RFC `g`.
 - `Magma/Verification.lean` — imports the RFC, models, and proofs.
 

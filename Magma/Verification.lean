@@ -2,7 +2,7 @@ module
 
 public import Magma.RFC8891
 public import Magma.RustCrypto
-public import Magma.RustCrypto.Equivalence
+public import Magma.RustCrypto.SboxGeneration
 
 @[expose] public section
 
@@ -43,6 +43,8 @@ namespace Magma.Verification
 #check Magma.RustCrypto.encrypt_block_bytes_if_g
 
 #check Magma.RustCrypto.encrypt_with_words_if_g
+
+#check Magma.RustCrypto.gen_exp_inner_step
 
 #check RustCryptoTc26.encrypt_with_words
 

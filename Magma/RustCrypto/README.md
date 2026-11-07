@@ -45,3 +45,8 @@ refinement to the RFC 8891 cipher for all keys/blocks, **assuming** the
 generated `Tc26::g` implementation agrees with RFC `g`. The `native_decide`
 shortcut was rejected because it introduces a separate native evaluator
 trust axiom. The expanded S-box and substitution loops still need induction.
+
+`SboxGeneration.lean` verifies the exact innermost body of the source-derived
+`gen_exp_sbox` loop (including byte arithmetic and two-dimensional indexing)
+under the explicit 4-bit-entry precondition. Its three nested loop
+invariants and the `apply_sbox` iteration theorem remain open.
