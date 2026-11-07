@@ -9,11 +9,11 @@ public import Magma.RustCrypto.Equivalence
 # Unconditional Tc26 encryption correctness against RFC 8891
 
 The Aeneas-generated, Tc26-specialized Rust model's original S-box loops,
-`g`, and `encrypt_with_words` agree with the independent RFC 8891
+`g`, and `encrypt_block` agree with the independent RFC 8891
 specification for all inputs, without any substitution premise.
 
 The verification-only I/O adapter's equivalence to the external `cipher`
-library is not claimed, nor is a full decryption equivalence theorem.
+library is not claimed.
 -/
 
 open Aeneas Aeneas.Std Result ControlFlow
@@ -47,13 +47,13 @@ theorem tc26_g_correct (a k : Std.U32) :
   simpa only [rust_wrapping_add] using
     (tc26_apply_sbox_correct (core.num.U32.wrapping_add a k))
 
-/-- Unconditional, all-input byte-exact encryption refinement for the
-    generated Tc26 Rust model. No `hg`, `sorry`, or extra axioms. -/
-theorem encrypt_with_words_correct
-    (key : Aeneas.Std.Array Std.U32 8#usize)
-    (plain : Aeneas.Std.Array Std.U8 8#usize) :
-    RustCryptoTc26.encrypt_with_words key plain ⦃ out =>
-      out.val = rfcEncryptedBytes key plain ⦄ := by
-  exact encrypt_with_words_if_g key plain tc26_g_correct
+/-- The original Tc26 block encryption method terminates and produces the RFC ciphertext. -/
+theorem encrypt_block_correct
+    (self : RustCryptoTc26.Gost89 RustCryptoTc26.sboxes.Tc26)
+    (block : RustCryptoTc26.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize)) :
+    RustCryptoTc26.Gost89Tc26.encrypt_block self block ⦃ out =>
+      out.output.val = rfcEncryptedBytes self.key block.input ⦄ := by
+  simpa only [expected_bytes_are_rfc] using
+    (encrypt_block_bytes_if_g self block tc26_g_correct)
 
 end Magma.RustCrypto

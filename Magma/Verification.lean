@@ -3,17 +3,17 @@ module
 public import Magma.RFC8891
 public import Magma.RustCrypto
 public import Magma.RustCrypto.SboxApplyValueLoop
-public import Magma.RustCrypto.SboxFinal
+public import Magma.RustCrypto.DecryptBlock
 
 @[expose] public section
 
 /-!
 # RFC 8891 and RustCrypto Tc26
 
-The source-derived Tc26 S-box tables, loops, 32-round encryption and
-byte conversion are formally proved equivalent to RFC 8891 for all inputs.
-The specialized encryption theorem is unconditional. Equivalence of the
-external `cipher` adapter and the complete decryption path are not claimed.
+The source-derived Tc26 S-box, 32-round cipher and byte encoding are proved
+equivalent to RFC 8891 for all keys and blocks.
+Both block methods are proved correct and terminating. Equivalence to the
+external `cipher` adapter is not claimed.
 -/
 
 namespace Magma.Verification
@@ -42,8 +42,6 @@ namespace Magma.Verification
 
 #check Magma.RustCrypto.encrypt_block_bytes_if_g
 
-#check Magma.RustCrypto.encrypt_with_words_if_g
-
 #check Magma.RustCrypto.gen_exp_inner_step
 
 #check Magma.RustCrypto.gen_exp_sbox_full
@@ -70,10 +68,8 @@ namespace Magma.Verification
 
 #check Magma.RustCrypto.tc26_g_correct
 
-#check Magma.RustCrypto.encrypt_with_words_correct
+#check Magma.RustCrypto.encrypt_block_correct
 
-#check RustCryptoTc26.encrypt_with_words
-
-#check RustCryptoTc26.decrypt_with_words
+#check Magma.RustCrypto.decrypt_block_correct
 
 end Magma.Verification

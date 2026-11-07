@@ -5,12 +5,10 @@ public import Magma.RustCrypto.Block
 @[expose] public section
 
 /-!
-# Complete byte-level refinement to RFC 8891
+# Byte encoding of the RFC 8891 ciphertext
 
-`encrypt_with_words_if_g` proves the full generated encryption function
-returns the byte-encoded RFC ciphertext, for all keys and blocks.
-The explicitly stated `g` correctness condition must still be proved from
-RustCrypto's expanded S-box generation and substitution loops.
+The pure encryption rounds agree with the RFC byte order. The final theorem
+for the original block method is in SboxFinal.lean.
 -/
 
 open Aeneas Aeneas.Std Result
@@ -38,19 +36,5 @@ theorem expected_bytes_are_rfc (key : Aeneas.Std.Array Std.U32 8#usize)
     exact Magma.concat_split ⟨32, out.2⟩ ⟨32, out.1⟩
   simp only [rfcEncryptedBytes, expectEncryptedBytes]
   rw [hs]
-
-theorem encrypt_with_words_if_g (key : Aeneas.Std.Array Std.U32 8#usize)
-    (plain : Aeneas.Std.Array Std.U8 8#usize)
-    (hg :
-      ∀ a k : Std.U32,
-        RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt a k =
-          ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    RustCryptoTc26.encrypt_with_words key plain ⦃ out =>
-      out.val = rfcEncryptedBytes key plain ⦄ := by
-  unfold RustCryptoTc26.encrypt_with_words
-  step
-    with(encrypt_block_bytes_if_g { key := key, _p := () }
-      { input := plain, output := Array.repeat 8#usize 0#u8 } hg)
-  exact out_post.trans (expected_bytes_are_rfc key plain)
 
 end Magma.RustCrypto

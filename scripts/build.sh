@@ -31,12 +31,12 @@ PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::sboxes
 cargo fmt --manifest-path "$ROOT/rust/tc26/Cargo.toml" --all --check
 cargo check --manifest-path "$ROOT/rust/tc26/Cargo.toml" --locked
 cd "$ROOT/rust/tc26"
-PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::encrypt_with_words,crate::decrypt_with_words --dest-file="$ROOT/tools/magma-tc26.llbc"
+PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --dest-file="$ROOT/tools/magma-tc26.llbc"
 "$BIN/aeneas" -backend lean "$ROOT/tools/magma-tc26.llbc" -dest "$ROOT" -subdir /Magma/RustCrypto/Tc26 -namespace RustCryptoTc26 -split-files
 
 cd "$ROOT"
 lake build
 lake lint
 python3 "$ROOT/scripts/audit-lean-axioms.py"
-echo "Verified the original Tc26-specific S-box and encryption bodies against RFC 8891."
-echo "Scope: upstream cipher adapter and full decryption equivalence are not proved."
+echo "Verified Tc26 block encryption and decryption against RFC 8891."
+echo "Scope: upstream cipher adapter equivalence is not proved."

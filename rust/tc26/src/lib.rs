@@ -99,30 +99,3 @@ impl Gost89<sboxes::Tc26> {
 fn to_u32(chunk: &[u8]) -> u32 {
     u32::from_be_bytes(chunk.try_into().unwrap())
 }
-
-pub fn encrypt_with_words(key: [u32; 8], plain: [u8; 8]) -> [u8; 8] {
-    let cipher = Gost89::<sboxes::Tc26> {
-        key,
-        _p: PhantomData,
-    };
-    let input = plain;
-    let mut output = [0u8; 8];
-    cipher.encrypt_block(InOut {
-        input: &input,
-        output: &mut output,
-    });
-    output
-}
-pub fn decrypt_with_words(key: [u32; 8], encrypted: [u8; 8]) -> [u8; 8] {
-    let cipher = Gost89::<sboxes::Tc26> {
-        key,
-        _p: PhantomData,
-    };
-    let input = encrypted;
-    let mut output = [0u8; 8];
-    cipher.decrypt_block(InOut {
-        input: &input,
-        output: &mut output,
-    });
-    output
-}

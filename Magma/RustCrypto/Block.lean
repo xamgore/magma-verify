@@ -11,8 +11,7 @@ The source-derived function reads eight bytes into two big-endian words,
 executes all 32 *original loop bodies*, then writes the swapped halves back
 to the output through `copy_from_slice`. Every step is proved to succeed.
 
-The S-box `g` contract is a **premise** of this theorem until its original
-Rust implementation is proven equivalent to RFC g.
+The internal lemma uses the g contract, discharged by SboxFinal.lean.
 -/
 
 open Aeneas Aeneas.Std Result
@@ -28,15 +27,15 @@ def expectEncryptedBytes (key : Aeneas.Std.Array Std.U32 8#usize)
   let st := runReverseRounds key 0 8 (repeat8Rounds key 3 (readWord plain 0, readWord plain 4))
   (st.2.toBEBytes ++ st.1.toBEBytes).map (fun b => (⟨b⟩ : Std.U8))
 
-private theorem setSlice0_four (b x : List α) (hb : b.length = 8) (hx : x.length = 4) :
+theorem setSlice0_four (b x : List α) (hb : b.length = 8) (hx : x.length = 4) :
     b.setSlice! 0 x = x ++ b.drop 4 := by simp [List.setSlice!, hb, hx]
 
-private theorem setSlice4_four (b x y : List α) (hb : b.length = 8) (hx : x.length = 4)
+theorem setSlice4_four (b x y : List α) (hb : b.length = 8) (hx : x.length = 4)
     (hy : y.length = 4) : (b.setSlice! 0 x).setSlice! 4 y = x ++ y := by
   rw [setSlice0_four b x hb hx]
   simp [List.setSlice!, hb, hx, hy]
 
-private theorem sliceWord_matches_readWord (b : Aeneas.Std.Array Std.U8 8#usize) (s : Slice Std.U8)
+theorem sliceWord_matches_readWord (b : Aeneas.Std.Array Std.U8 8#usize) (s : Slice Std.U8)
     (h4 : s.length = 4) (start : Nat) (hs : s.val = b.val.slice start (start + 4)) :
     sliceWord s h4 = readWord b start := by
   unfold sliceWord readWord

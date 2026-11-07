@@ -33,17 +33,14 @@ in `rust/tc26/src/adapter.rs`.
 - `SboxRFC.lean`, `SboxMasks.lean`, `SboxNibbles.lean`,
   `SboxByte.lean`, `SboxPacking.lean`: exact RFC bit/nibble
   equivalence and full output-word assembly.
-- `SboxFinal.lean`: unconditional theorems
-  `tc26_apply_sbox_correct`, `tc26_g_correct`, and
-  `encrypt_with_words_correct`. The last proves the generated
-  specialized encryption succeeds with precisely the RFC 8891
-  ciphertext bytes for all input keys and blocks. No `hg` is needed.
+- SboxFinal.lean proves substitution, g, and block encryption without conditions.
+- DecryptLoops.lean, DecryptCipher.lean, and DecryptBlock.lean prove all decryption
+  loops, the RFC key schedule, and the exact plaintext byte output.
 
 These are Lean proofs of the source-derived specialized Tc26 model,
 not a new handwritten cipher implementation. They do not assert
 formal equivalence of the I/O adapter to external `cipher` types:
-that proof is intentionally out of scope. End-to-end decryption
-equivalence has not yet been established.
+that proof is intentionally out of scope. Both block methods are proved against RFC 8891.
 
 Run `./scripts/build.sh` to regenerate the model, check the Rust source,
 compile the Lean proofs, and check formatting.

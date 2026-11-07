@@ -268,6 +268,291 @@ def sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox : sboxes.Sbox sboxes.Tc26 := {
   SBOX := ok sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.SBOX
 }
 
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::TestSbox}::SBOX]
+    Source: 'src/../../magma/src/sboxes.rs', lines 79:4-88:6
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.TestSbox.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+  : Array (Array Std.U8 16#usize) 8#usize :=
+  Array.make 8#usize [
+    Array.make 16#usize [
+      4#u8, 10#u8, 9#u8, 2#u8, 13#u8, 8#u8, 0#u8, 14#u8, 6#u8, 11#u8, 1#u8,
+      12#u8, 7#u8, 15#u8, 5#u8, 3#u8
+      ],
+    Array.make 16#usize [
+      14#u8, 11#u8, 4#u8, 12#u8, 6#u8, 13#u8, 15#u8, 10#u8, 2#u8, 3#u8, 8#u8,
+      1#u8, 0#u8, 7#u8, 5#u8, 9#u8
+      ],
+    Array.make 16#usize [
+      5#u8, 8#u8, 1#u8, 13#u8, 10#u8, 3#u8, 4#u8, 2#u8, 14#u8, 15#u8, 12#u8,
+      7#u8, 6#u8, 0#u8, 9#u8, 11#u8
+      ],
+    Array.make 16#usize [
+      7#u8, 13#u8, 10#u8, 1#u8, 0#u8, 8#u8, 9#u8, 15#u8, 14#u8, 4#u8, 6#u8,
+      12#u8, 11#u8, 2#u8, 5#u8, 3#u8
+      ],
+    Array.make 16#usize [
+      6#u8, 12#u8, 7#u8, 1#u8, 5#u8, 15#u8, 13#u8, 8#u8, 4#u8, 10#u8, 9#u8,
+      14#u8, 0#u8, 3#u8, 11#u8, 2#u8
+      ],
+    Array.make 16#usize [
+      4#u8, 11#u8, 10#u8, 0#u8, 7#u8, 2#u8, 1#u8, 13#u8, 3#u8, 6#u8, 8#u8,
+      5#u8, 9#u8, 12#u8, 15#u8, 14#u8
+      ],
+    Array.make 16#usize [
+      13#u8, 11#u8, 4#u8, 1#u8, 3#u8, 15#u8, 5#u8, 9#u8, 0#u8, 10#u8, 14#u8,
+      7#u8, 6#u8, 8#u8, 2#u8, 12#u8
+      ],
+    Array.make 16#usize [
+      1#u8, 15#u8, 13#u8, 0#u8, 5#u8, 7#u8, 10#u8, 4#u8, 9#u8, 2#u8, 3#u8,
+      14#u8, 6#u8, 11#u8, 8#u8, 12#u8
+      ]
+    ]
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::TestSbox}::NAME]
+    Source: 'src/../../magma/src/sboxes.rs', lines 78:4-78:42
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.TestSbox.Insts.Magma_tc26_sliceSboxesSbox.NAME : Str :=
+  toStr "TestSbox"
+
+/-- Trait implementation: [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::TestSbox}]
+    Source: 'src/../../magma/src/sboxes.rs', lines 77:0-89:1 -/
+@[reducible]
+def sboxes.TestSbox.Insts.Magma_tc26_sliceSboxesSbox : sboxes.Sbox
+  sboxes.TestSbox := {
+  NAME := ok sboxes.TestSbox.Insts.Magma_tc26_sliceSboxesSbox.NAME
+  SBOX := ok sboxes.TestSbox.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+}
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProA}::SBOX]
+    Source: 'src/../../magma/src/sboxes.rs', lines 95:4-104:6
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.CryptoProA.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+  : Array (Array Std.U8 16#usize) 8#usize :=
+  Array.make 8#usize [
+    Array.make 16#usize [
+      9#u8, 6#u8, 3#u8, 2#u8, 8#u8, 11#u8, 1#u8, 7#u8, 10#u8, 4#u8, 14#u8,
+      15#u8, 12#u8, 0#u8, 13#u8, 5#u8
+      ],
+    Array.make 16#usize [
+      3#u8, 7#u8, 14#u8, 9#u8, 8#u8, 10#u8, 15#u8, 0#u8, 5#u8, 2#u8, 6#u8,
+      12#u8, 11#u8, 4#u8, 13#u8, 1#u8
+      ],
+    Array.make 16#usize [
+      14#u8, 4#u8, 6#u8, 2#u8, 11#u8, 3#u8, 13#u8, 8#u8, 12#u8, 15#u8, 5#u8,
+      10#u8, 0#u8, 7#u8, 1#u8, 9#u8
+      ],
+    Array.make 16#usize [
+      14#u8, 7#u8, 10#u8, 12#u8, 13#u8, 1#u8, 3#u8, 9#u8, 0#u8, 2#u8, 11#u8,
+      4#u8, 15#u8, 8#u8, 5#u8, 6#u8
+      ],
+    Array.make 16#usize [
+      11#u8, 5#u8, 1#u8, 9#u8, 8#u8, 13#u8, 15#u8, 0#u8, 14#u8, 4#u8, 2#u8,
+      3#u8, 12#u8, 7#u8, 10#u8, 6#u8
+      ],
+    Array.make 16#usize [
+      3#u8, 10#u8, 13#u8, 12#u8, 1#u8, 2#u8, 0#u8, 11#u8, 7#u8, 5#u8, 9#u8,
+      4#u8, 8#u8, 15#u8, 14#u8, 6#u8
+      ],
+    Array.make 16#usize [
+      1#u8, 13#u8, 2#u8, 9#u8, 7#u8, 10#u8, 6#u8, 0#u8, 8#u8, 12#u8, 4#u8,
+      5#u8, 15#u8, 3#u8, 11#u8, 14#u8
+      ],
+    Array.make 16#usize [
+      11#u8, 10#u8, 15#u8, 5#u8, 0#u8, 12#u8, 14#u8, 8#u8, 6#u8, 2#u8, 3#u8,
+      9#u8, 1#u8, 7#u8, 13#u8, 4#u8
+      ]
+    ]
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProA}::NAME]
+    Source: 'src/../../magma/src/sboxes.rs', lines 94:4-94:44
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.CryptoProA.Insts.Magma_tc26_sliceSboxesSbox.NAME : Str :=
+  toStr "CryptoProA"
+
+/-- Trait implementation: [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProA}]
+    Source: 'src/../../magma/src/sboxes.rs', lines 93:0-105:1 -/
+@[reducible]
+def sboxes.CryptoProA.Insts.Magma_tc26_sliceSboxesSbox : sboxes.Sbox
+  sboxes.CryptoProA := {
+  NAME := ok sboxes.CryptoProA.Insts.Magma_tc26_sliceSboxesSbox.NAME
+  SBOX := ok sboxes.CryptoProA.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+}
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProB}::SBOX]
+    Source: 'src/../../magma/src/sboxes.rs', lines 111:4-120:6
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.CryptoProB.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+  : Array (Array Std.U8 16#usize) 8#usize :=
+  Array.make 8#usize [
+    Array.make 16#usize [
+      8#u8, 4#u8, 11#u8, 1#u8, 3#u8, 5#u8, 0#u8, 9#u8, 2#u8, 14#u8, 10#u8,
+      12#u8, 13#u8, 6#u8, 7#u8, 15#u8
+      ],
+    Array.make 16#usize [
+      0#u8, 1#u8, 2#u8, 10#u8, 4#u8, 13#u8, 5#u8, 12#u8, 9#u8, 7#u8, 3#u8,
+      15#u8, 11#u8, 8#u8, 6#u8, 14#u8
+      ],
+    Array.make 16#usize [
+      14#u8, 12#u8, 0#u8, 10#u8, 9#u8, 2#u8, 13#u8, 11#u8, 7#u8, 5#u8, 8#u8,
+      15#u8, 3#u8, 6#u8, 1#u8, 4#u8
+      ],
+    Array.make 16#usize [
+      7#u8, 5#u8, 0#u8, 13#u8, 11#u8, 6#u8, 1#u8, 2#u8, 3#u8, 10#u8, 12#u8,
+      15#u8, 4#u8, 14#u8, 9#u8, 8#u8
+      ],
+    Array.make 16#usize [
+      2#u8, 7#u8, 12#u8, 15#u8, 9#u8, 5#u8, 10#u8, 11#u8, 1#u8, 4#u8, 0#u8,
+      13#u8, 6#u8, 8#u8, 14#u8, 3#u8
+      ],
+    Array.make 16#usize [
+      8#u8, 3#u8, 2#u8, 6#u8, 4#u8, 13#u8, 14#u8, 11#u8, 12#u8, 1#u8, 7#u8,
+      15#u8, 10#u8, 0#u8, 9#u8, 5#u8
+      ],
+    Array.make 16#usize [
+      5#u8, 2#u8, 10#u8, 11#u8, 9#u8, 1#u8, 12#u8, 3#u8, 7#u8, 4#u8, 13#u8,
+      0#u8, 6#u8, 15#u8, 8#u8, 14#u8
+      ],
+    Array.make 16#usize [
+      0#u8, 4#u8, 11#u8, 14#u8, 8#u8, 3#u8, 7#u8, 1#u8, 10#u8, 2#u8, 9#u8,
+      6#u8, 15#u8, 13#u8, 5#u8, 12#u8
+      ]
+    ]
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProB}::NAME]
+    Source: 'src/../../magma/src/sboxes.rs', lines 110:4-110:44
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.CryptoProB.Insts.Magma_tc26_sliceSboxesSbox.NAME : Str :=
+  toStr "CryptoProB"
+
+/-- Trait implementation: [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProB}]
+    Source: 'src/../../magma/src/sboxes.rs', lines 109:0-121:1 -/
+@[reducible]
+def sboxes.CryptoProB.Insts.Magma_tc26_sliceSboxesSbox : sboxes.Sbox
+  sboxes.CryptoProB := {
+  NAME := ok sboxes.CryptoProB.Insts.Magma_tc26_sliceSboxesSbox.NAME
+  SBOX := ok sboxes.CryptoProB.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+}
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProC}::SBOX]
+    Source: 'src/../../magma/src/sboxes.rs', lines 127:4-136:6
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.CryptoProC.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+  : Array (Array Std.U8 16#usize) 8#usize :=
+  Array.make 8#usize [
+    Array.make 16#usize [
+      1#u8, 11#u8, 12#u8, 2#u8, 9#u8, 13#u8, 0#u8, 15#u8, 4#u8, 5#u8, 8#u8,
+      14#u8, 10#u8, 7#u8, 6#u8, 3#u8
+      ],
+    Array.make 16#usize [
+      0#u8, 1#u8, 7#u8, 13#u8, 11#u8, 4#u8, 5#u8, 2#u8, 8#u8, 14#u8, 15#u8,
+      12#u8, 9#u8, 10#u8, 6#u8, 3#u8
+      ],
+    Array.make 16#usize [
+      8#u8, 2#u8, 5#u8, 0#u8, 4#u8, 9#u8, 15#u8, 10#u8, 3#u8, 7#u8, 12#u8,
+      13#u8, 6#u8, 14#u8, 1#u8, 11#u8
+      ],
+    Array.make 16#usize [
+      3#u8, 6#u8, 0#u8, 1#u8, 5#u8, 13#u8, 10#u8, 8#u8, 11#u8, 2#u8, 9#u8,
+      7#u8, 14#u8, 15#u8, 12#u8, 4#u8
+      ],
+    Array.make 16#usize [
+      8#u8, 13#u8, 11#u8, 0#u8, 4#u8, 5#u8, 1#u8, 2#u8, 9#u8, 3#u8, 12#u8,
+      14#u8, 6#u8, 15#u8, 10#u8, 7#u8
+      ],
+    Array.make 16#usize [
+      12#u8, 9#u8, 11#u8, 1#u8, 8#u8, 14#u8, 2#u8, 4#u8, 7#u8, 3#u8, 6#u8,
+      5#u8, 10#u8, 0#u8, 15#u8, 13#u8
+      ],
+    Array.make 16#usize [
+      10#u8, 9#u8, 6#u8, 8#u8, 13#u8, 14#u8, 2#u8, 0#u8, 15#u8, 3#u8, 5#u8,
+      11#u8, 4#u8, 1#u8, 12#u8, 7#u8
+      ],
+    Array.make 16#usize [
+      7#u8, 4#u8, 0#u8, 5#u8, 10#u8, 2#u8, 15#u8, 14#u8, 12#u8, 6#u8, 1#u8,
+      11#u8, 13#u8, 9#u8, 3#u8, 8#u8
+      ]
+    ]
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProC}::NAME]
+    Source: 'src/../../magma/src/sboxes.rs', lines 126:4-126:44
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.CryptoProC.Insts.Magma_tc26_sliceSboxesSbox.NAME : Str :=
+  toStr "CryptoProC"
+
+/-- Trait implementation: [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProC}]
+    Source: 'src/../../magma/src/sboxes.rs', lines 125:0-137:1 -/
+@[reducible]
+def sboxes.CryptoProC.Insts.Magma_tc26_sliceSboxesSbox : sboxes.Sbox
+  sboxes.CryptoProC := {
+  NAME := ok sboxes.CryptoProC.Insts.Magma_tc26_sliceSboxesSbox.NAME
+  SBOX := ok sboxes.CryptoProC.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+}
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProD}::SBOX]
+    Source: 'src/../../magma/src/sboxes.rs', lines 143:4-152:6
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.CryptoProD.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+  : Array (Array Std.U8 16#usize) 8#usize :=
+  Array.make 8#usize [
+    Array.make 16#usize [
+      10#u8, 4#u8, 5#u8, 6#u8, 8#u8, 1#u8, 3#u8, 7#u8, 13#u8, 12#u8, 14#u8,
+      0#u8, 9#u8, 2#u8, 11#u8, 15#u8
+      ],
+    Array.make 16#usize [
+      5#u8, 15#u8, 4#u8, 0#u8, 2#u8, 13#u8, 11#u8, 9#u8, 1#u8, 7#u8, 6#u8,
+      3#u8, 12#u8, 14#u8, 10#u8, 8#u8
+      ],
+    Array.make 16#usize [
+      7#u8, 15#u8, 12#u8, 14#u8, 9#u8, 4#u8, 1#u8, 0#u8, 3#u8, 11#u8, 5#u8,
+      2#u8, 6#u8, 10#u8, 8#u8, 13#u8
+      ],
+    Array.make 16#usize [
+      4#u8, 10#u8, 7#u8, 12#u8, 0#u8, 15#u8, 2#u8, 8#u8, 14#u8, 1#u8, 6#u8,
+      5#u8, 13#u8, 11#u8, 9#u8, 3#u8
+      ],
+    Array.make 16#usize [
+      7#u8, 6#u8, 4#u8, 11#u8, 9#u8, 12#u8, 2#u8, 10#u8, 1#u8, 8#u8, 0#u8,
+      14#u8, 15#u8, 13#u8, 3#u8, 5#u8
+      ],
+    Array.make 16#usize [
+      7#u8, 6#u8, 2#u8, 4#u8, 13#u8, 9#u8, 15#u8, 0#u8, 10#u8, 1#u8, 5#u8,
+      11#u8, 8#u8, 14#u8, 12#u8, 3#u8
+      ],
+    Array.make 16#usize [
+      13#u8, 14#u8, 4#u8, 1#u8, 7#u8, 0#u8, 5#u8, 10#u8, 3#u8, 12#u8, 8#u8,
+      15#u8, 6#u8, 2#u8, 9#u8, 11#u8
+      ],
+    Array.make 16#usize [
+      1#u8, 3#u8, 10#u8, 9#u8, 5#u8, 11#u8, 4#u8, 15#u8, 8#u8, 6#u8, 7#u8,
+      14#u8, 13#u8, 0#u8, 2#u8, 12#u8
+      ]
+    ]
+
+/-- [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProD}::NAME]
+    Source: 'src/../../magma/src/sboxes.rs', lines 142:4-142:44
+    Visibility: public -/
+@[global_simps, irreducible]
+def sboxes.CryptoProD.Insts.Magma_tc26_sliceSboxesSbox.NAME : Str :=
+  toStr "CryptoProD"
+
+/-- Trait implementation: [magma_tc26_slice::sboxes::{impl magma_tc26_slice::sboxes::Sbox for magma_tc26_slice::sboxes::CryptoProD}]
+    Source: 'src/../../magma/src/sboxes.rs', lines 141:0-153:1 -/
+@[reducible]
+def sboxes.CryptoProD.Insts.Magma_tc26_sliceSboxesSbox : sboxes.Sbox
+  sboxes.CryptoProD := {
+  NAME := ok sboxes.CryptoProD.Insts.Magma_tc26_sliceSboxesSbox.NAME
+  SBOX := ok sboxes.CryptoProD.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+}
+
 /-- [magma_tc26_slice::adapter::{magma_tc26_slice::adapter::InOut<'a, 'b, T>}::get_in]:
     Source: 'src/adapter.rs', lines 11:4-13:5
     Visibility: public -/
@@ -593,29 +878,5 @@ def Gost89Tc26.decrypt_block
   let block3 := index_mut_back1 s7
   let io := get_out_back block3
   ok { block with output := (get_out_back1 io).output }
-
-/-- [magma_tc26_slice::encrypt_with_words]:
-    Source: 'src/lib.rs', lines 103:0-115:1
-    Visibility: public -/
-def encrypt_with_words
-  (key : Array Std.U32 8#usize) (plain : Array Std.U8 8#usize) :
-  Result (Array Std.U8 8#usize)
-  := do
-  let output := Array.repeat 8#usize 0#u8
-  let io ←
-    Gost89Tc26.encrypt_block { key, _p := () } { input := plain, output }
-  ok io.output
-
-/-- [magma_tc26_slice::decrypt_with_words]:
-    Source: 'src/lib.rs', lines 116:0-128:1
-    Visibility: public -/
-def decrypt_with_words
-  (key : Array Std.U32 8#usize) (encrypted : Array Std.U8 8#usize) :
-  Result (Array Std.U8 8#usize)
-  := do
-  let output := Array.repeat 8#usize 0#u8
-  let io ←
-    Gost89Tc26.decrypt_block { key, _p := () } { input := encrypted, output }
-  ok io.output
 
 end RustCryptoTc26

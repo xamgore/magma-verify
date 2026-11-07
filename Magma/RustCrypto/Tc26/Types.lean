@@ -47,6 +47,31 @@ structure sboxes.SboxExt (Self : Type _) where
     Visibility: public -/
 inductive sboxes.Tc26 where
 
+/-- [magma_tc26_slice::sboxes::TestSbox]
+    Source: 'src/../../magma/src/sboxes.rs', lines 75:0-75:20
+    Visibility: public -/
+inductive sboxes.TestSbox where
+
+/-- [magma_tc26_slice::sboxes::CryptoProA]
+    Source: 'src/../../magma/src/sboxes.rs', lines 91:0-91:22
+    Visibility: public -/
+inductive sboxes.CryptoProA where
+
+/-- [magma_tc26_slice::sboxes::CryptoProB]
+    Source: 'src/../../magma/src/sboxes.rs', lines 107:0-107:22
+    Visibility: public -/
+inductive sboxes.CryptoProB where
+
+/-- [magma_tc26_slice::sboxes::CryptoProC]
+    Source: 'src/../../magma/src/sboxes.rs', lines 123:0-123:22
+    Visibility: public -/
+inductive sboxes.CryptoProC where
+
+/-- [magma_tc26_slice::sboxes::CryptoProD]
+    Source: 'src/../../magma/src/sboxes.rs', lines 139:0-139:22
+    Visibility: public -/
+inductive sboxes.CryptoProD where
+
 /-- [magma_tc26_slice::adapter::InOut]
     Source: 'src/adapter.rs', lines 5:0-8:1
     Visibility: public -/

@@ -12,15 +12,15 @@ This project uses [Lean 4](https://lean-lang.org) to prove the crate's functiona
 
 ## What is proved
 
-The TC26 encryption path matches RFC 8891 for every 256-bit key and 64-bit block. Lean covers the original S-box constants, all 1024 expanded entries, the substitution and round functions, all 32 rounds, key selection and byte order. The extracted encryption completes without modeled panics, including out-of-bounds accesses and checked-arithmetic overflow.
+The TC26 block encryption and decryption methods match RFC 8891 for every 256-bit key and 64-bit block. Lean covers the original S-box constants, all 1024 expanded entries, the substitution and round functions, all 32 rounds, key selection and byte order. Both methods terminate without modeled panics, including out-of-bounds accesses and checked-arithmetic overflow.
 
 ## What is open
 
-The decryption round bodies and first eight-round loop have been verified, but not the complete `decrypt_block` function or its final byte output. The public `cipher` adapter, cryptographic strength, side channels and compiled machine code are also outside this proof.
+Equivalence with the public cipher adapter, cryptographic strength, side channels and compiled machine code are outside this proof.
 
 ## How it works
 
-`scripts/fetch-magma.sh` restores the original `magma 0.10.0` source from a SHA-256-checked archive. Charon extracts the Rust program into LLBC[^llbc]; Aeneas translates the supported safe subset into pure Lean functions. The generated definitions are in `Magma/RustCrypto/Code/` and `Magma/RustCrypto/TC26/`. The proofs compare their behavior with `Magma/RFC8891.lean`.
+`scripts/fetch-magma.sh` restores the original `magma 0.10.0` source from a SHA-256-checked archive. Charon extracts the Rust program into LLBC[^llbc]; Aeneas translates the supported safe subset into pure Lean functions. The generated definitions are in `Magma/RustCrypto/Code/` and `Magma/RustCrypto/Tc26/`. The proofs compare their behavior with `Magma/RFC8891.lean`.
 
 Aeneas replaces ownership and borrowing with value passing and backward functions that propagate updates. Its [functional translation](https://arxiv.org/abs/2206.07185) is justified by a *simulation relation*: executions of the source semantics correspond to executions of the pure model, preserving observable results. A [soundness result for LLBC](https://arxiv.org/abs/2404.02680) also connects its borrow-aware semantics to a pointer-based execution model. This is why proofs about translated functions can establish properties of the supported Rust code. It is not a machine-checked guarantee about the actual Charon/Aeneas executables: the extraction tools and external library models remain trusted.
 
@@ -28,9 +28,7 @@ Aeneas replaces ownership and borrowing with value passing and backward function
 
 The upstream `magma` source is unchanged. Aeneas [does not yet support `unsafe` Rust](https://github.com/AeneasVerif/aeneas#targeted-subset-and-current-limitations); the `cipher` interface uses `InOut` from the `inout` crate, which stores raw pointers and dereferences them through `unsafe`. Its `hybrid-array` types also trigger an unsupported trait cycle during translation. For this reason, `rust/tc26/` contains a separate, safe verification view with an eight-byte input/output adapter.
 
-The original block methods are specialized from `S::g` to `TC26::g`, their `Block<Self>` argument becomes `[u8; 8]`, and `get_in()` is copied into an owned array to avoid a borrow-analysis failure. The round computations do not change. `scripts/check-tc26-source.py` enforces these exact differences, but does not establish equivalence with the public `cipher` API.
-
-`encrypt_with_words` and `decrypt_with_words` are verification-only callers that construct the cipher and invoke a block method; they do not exist upstream. The current final encryption theorem uses the first as a convenient entry point, although neither wrapper is needed to prove a block method directly. There is no final proof about the decryption wrapper.
+The original block methods are specialized from `S::g` to `Tc26::g`, their `Block<Self>` argument becomes `[u8; 8]`, and `get_in()` is copied into an owned array to avoid a borrow-analysis failure. The round computations do not change. `scripts/check-tc26-source.py` enforces these exact differences, but does not establish equivalence with the public `cipher` API.
 
 ## Aeneas backend patches
 

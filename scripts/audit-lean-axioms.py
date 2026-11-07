@@ -17,12 +17,13 @@ names = [
     "Magma.RustCrypto.tc26_model_matches_rfc",
     "Magma.RustCrypto.tc26_apply_sbox_correct",
     "Magma.RustCrypto.tc26_g_correct",
-    "Magma.RustCrypto.encrypt_with_words_correct",
+    "Magma.RustCrypto.encrypt_block_correct",
+    "Magma.RustCrypto.decrypt_block_correct",
 ]
 audit_file = root / "tools" / "tc26-axiom-audit.lean"
 audit_file.parent.mkdir(parents=True, exist_ok=True)
 audit_file.write_text(
-    "import Magma.RustCrypto.SboxFinal\n"
+    "import Magma.RustCrypto.DecryptBlock\n"
     + "".join(f"#print axioms {name}\n" for name in names)
 )
 result = subprocess.run(
@@ -46,4 +47,4 @@ for name in names:
     unexpected = axioms[name] - allow
     if unexpected:
         sys.exit(f"Untrusted axioms in {name}: {sorted(unexpected)}")
-print("Axiom audit passed: four Tc26 theorems use only propext, Classical.choice, Quot.sound.")
+print("Axiom audit passed: five Tc26 theorems use only propext, Classical.choice, Quot.sound.")
