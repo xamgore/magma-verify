@@ -14,20 +14,37 @@ if [[ -x "$INSTALL_DIR/aeneas" && -x "$INSTALL_DIR/charon" &&
 fi
 
 platform="$(uname -s)-$(uname -m)"
-if [[ -n "${AENEAS_ARCHIVE_URL:-}" && -n "${AENEAS_ARCHIVE_SHA256:-}" ]]; then
+if [[ -n "${AENEAS_ARCHIVE_URL:-}" || -n "${AENEAS_ARCHIVE_SHA256:-}" ]]; then
+  if [[ -z "${AENEAS_ARCHIVE_URL:-}" || -z "${AENEAS_ARCHIVE_SHA256:-}" ]]; then
+    echo "AENEAS_ARCHIVE_URL and AENEAS_ARCHIVE_SHA256 must be set together." >&2
+    exit 1
+  fi
   url="$AENEAS_ARCHIVE_URL"
   expected="$AENEAS_ARCHIVE_SHA256"
-elif [[ "$platform" == "Darwin-arm64" ]]; then
-  url="$RELEASE_BASE/aeneas-macos-aarch64.tar.gz"
-  expected="4e8ed96cf4f02478d1645c04d7f74ed1124913da588029a5743e85de8500e75c"
 else
-  cat >&2 <<EOF
+  case "$platform" in
+    Darwin-arm64)
+      archive_name="aeneas-macos-aarch64.tar.gz"
+      expected="4e8ed96cf4f02478d1645c04d7f74ed1124913da588029a5743e85de8500e75c"
+      ;;
+    Linux-aarch64)
+      archive_name="aeneas-linux-aarch64.tar.gz"
+      expected="870cbcdf836cdb8734ff19ddc6343fec4a1a01801d2c33b1511c6e97ca0c1ac4"
+      ;;
+    Linux-x86_64)
+      archive_name="aeneas-linux-x86_64.tar.gz"
+      expected="257b8503464e74f17dc2dc9506b8a7440f257b4d307ad240ff3e28ec587c36b6"
+      ;;
+    *)
+      cat >&2 <<EOF
 No Aeneas binary has been configured for $platform.
 Select the appropriate archive at $RELEASES_URL and run:
   AENEAS_ARCHIVE_URL=<download-url> AENEAS_ARCHIVE_SHA256=<sha256> ./scripts/build.sh
-Alternatively adapt scripts/fetch-aeneas.sh to your platform.
 EOF
-  exit 1
+      exit 1
+      ;;
+  esac
+  url="$RELEASE_BASE/$archive_name"
 fi
 
 sha256() {
