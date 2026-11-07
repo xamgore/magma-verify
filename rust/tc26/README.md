@@ -18,12 +18,9 @@ These changes are checked by `scripts/check-tc26-source.py`. All original
 loops, their bounds, and the Feistel expressions remain unchanged.
 
 ```sh
-../../scripts/setup-rustcrypto.sh
+../../scripts/fetch-magma.sh
 cargo check --locked
-cargo test --locked
 cargo fmt --all --check
 ```
 
-Tests compare with the original `magma::Magma` on 256 deterministic
-key/block pairs and verify a known RFC vector. The I/O adapter's
-equivalence to the real `cipher` API has not yet been formally proved.
+The I/O adapter is not formally proved equivalent to the public cipher API.

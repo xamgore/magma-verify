@@ -1,6 +1,40 @@
 # Magma verification
 
-Lean 4.36.0-rc2 workspace for verifying RustCrypto Magma against `Magma/RFC8891.lean`.
+Formal verification workspace for the [magma](https://crates.io/crates/magma) crate from RustCrypto ecosystem.
+
+This project uses [Lean 4](https://lean-lang.org) to prove the crate's functional correctness. The verification is done against the executable [RFC 8891](https://www.rfc-editor.org/info/rfc8891/) specification from [xamgore/magma](https://github.com/xamgore/magma) repository.
+
+## Dependencies
+
+- [Lean 4](https://lean-lang.org/) — the proof assistant used for the formal specification and correctness proofs.
+- [Charon](https://github.com/AeneasVerif/charon) — extracts the LLBC intermediate representation from the Rust compiler.
+- [Aeneas](https://github.com/AeneasVerif/aeneas) — translates Charon's LLBC output into pure Lean 4 functions and structures.
+
+## What is proved
+
+The TC26 encryption path matches RFC 8891 for every 256-bit key and 64-bit block. Lean covers the original S-box constants, all 1024 expanded entries, the substitution and round functions, all 32 rounds, key selection and byte order. The extracted encryption completes without modeled panics, including out-of-bounds accesses and checked-arithmetic overflow.
+
+## What is open
+
+The decryption round bodies and first eight-round loop have been verified, but not the complete `decrypt_block` function or its final byte output. The public `cipher` adapter, cryptographic strength, side channels and compiled machine code are also outside this proof.
+
+## How it works
+
+`scripts/fetch-magma.sh` restores the original `magma 0.10.0` source from a SHA-256-checked archive. Charon extracts the Rust program into LLBC[^llbc]; Aeneas translates the supported safe subset into pure Lean functions. The generated definitions are in `Magma/RustCrypto/Code/` and `Magma/RustCrypto/TC26/`. The proofs compare their behavior with `Magma/RFC8891.lean`.
+
+Aeneas replaces ownership and borrowing with value passing and backward functions that propagate updates. Its [functional translation](https://arxiv.org/abs/2206.07185) is justified by a *simulation relation*: executions of the source semantics correspond to executions of the pure model, preserving observable results. A [soundness result for LLBC](https://arxiv.org/abs/2404.02680) also connects its borrow-aware semantics to a pointer-based execution model. This is why proofs about translated functions can establish properties of the supported Rust code. It is not a machine-checked guarantee about the actual Charon/Aeneas executables: the extraction tools and external library models remain trusted.
+
+## Changes to the verification crate
+
+The upstream `magma` source is unchanged. Aeneas [does not yet support `unsafe` Rust](https://github.com/AeneasVerif/aeneas#targeted-subset-and-current-limitations); the `cipher` interface uses `InOut` from the `inout` crate, which stores raw pointers and dereferences them through `unsafe`. Its `hybrid-array` types also trigger an unsupported trait cycle during translation. For this reason, `rust/tc26/` contains a separate, safe verification view with an eight-byte input/output adapter.
+
+The original block methods are specialized from `S::g` to `TC26::g`, their `Block<Self>` argument becomes `[u8; 8]`, and `get_in()` is copied into an owned array to avoid a borrow-analysis failure. The round computations do not change. `scripts/check-tc26-source.py` enforces these exact differences, but does not establish equivalence with the public `cipher` API.
+
+`encrypt_with_words` and `decrypt_with_words` are verification-only callers that construct the cipher and invoke a block method; they do not exist upstream. The current final encryption theorem uses the first as a convenient entry point, although neither wrapper is needed to prove a block method directly. There is no final proof about the decryption wrapper.
+
+## Aeneas backend patches
+
+`scripts/patch_aeneas_backend.py` adapts the Aeneas Lean library to Lean 4.36.0-rc2: it aligns Lean/Mathlib versions, discards incompatible build artifacts, updates `bv_decide` private-name construction and rewrites four `Set` membership lemmas for the current API. These changes affect the Lean proof infrastructure, not the Rust program or translation executables. The script rejects unexpected source layouts; final proof terms are still checked by Lean.
 
 ## Build
 
@@ -8,108 +42,6 @@ Lean 4.36.0-rc2 workspace for verifying RustCrypto Magma against `Magma/RFC8891.
 ./scripts/build.sh
 ```
 
-The build restores the SHA-256-verified original RustCrypto `magma 0.10.0`,
-checks the verification Rust source against the upstream methods, runs Cargo
-tests, generates Lean using Charon/Aeneas, runs `lake build` and
-`lake lint`, then audits the final theorem dependencies using `#print axioms`
-to reject any axioms beyond Lean's standard logical axioms.
+The build checks archive hashes and the Rust source comparison, regenerates Lean, compiles the crates, runs `lake build` and `lake lint`. The pinned Aeneas/Charon archive covers macOS arm64; other systems require `AENEAS_ARCHIVE_URL` and `AENEAS_ARCHIVE_SHA256`.
 
-## Layout
-
-- `Magma/RFC8891.lean` — unchanged RFC specification.
-- `rust/magma/` — ignored, pristine upstream crate, restored on each build.
-- `rust/tc26/src/lib.rs` — reviewable Tc26-specific Rust source. Its
-  encryption/decryption methods preserve the original nested `for` loops,
-  reverse iterations, key indexing, Feistel steps, and byte packing.
-- `rust/tc26/src/adapter.rs` — **the only verification-side I/O shim**:
-  a borrowed input/output pair over `[u8; 8]` with `get_in`/`get_out`.
-  No `cipher` backend traits or `Block` types are reimplemented.
-- `scripts/check-tc26-source.py` — rejects changes to the upstream round
-  logic; only Tc26 specialization and the two I/O adaptations are permitted.
-- `Magma/RustCrypto/Code/` — generated model of upstream S-boxes.
-- `Magma/RustCrypto/Tc26/` — generated model of the Tc26 methods,
-  **with loops intact**.
-- `Magma/RustCrypto/Correctness.lean` — table and arithmetic proofs.
-- `Magma/RustCrypto/Rounds.lean` — generated Feistel loop-body steps.
-- `Magma/RustCrypto/Keys.lean` — eight Rust words, all 32 RFC subkeys, and in-bounds array reads.
-- `Magma/RustCrypto/Loops.lean` — eight generated inner-loop steps.
-- `Magma/RustCrypto/Outer.lean` — all three forward passes (24 rounds).
-- `Magma/RustCrypto/Reverse.lean` — reverse iterator and the final eight rounds.
-- `Magma/RustCrypto/Cipher.lean` — the full pure 32-round result equals
-  `Magma.encrypt` for every key and block.
-- `Magma/RustCrypto/Bytes.lean` — original four-byte big-endian input conversion.
-- `Magma/RustCrypto/Block.lean` — byte-exact execution and output of the
-  generated, complete `encrypt_block`, conditional on Rust `g` matching RFC `g`.
-- `Magma/RustCrypto/Equivalence.lean` — end-to-end generated
-  `encrypt_with_words` byte output equals RFC ciphertext for all inputs,
-  conditional on correctness of Rust `g`.
-- `Magma/RustCrypto/SboxGeneration.lean` — original innermost expanded
-  S-box generation step (bounds, arithmetic, and output write).
-- `Magma/RustCrypto/SboxLoops.lean` — total-correctness of all three
-  original expanded S-box construction loops.
-- `Magma/RustCrypto/SboxTables.lean` — specialized Tc26 table bounds,
-  generated expanded table, and source-derived result equality.
-- `Magma/RustCrypto/SboxApply.lean` — safety and state bound for one
-  original `apply_sbox` loop iteration.
-- `Magma/RustCrypto/SboxApplyLoops.lean` — termination and safety of
-  the entire original four-iteration `apply_sbox` loop.
-- `Magma/RustCrypto/SboxApplyValue{,Loop}.lean` — exact one-step value
-  and whole-loop pure result of original `apply_sbox`.
-- `Magma/RustCrypto/Sbox{Cell,Ordinal,Prefix}.lean` — pointwise correctness
-  of all 1024 generated expanded S-box entries.
-- `Magma/RustCrypto/Sbox{RFC,Masks,Nibbles,Byte,Packing}.lean` — byte and
-  nibble indexing, exact RFC substitutions, and final 32-bit word packing.
-- `Magma/RustCrypto/SboxFinal.lean` — unconditional Tc26 S-box, `g`, and
-  end-to-end encryption correctness, discharging the older `g` premises.
-- `Magma/Verification.lean` — imports the RFC, models, and proofs.
-
-```sh
-./scripts/setup-rustcrypto.sh
-python3 scripts/check-tc26-source.py .
-cargo check --manifest-path rust/tc26/Cargo.toml --locked
-cargo test --manifest-path rust/tc26/Cargo.toml --locked
-```
-
-## Why a separate Tc26 model?
-
-A tested two-line patch on the original RustCrypto `magma` crate replaces
-`let b = block.get_in();` with `let b = block.get_in().0;`.
-Cargo and Charon accept it, **but Aeneas still fails** on the
-`hybrid-array::Array` / `ArraySize` / `AssocArraySize` type/trait cycle.
-
-Using the actual `cipher::Block` in the Tc26 model also triggers that
-cycle. The actual `cipher::InOut` can be extracted for the methods, but
-Aeneas then requires opaque external Lean declarations for its type and
-methods; the caller wrappers also fail to translate. Thus we retain one
-small, explicit I/O adapter rather than introduce unproved external axioms.
-
-The original `encrypt_block` and `decrypt_block` remain in
-`tools/magma-full.llbc`. The checker enforces that the Tc26 model differs
-in method signatures (`Block<Self>` to `[u8; 8]`), input copying, and
-`S::g` specialization — **not in the cryptographic rounds**.
-
-Rust tests compare 256 deterministic inputs and a known RFC vector against
-unmodified RustCrypto. In Lean, `Magma/RustCrypto/Correctness.lean` now proves:
-all 128 Tc26 S-box entries match RFC 8891, Rust's 32-bit wrapping addition
-and left rotation agree with the RFC operations, and the Aeneas model of the
-adapter's input read satisfies its contract (using `step*`). The earlier
-conditional `g` lemma is now discharged in `SboxFinal.lean` using the
-verified original S-box generation and substitution loops.
-The generated **inner Feistel loop-body steps**, including both forward
-and reverse decryption loops, are also proved equal to `Magma.G` when the
-iterator, key lookup, and S-box premises are satisfied. The full
-eight-step inner encryption loop is now proved to terminate and match
-a pure sequence of RFC rounds, assuming correctness of Rust `g`.
-
-**Proved:** `Magma.RustCrypto.encrypt_with_words_correct` in
-`Magma/RustCrypto/SboxFinal.lean`: the source-derived Tc26-specialized
-Aeneas encryption terminates with exactly the RFC 8891 ciphertext bytes
-for every 256-bit key and 64-bit block, with no `g` premise or `sorry`.
-
-**Outside this proof:** equivalence between the verification I/O adapter
-and the upstream `cipher` traits (intentionally excluded), and full
-end-to-end decryption equivalence.
-
-For other architectures, select a compatible binary archive from
-[Aeneas releases](https://github.com/AeneasVerif/aeneas/releases) and set
-`AENEAS_ARCHIVE_URL` / `AENEAS_ARCHIVE_SHA256`.
+[^llbc]: **Low-Level Borrow Calculus**: the borrow-aware intermediate representation extracted by Charon and consumed by Aeneas.

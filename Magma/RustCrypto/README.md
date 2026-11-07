@@ -45,5 +45,5 @@ formal equivalence of the I/O adapter to external `cipher` types:
 that proof is intentionally out of scope. End-to-end decryption
 equivalence has not yet been established.
 
-Run `./scripts/build.sh` to regenerate the model, run Rust tests,
+Run `./scripts/build.sh` to regenerate the model, check the Rust source,
 compile the Lean proofs, and check formatting.
