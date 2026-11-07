@@ -50,3 +50,22 @@ trust axiom. The expanded S-box and substitution loops still need induction.
 `gen_exp_sbox` loop (including byte arithmetic and two-dimensional indexing)
 under the explicit 4-bit-entry precondition. Its three nested loop
 invariants and the `apply_sbox` iteration theorem remain open.
+
+`SboxLoops.lean` closes all 4×16×16 original generator loop iterations;
+`SboxTables.lean` connects their pure result to the concrete Tc26 instance.
+`SboxApply.lean` proves an iteration of the original `apply_sbox` body is
+in bounds and non-overflowing when preceding bytes satisfy the invariant.
+The remaining proof obligations are exact expanded table lookups, the full
+`apply_sbox` loop, and removal of the premise on `g`.
+
+`SboxApplyLoops.lean` lifts the per-byte proof to the entire
+four-iteration Aeneas-translated `apply_sbox` loop: all executions
+terminate without out-of-bounds access or overflow. Byte-for-byte
+equality of its output to `Magma.t` is still unproved.
+
+`SboxApplyValue.lean` proves the **exact** result of one original
+`apply_sbox` step; `SboxApplyValueLoop.lean` proves the full original
+loop returns `tc26ApplyModel`. `SboxCell.lean`, `SboxOrdinal.lean`,
+and `SboxPrefix.lean` prove every one of the 1024 expanded table
+entries agrees with its two source S-box values.
+Linking this to `Magma.t` for arbitrary input remains to be proved.

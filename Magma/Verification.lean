@@ -2,7 +2,8 @@ module
 
 public import Magma.RFC8891
 public import Magma.RustCrypto
-public import Magma.RustCrypto.SboxGeneration
+public import Magma.RustCrypto.SboxApplyValueLoop
+public import Magma.RustCrypto.SboxPrefix
 
 @[expose] public section
 
@@ -45,6 +46,22 @@ namespace Magma.Verification
 #check Magma.RustCrypto.encrypt_with_words_if_g
 
 #check Magma.RustCrypto.gen_exp_inner_step
+
+#check Magma.RustCrypto.gen_exp_sbox_full
+
+#check Magma.RustCrypto.tc26_gen_exp_correct
+
+#check Magma.RustCrypto.apply_sbox_step_total
+
+#check Magma.RustCrypto.apply_sbox_total
+
+#check Magma.RustCrypto.apply_sbox_step_value
+
+#check Magma.RustCrypto.apply_sbox_loop_value
+
+#check Magma.RustCrypto.expWrite_pointwise
+
+#check Magma.RustCrypto.tc26Expanded_cell
 
 #check RustCryptoTc26.encrypt_with_words
 

@@ -44,6 +44,18 @@ tests, generates Lean using Charon/Aeneas, and runs `lake build` and
   conditional on correctness of Rust `g`.
 - `Magma/RustCrypto/SboxGeneration.lean` — original innermost expanded
   S-box generation step (bounds, arithmetic, and output write).
+- `Magma/RustCrypto/SboxLoops.lean` — total-correctness of all three
+  original expanded S-box construction loops.
+- `Magma/RustCrypto/SboxTables.lean` — specialized Tc26 table bounds,
+  generated expanded table, and source-derived result equality.
+- `Magma/RustCrypto/SboxApply.lean` — safety and state bound for one
+  original `apply_sbox` loop iteration.
+- `Magma/RustCrypto/SboxApplyLoops.lean` — termination and safety of
+  the entire original four-iteration `apply_sbox` loop.
+- `Magma/RustCrypto/SboxApplyValue{,Loop}.lean` — exact one-step value
+  and whole-loop pure result of original `apply_sbox`.
+- `Magma/RustCrypto/Sbox{Cell,Ordinal,Prefix}.lean` — pointwise correctness
+  of all 1024 generated expanded S-box entries.
   The Aeneas loop proofs assume that the Rust `g` implementation equals RFC `g`.
 - `Magma/Verification.lean` — imports the RFC, models, and proofs.
 
