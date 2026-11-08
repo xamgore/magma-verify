@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Verify that Tc26's cipher algorithm matches the published RustCrypto source.
+"""Audit the verification view against the pinned RustCrypto source.
 
-The verification view substitutes only the block backend interface with
-a safe adapter. Both original generic backend implementations, including
-all cipher rounds and S-box dispatch, must be byte-for-byte unchanged.
+The generic block encryption/decryption method bodies are unchanged. KeyInit
+uses an array-based interface and a fixed-length range loop in place of
+unsupported hybrid-array and zip/for_each operations; reject other edits.
 """
 
 import difflib
@@ -47,6 +47,26 @@ def check(root: Path) -> None:
             print("\n".join(differences), file=sys.stderr)
             raise SystemExit(f"{method}: verification method diverges from upstream")
         print(f"{method}: original RustCrypto method body unchanged")
+
+    # The original zip/for_each iterators cannot be translated by Aeneas.
+    # Their fixed-size traversal is rewritten into a range over the same
+    # eight four-byte chunks; reject any other modification of the method.
+    header = "impl<S: Sbox> KeyInit for Gost89<S> {"
+    original = method_body(upstream, header, "new")
+    expected = original.replace(
+        "fn new(key: &Key<Self>) -> Self {",
+        "fn new(key: &[u8; 32]) -> Self {",
+    ).replace(
+        "key.chunks_exact(4)\n"
+        "            .zip(key_u32.iter_mut())\n"
+        "            .for_each(|(chunk, v)| *v = to_u32(chunk));",
+        "for i in 0..8 {\n"
+        "            key_u32[i] = to_u32(&key[(i * 4)..(i * 4 + 4)]);\n"
+        "        }",
+    )
+    if expected == original or expected != method_body(verification, header, "new"):
+        raise SystemExit("KeyInit::new differs from the audited iterator-to-range rewrite")
+    print("KeyInit::new: fixed-size iterator-to-range rewrite verified")
 
 
 

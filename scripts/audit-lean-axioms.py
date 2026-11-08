@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Reject hidden axioms in the unconditional Tc26 equivalence proof.
+"""Reject hidden axioms in the RustCrypto equivalence proof.
 
 Lean's bv_decide tactic can introduce native SAT-checker axioms even when
 all tactics complete successfully. Run #print axioms on the final theorems
@@ -14,16 +14,17 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 names = [
-    "Magma.Proof.tc26_model_matches_rfc",
-    "Magma.Proof.tc26_apply_sbox_correct",
-    "Magma.Proof.tc26_g_correct",
+    "Magma.Proof.rust_model_matches_rfc",
+    "Magma.Proof.rust_apply_sbox_correct",
+    "Magma.Proof.rust_g_correct",
     "Magma.Proof.encrypt_block_correct",
     "Magma.Proof.decrypt_block_correct",
+    "Magma.Proof.key_init_correct",
 ]
-audit_file = root / "tools" / "tc26-axiom-audit.lean"
+audit_file = root / "tools" / "rust-axiom-audit.lean"
 audit_file.parent.mkdir(parents=True, exist_ok=True)
 audit_file.write_text(
-    "import Magma.Proof.Decrypt.Block\n"
+    "import Magma.Proof.Decrypt.Block\nimport Magma.Proof.Common.KeyInit\n"
     + "".join(f"#print axioms {name}\n" for name in names)
 )
 result = subprocess.run(
@@ -47,4 +48,4 @@ for name in names:
     unexpected = axioms[name] - allow
     if unexpected:
         sys.exit(f"Untrusted axioms in {name}: {sorted(unexpected)}")
-print("Axiom audit passed: five Tc26 theorems use only propext, Classical.choice, Quot.sound.")
+print("Axiom audit passed: six RustCrypto theorems use only propext, Classical.choice, Quot.sound.")

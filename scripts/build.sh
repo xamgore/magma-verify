@@ -14,7 +14,7 @@ python3 "$ROOT/scripts/check-tc26-source.py" "$ROOT"
 export CARGO_TARGET_DIR="$ROOT/tools/cargo-target"
 cd "$CRATE"
 cargo check --locked --all-features
-PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::adapter::verify_encrypt,crate::adapter::verify_decrypt --dest-file="$ROOT/tools/magma.llbc"
+PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::adapter::verify_key_init,crate::adapter::verify_encrypt,crate::adapter::verify_decrypt --dest-file="$ROOT/tools/magma.llbc"
 "$BIN/aeneas" -backend lean "$ROOT/tools/magma.llbc" -dest "$ROOT" -subdir /Magma/Rust -namespace Magma.Rust -split-files
 
 cd "$ROOT"

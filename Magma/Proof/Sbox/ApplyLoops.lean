@@ -25,7 +25,7 @@ lemma apply_sbox_loop_terminates
     (a v : Std.U32) (iter : core.ops.range.Range Std.Usize)
     (hb : iter.start.val ≤ iter.end.val ∧ iter.end.val ≤ 4)
     (hv : v.val < 2^(8*iter.start.val)) :
-    Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop tc26SboxExt iter a v
+    Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop rustSboxExt iter a v
       ⦃ out => out.val < 2^(8*iter.end.val) ⦄ := by
   unfold Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop
   apply loop.spec_decr_nat
@@ -63,10 +63,10 @@ lemma apply_sbox_loop_terminates
       simpa [hfinal] using hval
   · exact ⟨rfl, hb.1, hv⟩
 
-/-- The generated RustCrypto Tc26 apply_sbox succeeds on every input. -/
+/-- The generated RustCrypto RustCrypto apply_sbox succeeds on every input. -/
 lemma apply_sbox_terminates (a : Std.U32) :
-    tc26SboxExt.apply_sbox a ⦃ _ => True ⦄ := by
-  change Magma.Rust.sboxes.SboxExt.apply_sbox.default tc26SboxExt a
+    rustSboxExt.apply_sbox a ⦃ _ => True ⦄ := by
+  change Magma.Rust.sboxes.SboxExt.apply_sbox.default rustSboxExt a
     ⦃ _ => True ⦄
   unfold Magma.Rust.sboxes.SboxExt.apply_sbox.default
   step with (apply_sbox_loop_terminates a 0#u32

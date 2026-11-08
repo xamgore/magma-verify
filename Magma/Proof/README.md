@@ -7,8 +7,8 @@ Do not edit the generated files manually.
 
 All handwritten Lean lives in `Magma/Proof/`:
 
-- `Model.lean` specializes the extracted generic backend to the Tc26 S-box.
-- `Common/` proves primitive arithmetic, key and round properties, and byte conversion.
+- `Model.lean` specializes the extracted generic backend to the crate's S-box.
+- `Common/` proves primitive arithmetic, key initialization, round properties, and byte conversion.
 - `Encrypt/` proves the encryption loops, round schedule, and block output.
 - `Sbox/` proves expanded-table generation, substitution, and correspondence to RFC 8891.
 - `Decrypt/` proves the decryption loops, key schedule, and block output.
@@ -20,7 +20,7 @@ block correspondence is developed in `Encrypt/Block.lean`.
 
 The two Rust block method bodies are compared with the original archive
 by `scripts/check-tc26-source.py`. The proof establishes correctness of
-the translated, Tc26-specialized methods, not formal equivalence of the
+the translated crate-specific methods, not formal equivalence of the
 safe I/O adapter with the external `cipher` API.
 
 Run `./scripts/build.sh` to rebuild the model, typecheck the proofs,

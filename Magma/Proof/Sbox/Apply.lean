@@ -78,7 +78,7 @@ lemma apply_sbox_step_succeeds
     (hi : iter.start.val < iter.end.val)
     (hbound : iter.end.val ≤ 4)
     (hv : v.val < 2 ^ (8 * iter.start.val)) :
-    Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop.body tc26SboxExt a iter v
+    Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop.body rustSboxExt a iter v
       ⦃ cf => ∃ it' v', cf = cont (it', v') ∧
         it'.start.val = iter.start.val + 1 ∧ it'.end = iter.end ∧
         v'.val < 2 ^ (8 * it'.start.val) ⦄ := by
@@ -87,7 +87,7 @@ lemma apply_sbox_step_succeeds
   step with hnext
   subst o
   step*
-  simp only [tc26_expanded_sbox_constant_correct, bind_ok]
+  simp only [rust_expanded_sbox_constant_correct, bind_ok]
   step*
   case hbound =>
     have hbits : i3.bv =

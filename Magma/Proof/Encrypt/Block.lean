@@ -55,10 +55,10 @@ theorem encrypt_block_matches_expected_bytes_of_g_correct
     (block : Magma.Rust.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize))
     (hg :
       ∀ a k : Std.U32,
-        Magma.Rust.sboxes.SboxExt.g.default tc26SboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Tc26.encrypt_block self block ⦃ out =>
+        Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
+    Magma.Proof.Crate.encrypt_block self block ⦃ out =>
       out.output.val = expectEncryptedBytes self.key block.input ⦄ := by
-  unfold Magma.Proof.Tc26.encrypt_block
+  unfold Magma.Proof.Crate.encrypt_block
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block
   simp only [Magma.Rust.adapter.InOutABArrayU88.get_in, bind_ok]
   step

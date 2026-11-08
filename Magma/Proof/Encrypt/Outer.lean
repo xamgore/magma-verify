@@ -59,11 +59,11 @@ lemma encrypt_repeated_forward_loops_correct (self : Magma.Rust.Gost89 Magma.Rus
     (l r : Std.U32)
     (hg :
       ∀ a k : Std.U32,
-        Magma.Rust.sboxes.SboxExt.g.default tc26SboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Tc26.encrypt_block_loop0 { start := 0#i32, «end» := 3#i32 } self l r ⦃
+        Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
+    Magma.Proof.Crate.encrypt_block_loop0 { start := 0#i32, «end» := 3#i32 } self l r ⦃
       (outself : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26) (outl outr : Std.U32) =>
       outself = self ∧ (outl.bv, outr.bv) = repeat8Rounds self.key 3 (l.bv, r.bv) ⦄ := by
-  unfold Magma.Proof.Tc26.encrypt_block_loop0
+  unfold Magma.Proof.Crate.encrypt_block_loop0
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0
   apply
     loop.spec_decr_nat (measure := fun s => (3 - s.1.start.val).toNat) (inv := fun s =>

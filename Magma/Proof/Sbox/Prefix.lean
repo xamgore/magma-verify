@@ -5,7 +5,7 @@ public import Magma.Proof.Sbox.Ordinal
 @[expose] public section
 
 /-!
-# All 1024 generated Tc26 S-box entries, proved pointwise
+# All 1024 generated RustCrypto S-box entries, proved pointwise
 
 Induction over each of the original three nested loops shows exactly
 which logical output cells are written and proves the final expanded
@@ -173,10 +173,10 @@ lemma expFillI_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize) 
       extendInterval (iStart i) 256 n (writeOrdinal r c) (expectedExpByte sbox r c)
         (expCell out r c)
 
-theorem tc26_expanded_table_cell_correct (r : Fin 4) (c : Fin 256) :
-    expCell tc26Expanded r c = expectedExpByte tc26Table r c := by
+theorem rust_expanded_table_cell_correct (r : Fin 4) (c : Fin 256) :
+    expCell rustExpandedSbox r c = expectedExpByte rustSboxTable r c := by
   have h :=
-    expFillI_pointwise tc26Table 4 0#usize
+    expFillI_pointwise rustSboxTable 4 0#usize
       (Std.Array.repeat 4#usize (Std.Array.repeat 256#usize 0#u8)) (by decide) r c
   have hbound : writeOrdinal r c < 1024 := by
     unfold writeOrdinal

@@ -56,7 +56,7 @@ def expWrite (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
 def expNextK (k : Std.Usize) : Std.Usize :=
   UScalar.wrapping_add k 1#usize
 
-/-- A successful original inner-loop step writes the expanded Tc26 entry,
+/-- A successful original inner-loop step writes the expanded RustCrypto entry,
     increments k, and has no overflow or bounds failure. -/
 lemma expanded_sbox_generation_inner_step
     (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)

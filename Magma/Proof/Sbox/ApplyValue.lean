@@ -8,9 +8,9 @@ public import Magma.Proof.Sbox.ApplyLoops
 # Exact original apply_sbox loop-body refinement
 
 One original Aeneas-translated `apply_sbox` iteration reads the
-corresponding input byte, indexes the expanded Tc26 table, shifts
+corresponding input byte, indexes the expanded RustCrypto table, shifts
 the substituted byte into place, and adds it without overflow.
-The `tc26Step` model is proved equal to the original body for
+The `rustSboxStep` model is proved equal to the original body for
 every bounded partial accumulator; it is not a replacement Rust body.
 -/
 
@@ -21,8 +21,8 @@ namespace Magma.Proof
 def byteIndex (a : Std.U32) (i : Std.Usize) : Nat :=
   ((a.bv &&& ((255 : BitVec 32) <<< (8 * i.val))) >>> (8 * i.val)).toNat
 
-def tc26Step (a : Std.U32) (i : Std.Usize) (v : Std.U32) : Std.U32 :=
-  let x : Std.U8 := (tc26Expanded.val[i.val]!).val[byteIndex a i]!
+def rustSboxStep (a : Std.U32) (i : Std.Usize) (v : Std.U32) : Std.U32 :=
+  let x : Std.U8 := (rustExpandedSbox.val[i.val]!).val[byteIndex a i]!
   UScalar.wrapping_add v ⟨(UScalar.cast .U32 x).bv <<< (8 * i.val)⟩
 
 private lemma byteExtractionBound (a : BitVec 32) (s : Nat) :
@@ -83,17 +83,17 @@ lemma apply_sbox_step_value
     (hi : iter.start.val < iter.end.val)
     (hbound : iter.end.val ≤ 4)
     (hv : v.val < 2 ^ (8 * iter.start.val)) :
-    Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop.body tc26SboxExt a iter v
+    Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop.body rustSboxExt a iter v
       ⦃ cf => ∃ it' v', cf = cont (it', v') ∧
         it'.start.val = iter.start.val + 1 ∧ it'.end = iter.end ∧
-        v' = tc26Step a iter.start v ∧
+        v' = rustSboxStep a iter.start v ∧
         v'.val < 2 ^ (8 * it'.start.val) ⦄ := by
   unfold Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop.body
   have hnext := usize_range_next_some iter hi
   step with hnext
   subst o
   step*
-  simp only [tc26_expanded_sbox_constant_correct, bind_ok]
+  simp only [rust_expanded_sbox_constant_correct, bind_ok]
   step*
   case hbound =>
     have hbits : i3.bv =
@@ -155,12 +155,12 @@ lemma apply_sbox_step_value
       change i3.bv.toNat = _
       rw [hbits, shift_post]
       rfl
-    have hrow : a2 = tc26Expanded.val[iter.start.val]! := by
+    have hrow : a2 = rustExpandedSbox.val[iter.start.val]! := by
       rw [a2_post]
-      exact (getElem!_pos tc26Expanded.val iter.start.val
+      exact (getElem!_pos rustExpandedSbox.val iter.start.val
         (by simpa using (show iter.start.val < 4 by omega))).symm
     have hlookup : i4 =
-        (tc26Expanded.val[iter.start.val]!).val[byteIndex a iter.start]! := by
+        (rustExpandedSbox.val[iter.start.val]!).val[byteIndex a iter.start]! := by
       rw [i4_post, ← hrow, ← hidx]
       have hc : k.val < a2.val.length := by
         have hk : k.val < 256 := by
@@ -169,7 +169,7 @@ lemma apply_sbox_step_value
         simpa only [a2.property, show (256#usize).val = 256 by decide] using hk
       exact (getElem!_pos a2.val k.val hc).symm
     have hshifted : i6 = (⟨(UScalar.cast .U32
-          ((tc26Expanded.val[iter.start.val]!).val[byteIndex a iter.start]!)).bv <<<
+          ((rustExpandedSbox.val[iter.start.val]!).val[byteIndex a iter.start]!)).bv <<<
           (8 * iter.start.val)⟩ : Std.U32) := by
       apply UScalar.eq_of_val_eq
       apply congrArg BitVec.toNat
@@ -178,10 +178,10 @@ lemma apply_sbox_step_value
         _ = (UScalar.cast .U32 i4).bv <<< shift.val :=
           congrArg (fun z : Std.U32 => z.bv <<< shift.val) i5_post
         _ = (UScalar.cast .U32
-            ((tc26Expanded.val[iter.start.val]!).val[byteIndex a iter.start]!)).bv <<< shift.val :=
+            ((rustExpandedSbox.val[iter.start.val]!).val[byteIndex a iter.start]!)).bv <<< shift.val :=
           congrArg (fun z : Std.U8 => (UScalar.cast .U32 z).bv <<< shift.val) hlookup
         _ = (UScalar.cast .U32
-            ((tc26Expanded.val[iter.start.val]!).val[byteIndex a iter.start]!)).bv <<<
+            ((rustExpandedSbox.val[iter.start.val]!).val[byteIndex a iter.start]!)).bv <<<
             (8 * iter.start.val) := by rw [shift_post]
     have hno : v.val + i6.val < U32.size := by
       have hpow : 2 ^ (8 * (iter.start.val + 1)) ≤ 2 ^ 32 := by
@@ -194,7 +194,7 @@ lemma apply_sbox_step_value
       rw [v1_post, UScalar.wrapping_add_val_eq]
       simp only [UScalar.size_UScalarTyU32, Nat.mod_eq_of_lt hno]
     change v1 = UScalar.wrapping_add v (⟨(UScalar.cast .U32
-      ((tc26Expanded.val[iter.start.val]!).val[byteIndex a iter.start]!)).bv <<<
+      ((rustExpandedSbox.val[iter.start.val]!).val[byteIndex a iter.start]!)).bv <<<
       (8 * iter.start.val)⟩ : Std.U32)
     rw [← hshifted]
     exact hwrap

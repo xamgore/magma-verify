@@ -6,13 +6,13 @@
  
 +use adapter::{
 +    Block, BlockCipherDecBackend, BlockCipherDecClosure, BlockCipherDecrypt, BlockCipherEncBackend,
-+    BlockCipherEncClosure, BlockCipherEncrypt, InOut,
++    BlockCipherEncClosure, BlockCipherEncrypt, InOut, KeyInit,
 +};
  use cipher::{
 -    AlgorithmName, Block, BlockCipherDecBackend, BlockCipherDecClosure, BlockCipherDecrypt,
 -    BlockCipherEncBackend, BlockCipherEncClosure, BlockCipherEncrypt, BlockSizeUser, InOut, Key,
 -    KeyInit, KeySizeUser, ParBlocksSizeUser,
-+    AlgorithmName, BlockSizeUser, Key, KeyInit, KeySizeUser, ParBlocksSizeUser,
++    AlgorithmName, BlockSizeUser, KeySizeUser, ParBlocksSizeUser,
      consts::{U1, U8, U32},
  };
  use core::{fmt, marker::PhantomData};
@@ -24,3 +24,19 @@
  mod sboxes;
  
  pub use sboxes::Sbox;
+@@ -75,11 +78,11 @@
+ 
+ impl<S: Sbox> KeyInit for Gost89<S> {
+     #[inline]
+-    fn new(key: &Key<Self>) -> Self {
++    fn new(key: &[u8; 32]) -> Self {
+         let mut key_u32 = [0u32; 8];
+-        key.chunks_exact(4)
+-            .zip(key_u32.iter_mut())
+-            .for_each(|(chunk, v)| *v = to_u32(chunk));
++        for i in 0..8 {
++            key_u32[i] = to_u32(&key[(i * 4)..(i * 4 + 4)]);
++        }
+         Self {
+             key: key_u32,
+             _p: PhantomData,

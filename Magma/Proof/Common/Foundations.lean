@@ -6,7 +6,7 @@ public import Magma.Proof.Model
 @[expose] public section
 
 /-!
-# RustCrypto Tc26: first correspondence lemmas
+# RustCrypto RustCrypto: first correspondence lemmas
 
 These statements use the Aeneas-generated definitions, not a handwritten
 Rust cipher model. The table equality covers every one of the 128 S-box
@@ -21,15 +21,15 @@ open Aeneas Aeneas.Std Result
 
 namespace Magma.Proof
 
-/-- The actual Tc26 S-box table obtained from Aeneas. -/
-def tc26Table : Aeneas.Std.Array (Aeneas.Std.Array Aeneas.Std.U8 16#usize) 8#usize :=
+/-- The actual RustCrypto S-box table obtained from Aeneas. -/
+def rustSboxTable : Aeneas.Std.Array (Aeneas.Std.Array Aeneas.Std.U8 16#usize) 8#usize :=
   Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox.SBOX
 
-/-- All 8 × 16 entries of the RustCrypto Tc26 table equal the RFC 8891 tables. -/
-theorem tc26_table_matches_rfc (i : Fin 8) (j : Fin 16) :
-    (((tc26Table.val[i.val]!).val[j.val]!).val) = (Magma.π'arrays i j).val := by
+/-- All 8 × 16 entries of the RustCrypto RustCrypto table equal the RFC 8891 tables. -/
+theorem rust_table_matches_rfc (i : Fin 8) (j : Fin 16) :
+    (((rustSboxTable.val[i.val]!).val[j.val]!).val) = (Magma.π'arrays i j).val := by
   fin_cases i <;> fin_cases j <;>
-    (unfold tc26Table Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox.SBOX
+    (unfold rustSboxTable Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox.SBOX
      decide)
 
 /-- The Aeneas model of Rust's wrapping addition is BitVec addition. -/
@@ -57,8 +57,8 @@ lemma adapter_get_in_returns_input
     Magma.Rust.adapter.InOutABArrayU88.get_in io ⦃ out => out = io.input ⦄ := by
   simp [Magma.Rust.adapter.InOutABArrayU88.get_in]
 
-/-- The concrete RustCrypto Tc26 trait instance used by the generated model. -/
-def tc26SboxExt : Magma.Rust.sboxes.SboxExt Magma.Rust.sboxes.Tc26 :=
+/-- The concrete RustCrypto RustCrypto trait instance used by the generated model. -/
+def rustSboxExt : Magma.Rust.sboxes.SboxExt Magma.Rust.sboxes.Tc26 :=
   Magma.Rust.sboxes.SboxExt.Blanket
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
@@ -67,11 +67,11 @@ def tc26SboxExt : Magma.Rust.sboxes.SboxExt Magma.Rust.sboxes.Tc26 :=
     deliberately explicit and still requires a separate loop proof. -/
 lemma round_function_matches_rfc_of_substitution (a k : Std.U32)
     (hsub :
-      tc26SboxExt.apply_sbox (core.num.U32.wrapping_add a k) =
+      rustSboxExt.apply_sbox (core.num.U32.wrapping_add a k) =
       ok (⟨Magma.t (a.bv + k.bv)⟩ : Std.U32)) :
-    Magma.Rust.sboxes.SboxExt.g.default tc26SboxExt a k =
+    Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
       ok (⟨Magma.g k.bv a.bv⟩ : Std.U32) := by
-  have hs : tc26SboxExt.apply_sbox (⟨a.bv + k.bv⟩ : Std.U32) =
+  have hs : rustSboxExt.apply_sbox (⟨a.bv + k.bv⟩ : Std.U32) =
       ok (⟨Magma.t (a.bv + k.bv)⟩ : Std.U32) := by
     simpa [core.num.U32.wrapping_add, UScalar.wrapping_add] using hsub
   simp [Magma.Rust.sboxes.SboxExt.g.default, lift, hs,

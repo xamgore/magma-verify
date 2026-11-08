@@ -41,10 +41,10 @@ theorem decrypt_block_matches_expected_bytes_of_g_correct
     (block : Magma.Rust.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize))
     (hg :
       ∀ a k : Std.U32,
-        Magma.Rust.sboxes.SboxExt.g.default tc26SboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Tc26.decrypt_block self block ⦃ out =>
+        Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
+    Magma.Proof.Crate.decrypt_block self block ⦃ out =>
       out.output.val = expectDecryptedBytes self.key block.input ⦄ := by
-  unfold Magma.Proof.Tc26.decrypt_block
+  unfold Magma.Proof.Crate.decrypt_block
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block
   simp only [Magma.Rust.adapter.InOutABArrayU88.get_in, bind_ok]
   step
@@ -85,13 +85,13 @@ theorem decrypt_block_matches_expected_bytes_of_g_correct
   rw [← hstates]
   simp only [List.map_append]
 
-/-- The original Tc26 block decryption method terminates and returns the RFC plaintext. -/
+/-- The original RustCrypto block decryption method terminates and returns the RFC plaintext. -/
 theorem decrypt_block_correct
     (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (block : Magma.Rust.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize)) :
-    Magma.Proof.Tc26.decrypt_block self block ⦃ out =>
+    Magma.Proof.Crate.decrypt_block self block ⦃ out =>
       out.output.val = rfcDecryptedBytes self.key block.input ⦄ := by
   simpa only [decrypted_bytes_match_rfc] using
-    (decrypt_block_matches_expected_bytes_of_g_correct self block tc26_g_correct)
+    (decrypt_block_matches_expected_bytes_of_g_correct self block rust_g_correct)
 
 end Magma.Proof

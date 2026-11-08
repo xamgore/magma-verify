@@ -5,7 +5,7 @@ public import Magma.Proof.Sbox.Prefix
 @[expose] public section
 
 /-!
-# Expanded Tc26 bytes equal pairs of RFC 8891 nibble substitutions
+# Expanded RustCrypto bytes equal pairs of RFC 8891 nibble substitutions
 
 Each generated expanded byte's numeric value equals the RFC
 substitution for the corresponding lower and upper nibble.
@@ -29,16 +29,16 @@ def hiCol (c : Fin 256) : Fin 16 :=
   ⟨c.val / 16, by omega⟩
 
 lemma expectedExpByte_matches_rfc (r : Fin 4) (c : Fin 256) :
-    (expectedExpByte tc26Table r c).val =
+    (expectedExpByte rustSboxTable r c).val =
       (Magma.π'arrays (loRow r) (loCol c)).val + 16 * (Magma.π'arrays (hiRow r) (hiCol c)).val := by
-  let lo := (tc26Table.val[2 * r.val]!).val[c.val % 16]!
-  let hi := (tc26Table.val[2 * r.val + 1]!).val[c.val / 16]!
+  let lo := (rustSboxTable.val[2 * r.val]!).val[c.val % 16]!
+  let hi := (rustSboxTable.val[2 * r.val + 1]!).val[c.val / 16]!
   have hlo : lo.val = (Magma.π'arrays (loRow r) (loCol c)).val :=
-    tc26_table_matches_rfc (loRow r) (loCol c)
+    rust_table_matches_rfc (loRow r) (loCol c)
   have hhi : hi.val = (Magma.π'arrays (hiRow r) (hiCol c)).val :=
-    tc26_table_matches_rfc (hiRow r) (hiCol c)
-  have hloBound : lo.val < 16 := tc26_sbox_entries_lt16 (loRow r) (loCol c)
-  have hhiBound : hi.val < 16 := tc26_sbox_entries_lt16 (hiRow r) (hiCol c)
+    rust_table_matches_rfc (hiRow r) (hiCol c)
+  have hloBound : lo.val < 16 := rust_sbox_entries_lt16 (loRow r) (loCol c)
+  have hhiBound : hi.val < 16 := rust_sbox_entries_lt16 (hiRow r) (hiCol c)
   change (lo.bv + (hi.bv <<< 4)).toNat = _
   simp only [BitVec.toNat_add, BitVec.toNat_shiftLeft, Nat.shiftLeft_eq]
   change (lo.val + (hi.val * 16) % 256) % 256 = _
@@ -49,10 +49,10 @@ lemma expectedExpByte_matches_rfc (r : Fin 4) (c : Fin 256) :
   rw [hlo, hhi]
   omega
 
-theorem tc26_expanded_sbox_matches_rfc (r : Fin 4) (c : Fin 256) :
-    (expCell tc26Expanded r c).val =
+theorem rust_expanded_sbox_matches_rfc (r : Fin 4) (c : Fin 256) :
+    (expCell rustExpandedSbox r c).val =
       (Magma.π'arrays (loRow r) (loCol c)).val + 16 * (Magma.π'arrays (hiRow r) (hiCol c)).val := by
-  rw [tc26_expanded_table_cell_correct]
+  rw [rust_expanded_table_cell_correct]
   exact expectedExpByte_matches_rfc r c
 
 lemma rfc_sbox_value_as_nat (i : Fin 8) (v : BitVec 4) :

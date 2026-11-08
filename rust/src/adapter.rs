@@ -62,3 +62,12 @@ pub fn verify_decrypt(
 ) {
     <crate::Gost89<crate::sboxes::Tc26> as BlockCipherDecBackend>::decrypt_block(self_, block)
 }
+
+// A safe fixed-size key interface avoids hybrid-array's generic associated types.
+pub trait KeyInit: Sized {
+    fn new(key: &[u8; 32]) -> Self;
+}
+
+pub fn verify_key_init(key: &[u8; 32]) -> crate::Gost89<crate::sboxes::Tc26> {
+    <crate::Gost89<crate::sboxes::Tc26> as KeyInit>::new(key)
+}

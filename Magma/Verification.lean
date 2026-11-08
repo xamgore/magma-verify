@@ -2,14 +2,15 @@ module
 
 public import Magma.RFC8891
 public import Magma.Proof.Sbox.ApplyValueLoop
+public import Magma.Proof.Common.KeyInit
 public import Magma.Proof.Decrypt.Block
 
 @[expose] public section
 
 /-!
-# RFC 8891 and RustCrypto Tc26
+# RFC 8891 and the RustCrypto crate
 
-The source-derived Tc26 S-box, 32-round cipher and byte encoding are proved
+The source-derived RustCrypto S-box, 32-round cipher and byte encoding are proved
 equivalent to RFC 8891 for all keys and blocks.
 Both block methods are proved correct and terminating. Equivalence to the
 external `cipher` adapter is not claimed.
@@ -21,11 +22,13 @@ namespace Magma.Verification
 
 #check Magma.decrypt
 
-#check Magma.Proof.tc26_table_matches_rfc
+#check Magma.Proof.rust_table_matches_rfc
 
 #check Magma.Proof.round_function_matches_rfc_of_substitution
 
 #check Magma.Proof.encrypt_inner_loop_step_matches_rfc
+
+#check Magma.Proof.key_init_correct
 
 #check Magma.Proof.round_key_matches_rust_schedule
 
@@ -45,7 +48,7 @@ namespace Magma.Verification
 
 #check Magma.Proof.expanded_sbox_generation_correct
 
-#check Magma.Proof.tc26_expanded_sbox_generation_correct
+#check Magma.Proof.rust_expanded_sbox_generation_correct
 
 #check Magma.Proof.apply_sbox_step_succeeds
 
@@ -57,15 +60,15 @@ namespace Magma.Verification
 
 #check Magma.Proof.expWrite_pointwise
 
-#check Magma.Proof.tc26_expanded_table_cell_correct
+#check Magma.Proof.rust_expanded_table_cell_correct
 
-#check Magma.Proof.tc26_expanded_sbox_matches_rfc
+#check Magma.Proof.rust_expanded_sbox_matches_rfc
 
-#check Magma.Proof.tc26_model_matches_rfc
+#check Magma.Proof.rust_model_matches_rfc
 
-#check Magma.Proof.tc26_apply_sbox_correct
+#check Magma.Proof.rust_apply_sbox_correct
 
-#check Magma.Proof.tc26_g_correct
+#check Magma.Proof.rust_g_correct
 
 #check Magma.Proof.encrypt_block_correct
 

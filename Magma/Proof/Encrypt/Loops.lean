@@ -1,6 +1,6 @@
 module
 
-public import Magma.Proof.Common.Keys
+public import Magma.Proof.Common.Ranges
 
 @[expose] public section
 
@@ -32,29 +32,6 @@ lemma run_key_rounds_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (start
   rw [hn]
   rfl
 
-private lemma cloneUsize_exact (x : Std.Usize) : core.clone.CloneUsize.clone x = ok x := by rfl
-
-private lemma ltUsize_exact (x y : Std.Usize) :
-    core.cmp.PartialOrdUsize.lt x y = ok (decide (x.val < y.val)) := by rfl
-
-lemma usize_range_next_some (it : core.ops.range.Range Std.Usize) (h : it.start.val < it.end.val) :
-    core.iter.range.IteratorRange.next core.iter.range.StepUsize it ⦃
-      (o : Option Std.Usize) (it' : core.ops.range.Range Std.Usize) =>
-      o = some it.start ∧ it'.start.val = it.start.val + 1 ∧ it'.end = it.end ⦄ := by
-  simpa only [core.iter.range.StepUsize] using
-    (core.iter.range.IteratorRange.next_UScalar_some_spec cloneUsize_exact ltUsize_exact it h)
-
-/-- Out-of-range iterator returns none and leaves the range unchanged. -/
-lemma usize_range_next_none
-    (it : core.ops.range.Range Std.Usize)
-    (h : it.end.val ≤ it.start.val) :
-    core.iter.range.IteratorRange.next core.iter.range.StepUsize it
-      ⦃ (o : Option Std.Usize) (it' : core.ops.range.Range Std.Usize) =>
-        o = none ∧ it' = it ⦄ := by
-  simpa only [core.iter.range.StepUsize] using
-    (core.iter.range.IteratorRange.next_UScalar_none_spec
-      ltUsize_exact it h)
-
 /-- Full correctness and termination of the generated eight-step inner
     encryption loop, conditional on the Rust g operation agreeing with RFC g. -/
 lemma encrypt_inner_loop_correct
@@ -62,16 +39,16 @@ lemma encrypt_inner_loop_correct
     (it : core.ops.range.Range Std.Usize) (l r : Std.U32)
     (hb : it.start.val ≤ it.end.val ∧ it.end.val ≤ 8)
     (hg : ∀ a k : Std.U32,
-      Magma.Rust.sboxes.SboxExt.g.default tc26SboxExt a k =
+      Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Tc26.encrypt_block_loop0_loop0 it self l r
+    Magma.Proof.Crate.encrypt_block_loop0_loop0 it self l r
       ⦃ (outself : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
         (outl outr : Std.U32) =>
         outself = self ∧
           (outl.bv, outr.bv) =
             runKeyRounds self.key it.start.val (it.end.val - it.start.val)
               (l.bv, r.bv) ⦄ := by
-  unfold Magma.Proof.Tc26.encrypt_block_loop0_loop0
+  unfold Magma.Proof.Crate.encrypt_block_loop0_loop0
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0
   apply loop.spec_decr_nat
     (measure := fun s => s.1.end.val - s.1.start.val)
@@ -102,7 +79,7 @@ lemma encrypt_inner_loop_correct
               Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox)
             right' (self.key.val[it'.start.val]!) =
             ok (⟨Magma.g (self.key.val[it'.start.val]!).bv right'.bv⟩ : Std.U32) := by
-        simpa only [tc26SboxExt] using hg0
+        simpa only [rustSboxExt] using hg0
       simp only [hkey, hg', bind_ok, lift]
       simp only [WP.spec_ok]
       have hlt : it'.start.val < it.end.val := by simpa only [hend] using hstep
@@ -139,9 +116,9 @@ lemma decrypt_forward_loop_correct
     (it : core.ops.range.Range Std.Usize) (l r : Std.U32)
     (hb : it.start.val ≤ it.end.val ∧ it.end.val ≤ 8)
     (hg : ∀ a k : Std.U32,
-      Magma.Rust.sboxes.SboxExt.g.default tc26SboxExt a k =
+      Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Tc26.decrypt_block_loop0 it self l r
+    Magma.Proof.Crate.decrypt_block_loop0 it self l r
       ⦃ (outself : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
         (outl outr : Std.U32) =>
         outself = self ∧
@@ -149,8 +126,8 @@ lemma decrypt_forward_loop_correct
             runKeyRounds self.key it.start.val (it.end.val - it.start.val)
               (l.bv, r.bv) ⦄ := by
   have same_loop :
-      Magma.Proof.Tc26.decrypt_block_loop0 it self l r =
-        Magma.Proof.Tc26.encrypt_block_loop0_loop0 it self l r := by
+      Magma.Proof.Crate.decrypt_block_loop0 it self l r =
+        Magma.Proof.Crate.encrypt_block_loop0_loop0 it self l r := by
     rfl
   rw [same_loop]
   exact encrypt_inner_loop_correct self it l r hb hg

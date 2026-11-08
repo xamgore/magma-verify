@@ -75,14 +75,14 @@ lemma encrypt_reverse_loop_correct
     (l r : Std.U32)
     (hb : it.iter.start.val ≤ it.iter.end.val ∧ it.iter.end.val ≤ 8)
     (hg : ∀ a k : Std.U32,
-      Magma.Rust.sboxes.SboxExt.g.default tc26SboxExt a k =
+      Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Tc26.encrypt_block_loop1 it self l r
+    Magma.Proof.Crate.encrypt_block_loop1 it self l r
       ⦃ (outl outr : Std.U32) =>
         (outl.bv, outr.bv) =
           runReverseRounds self.key it.iter.start.val
             (it.iter.end.val-it.iter.start.val) (l.bv, r.bv) ⦄ := by
-  unfold Magma.Proof.Tc26.encrypt_block_loop1
+  unfold Magma.Proof.Crate.encrypt_block_loop1
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop1
   apply loop.spec_decr_nat
     (measure := fun s => s.1.iter.end.val - s.1.iter.start.val)
@@ -112,7 +112,7 @@ lemma encrypt_reverse_loop_correct
               Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox)
             right' (self.key.val[iter1.iter.end.val]!) =
             ok (⟨Magma.g (self.key.val[iter1.iter.end.val]!).bv right'.bv⟩ : Std.U32) := by
-        simpa only [tc26SboxExt] using hg0
+        simpa only [rustSboxExt] using hg0
       simp only [hkey, hg', bind_ok, lift, WP.spec_ok]
       have hlt : it.iter.start.val < it'.iter.end.val := by
         have hs := congrArg UScalar.val hstart

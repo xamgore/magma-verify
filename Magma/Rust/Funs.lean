@@ -657,4 +657,63 @@ def adapter.verify_decrypt
       sboxes.Tc26.Insts.MagmaSboxesSbox self_ block
   ok { block with output := io.output }
 
+/-- [magma::{impl magma::adapter::KeyInit for magma::Gost89<S>}::new]: loop body 0:
+    Source: 'src/lib.rs', lines 83:8-85:9
+    Visibility: public -/
+@[rust_loop_body]
+def Gost89.Insts.MagmaAdapterKeyInit.new_loop.body
+  (key : Array Std.U8 32#usize) (iter : core.ops.range.Range Std.Usize)
+  (key_u32 : Array Std.U32 8#usize) :
+  Result (ControlFlow ((core.ops.range.Range Std.Usize) × (Array Std.U32
+    8#usize)) (Array Std.U32 8#usize))
+  := do
+  let (o, iter1) ←
+    core.iter.range.IteratorRange.next core.iter.range.StepUsize iter
+  match o with
+  | none => ok (done key_u32)
+  | some i =>
+    let i1 ← i * 4#usize
+    let i2 ← i1 + 4#usize
+    let s ←
+      core.array.Array.index (core.ops.index.IndexSlice
+        (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) key
+        { start := i1, «end» := i2 }
+    let i3 ← to_u32 s
+    let a ← Array.update key_u32 i i3
+    ok (cont (iter1, a))
+
+/-- [magma::{impl magma::adapter::KeyInit for magma::Gost89<S>}::new]: loop 0:
+    Source: 'src/lib.rs', lines 83:8-85:9
+    Visibility: public -/
+@[rust_loop]
+def Gost89.Insts.MagmaAdapterKeyInit.new_loop
+  (iter : core.ops.range.Range Std.Usize) (key : Array Std.U8 32#usize)
+  (key_u32 : Array Std.U32 8#usize) :
+  Result (Array Std.U32 8#usize)
+  := do
+  loop
+    (fun (iter1, key_u321) => Gost89.Insts.MagmaAdapterKeyInit.new_loop.body
+      key iter1 key_u321)
+    (iter, key_u32)
+
+/-- [magma::{impl magma::adapter::KeyInit for magma::Gost89<S>}::new]:
+    Source: 'src/lib.rs', lines 81:4-90:5
+    Visibility: public -/
+def Gost89.Insts.MagmaAdapterKeyInit.new
+  {S : Type _} (sboxesSboxInst : sboxes.Sbox S) (key : Array Std.U8 32#usize) :
+  Result (Gost89 S)
+  := do
+  let key_u32 := Array.repeat 8#usize 0#u32
+  let key_u321 ←
+    Gost89.Insts.MagmaAdapterKeyInit.new_loop
+      { start := 0#usize, «end» := 8#usize } key key_u32
+  ok { key := key_u321, _p := () }
+
+/-- [magma::adapter::verify_key_init]:
+    Source: 'src/adapter.rs', lines 71:0-73:1
+    Visibility: public -/
+def adapter.verify_key_init
+  (key : Array Std.U8 32#usize) : Result (Gost89 sboxes.Tc26) := do
+  Gost89.Insts.MagmaAdapterKeyInit.new sboxes.Tc26.Insts.MagmaSboxesSbox key
+
 end Magma.Rust
