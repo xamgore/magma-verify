@@ -1,10 +1,9 @@
 #!/usr/bin/env python3
 """Verify that Tc26's cipher algorithm matches the published RustCrypto source.
 
-The verification model replaces the generic trait interface with an inherent
-Tc26 method over eight-byte arrays, and copies the eight input bytes before
-running the original loops. Apart from S -> Tc26 and that input adaptation,
-the algorithm's Rust method bodies must match exactly.
+The verification view substitutes only the block backend interface with
+a safe adapter. Both original generic backend implementations, including
+all cipher rounds and S-box dispatch, must be byte-for-byte unchanged.
 """
 
 import difflib
@@ -30,47 +29,28 @@ def method_body(source: str, impl_header: str, method: str) -> str:
 def check(root: Path) -> None:
     upstream = (root / "rust/magma/src/lib.rs").read_text()
     verification = (root / "rust/tc26/src/lib.rs").read_text()
-    specialization = "impl Gost89<sboxes::Tc26> {"
-    if verification.count(specialization) != 2:
-        raise SystemExit("Expected two inherent Tc26 method implementations")
+    if (root / "rust/magma/src/sboxes.rs").read_bytes() != (root / "rust/tc26/src/sboxes.rs").read_bytes():
+        raise SystemExit("Tc26 S-box source diverges from RustCrypto")
 
     for trait, method in (
         ("BlockCipherEncBackend", "encrypt_block"),
         ("BlockCipherDecBackend", "decrypt_block"),
     ):
-        original = method_body(
-            upstream, f"impl<S: Sbox> {trait} for Gost89<S> {{", method
-        )
-        actual = method_body(verification, specialization, method)
-        original_signature = (
-            f"fn {method}(&self, mut block: InOut<'_, '_, Block<Self>>)"
-        )
-        adapted_signature = (
-            f"fn {method}(&self, mut block: InOut<'_, '_, [u8; 8]>)"
-        )
-        if original.count(original_signature) != 1:
-            raise SystemExit(f"Unexpected upstream signature for {method}")
-        if original.count("let b = block.get_in();") != 1:
-            raise SystemExit(f"Unexpected upstream input read for {method}")
-        if original.count("S::g(") == 0:
-            raise SystemExit(f"Missing upstream Feistel rounds in {method}")
-
-        expected = (
-            original.replace(original_signature, adapted_signature)
-            .replace("let b = block.get_in();", "let b = *block.get_in();")
-            .replace("S::g(", "sboxes::Tc26::g(")
-        )
-        if actual != expected:
+        header = f"impl<S: Sbox> {trait} for Gost89<S> {{"
+        original = method_body(upstream, header, method)
+        actual = method_body(verification, header, method)
+        if actual != original:
             differences = difflib.unified_diff(
-                expected.splitlines(),
+                original.splitlines(),
                 actual.splitlines(),
-                fromfile=f"upstream {method} after approved interface substitutions",
-                tofile=f"tc26::{method}",
+                fromfile=f"upstream {trait}::{method}",
+                tofile=f"verification {trait}::{method}",
                 lineterm="",
             )
             print("\n".join(differences), file=sys.stderr)
             raise SystemExit(f"{method}: verification method diverges from upstream")
-        print(f"{method}: original loops, indices and Feistel expressions match")
+        print(f"{method}: original RustCrypto method body unchanged")
+
 
 
 if __name__ == "__main__":

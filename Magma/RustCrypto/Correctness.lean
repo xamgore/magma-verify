@@ -1,7 +1,7 @@
 module
 
 public import Magma.RFC8891
-public import Magma.RustCrypto.Tc26.Funs
+public import Magma.RustCrypto.Tc26.Compat
 
 @[expose] public section
 
@@ -52,10 +52,11 @@ theorem rfc_add_bv (a k : BitVec 32) :
 
 /-- Aeneas's `step*` tactic verifies the adapter's input-read contract.
     This does not establish equivalence with the external cipher library. -/
-theorem adapter_get_in_correct {T : Type} (io : RustCryptoTc26.adapter.InOut T) :
+theorem adapter_get_in_correct
+    (io : RustCryptoTc26.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize)) :
     RustCryptoTc26.adapter.InOut.get_in io ⦃ out => out = io.input ⦄ := by
-  unfold RustCryptoTc26.adapter.InOut.get_in
-  step*
+  simp [RustCryptoTc26.adapter.InOut.get_in,
+    RustCryptoTc26.adapter.InOutABArrayU88.get_in]
 
 /-- The concrete RustCrypto Tc26 trait instance used by the generated model. -/
 def tc26SboxExt : RustCryptoTc26.sboxes.SboxExt RustCryptoTc26.sboxes.Tc26 :=

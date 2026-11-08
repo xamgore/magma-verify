@@ -27,60 +27,35 @@ namespace RustCryptoTc26
 @[reducible, rust_type "core::marker::PhantomData"]
 def core.marker.PhantomData (T : Type _) := Unit
 
+/-- [magma_tc26_slice::adapter::InOut]
+    Source: 'src/adapter.rs', lines 4:0-7:1
+    Visibility: public -/
+structure adapter.InOut (T : Type _) where
+  input : T
+  output : T
+
+/-- [magma_tc26_slice::sboxes::Tc26]
+    Source: 'src/sboxes.rs', lines 59:0-59:16
+    Visibility: public -/
+inductive sboxes.Tc26 where
+
 /-- Trait declaration: [magma_tc26_slice::sboxes::Sbox]
-    Source: 'src/../../magma/src/sboxes.rs', lines 27:0-32:1
+    Source: 'src/sboxes.rs', lines 27:0-32:1
     Visibility: public -/
 structure sboxes.Sbox (Self : Type _) where
   NAME : Result Str
   SBOX : Result (Array (Array Std.U8 16#usize) 8#usize)
 
 /-- Trait declaration: [magma_tc26_slice::sboxes::SboxExt]
-    Source: 'src/../../magma/src/sboxes.rs', lines 36:0-55:1 -/
+    Source: 'src/sboxes.rs', lines 36:0-55:1 -/
 structure sboxes.SboxExt (Self : Type _) where
   EXP_SBOX : Result (Array (Array Std.U8 256#usize) 4#usize)
   SboxInst : sboxes.Sbox Self
   apply_sbox : Std.U32 → Result Std.U32
   g : Std.U32 → Std.U32 → Result Std.U32
 
-/-- [magma_tc26_slice::sboxes::Tc26]
-    Source: 'src/../../magma/src/sboxes.rs', lines 59:0-59:16
-    Visibility: public -/
-inductive sboxes.Tc26 where
-
-/-- [magma_tc26_slice::sboxes::TestSbox]
-    Source: 'src/../../magma/src/sboxes.rs', lines 75:0-75:20
-    Visibility: public -/
-inductive sboxes.TestSbox where
-
-/-- [magma_tc26_slice::sboxes::CryptoProA]
-    Source: 'src/../../magma/src/sboxes.rs', lines 91:0-91:22
-    Visibility: public -/
-inductive sboxes.CryptoProA where
-
-/-- [magma_tc26_slice::sboxes::CryptoProB]
-    Source: 'src/../../magma/src/sboxes.rs', lines 107:0-107:22
-    Visibility: public -/
-inductive sboxes.CryptoProB where
-
-/-- [magma_tc26_slice::sboxes::CryptoProC]
-    Source: 'src/../../magma/src/sboxes.rs', lines 123:0-123:22
-    Visibility: public -/
-inductive sboxes.CryptoProC where
-
-/-- [magma_tc26_slice::sboxes::CryptoProD]
-    Source: 'src/../../magma/src/sboxes.rs', lines 139:0-139:22
-    Visibility: public -/
-inductive sboxes.CryptoProD where
-
-/-- [magma_tc26_slice::adapter::InOut]
-    Source: 'src/adapter.rs', lines 5:0-8:1
-    Visibility: public -/
-structure adapter.InOut (T : Type _) where
-  input : T
-  output : T
-
 /-- [magma_tc26_slice::Gost89]
-    Source: 'src/lib.rs', lines 31:0-34:1
+    Source: 'src/lib.rs', lines 70:0-73:1
     Visibility: public -/
 structure Gost89 (S : Type _) where
   key : Array Std.U32 8#usize

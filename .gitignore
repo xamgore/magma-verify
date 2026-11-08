@@ -10,3 +10,5 @@ __pycache__/
 *.pyc
 
 /rust/tc26/target/
+/rust/tc26/src/lib.rs
+/rust/tc26/src/sboxes.rs

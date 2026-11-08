@@ -39,6 +39,7 @@ theorem encrypt_inner_step
         ok (⟨Magma.g key.bv r.bv⟩ : Std.U32) := by
     simpa only [tc26SboxExt] using hg
   simp [RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0.body,
+    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body,
     hnext, hkey, hg', lift]
   rfl
 
@@ -112,6 +113,7 @@ theorem decrypt_reverse_step_rfc
         ok (⟨Magma.g key.bv r.bv⟩ : Std.U32) := by
     simpa only [tc26SboxExt] using hg
   simp [RustCryptoTc26.Gost89Tc26.decrypt_block_loop1_loop0.body,
+    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0.body,
     hnext, hkey, hg', lift]
   simp [Magma.G, Magma.xor, BitVec.xor_comm]
   rfl

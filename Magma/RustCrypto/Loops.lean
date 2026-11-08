@@ -73,6 +73,7 @@ theorem encrypt_inner_loop_spec
             runKeyRounds self.key it.start.val (it.end.val - it.start.val)
               (l.bv, r.bv) ⦄ := by
   unfold RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0
+  unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0
   apply loop.spec_decr_nat
     (measure := fun s => s.1.end.val - s.1.start.val)
     (inv := fun s =>
@@ -91,7 +92,7 @@ theorem encrypt_inner_loop_spec
           simpa only [hend] using hstep
         omega
       have hnext := rust_usize_range_next it' hstep
-      unfold RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0.body
+      unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
       step with hnext
       subst o
       have hkey := rust_key_index_ok self.key it'.start hi
@@ -122,7 +123,7 @@ theorem encrypt_inner_loop_spec
         omega
     · have hnone : it'.end.val ≤ it'.start.val := by omega
       have hnext := rust_usize_range_next_none it' hnone
-      unfold RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0.body
+      unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
       step with hnext
       subst o
       simp only [WP.spec_ok, true_and]

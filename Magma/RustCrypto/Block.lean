@@ -59,7 +59,9 @@ theorem encrypt_block_bytes_if_g (self : RustCryptoTc26.Gost89 RustCryptoTc26.sb
     RustCryptoTc26.Gost89Tc26.encrypt_block self block ⦃ out =>
       out.output.val = expectEncryptedBytes self.key block.input ⦄ := by
   unfold RustCryptoTc26.Gost89Tc26.encrypt_block
-  simp only [RustCryptoTc26.adapter.InOut.get_in, bind_ok]
+  unfold
+    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block
+  simp only [RustCryptoTc26.adapter.InOutABArrayU88.get_in, bind_ok]
   step
   have hlen0 : s.length = 4 := by simpa using s_post1
   step with(to_u32_spec s hlen0)

@@ -1,0 +1,26 @@
+--- a/src/lib.rs
++++ b/src/lib.rs
+@@ -46,10 +46,12 @@
+ 
+ pub use cipher;
+ 
++use adapter::{
++    Block, BlockCipherDecBackend, BlockCipherDecClosure, BlockCipherDecrypt, BlockCipherEncBackend,
++    BlockCipherEncClosure, BlockCipherEncrypt, InOut,
++};
+ use cipher::{
+-    AlgorithmName, Block, BlockCipherDecBackend, BlockCipherDecClosure, BlockCipherDecrypt,
+-    BlockCipherEncBackend, BlockCipherEncClosure, BlockCipherEncrypt, BlockSizeUser, InOut, Key,
+-    KeyInit, KeySizeUser, ParBlocksSizeUser,
++    AlgorithmName, BlockSizeUser, Key, KeyInit, KeySizeUser, ParBlocksSizeUser,
+     consts::{U1, U8, U32},
+ };
+ use core::{fmt, marker::PhantomData};
+@@ -57,6 +59,7 @@
+ #[cfg(feature = "zeroize")]
+ use cipher::zeroize::{Zeroize, ZeroizeOnDrop};
+ 
++mod adapter;
+ mod sboxes;
+ 
+ pub use sboxes::Sbox;
