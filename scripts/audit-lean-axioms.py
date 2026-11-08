@@ -14,16 +14,16 @@ from pathlib import Path
 
 root = Path(__file__).resolve().parents[1]
 names = [
-    "Magma.RustCrypto.tc26_model_matches_rfc",
-    "Magma.RustCrypto.tc26_apply_sbox_correct",
-    "Magma.RustCrypto.tc26_g_correct",
-    "Magma.RustCrypto.encrypt_block_correct",
-    "Magma.RustCrypto.decrypt_block_correct",
+    "Magma.Proof.tc26_model_matches_rfc",
+    "Magma.Proof.tc26_apply_sbox_correct",
+    "Magma.Proof.tc26_g_correct",
+    "Magma.Proof.encrypt_block_correct",
+    "Magma.Proof.decrypt_block_correct",
 ]
 audit_file = root / "tools" / "tc26-axiom-audit.lean"
 audit_file.parent.mkdir(parents=True, exist_ok=True)
 audit_file.write_text(
-    "import Magma.RustCrypto.DecryptBlock\n"
+    "import Magma.Proof.Decrypt.Block\n"
     + "".join(f"#print axioms {name}\n" for name in names)
 )
 result = subprocess.run(

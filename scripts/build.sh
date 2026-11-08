@@ -15,7 +15,7 @@ export CARGO_TARGET_DIR="$ROOT/tools/cargo-target"
 cd "$CRATE"
 cargo check --locked --all-features
 PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::adapter::verify_encrypt,crate::adapter::verify_decrypt --dest-file="$ROOT/tools/magma.llbc"
-"$BIN/aeneas" -backend lean "$ROOT/tools/magma.llbc" -dest "$ROOT" -subdir /Magma/RustCrypto/Tc26 -namespace RustCryptoTc26 -split-files
+"$BIN/aeneas" -backend lean "$ROOT/tools/magma.llbc" -dest "$ROOT" -subdir /Magma/Rust -namespace Magma.Rust -split-files
 
 cd "$ROOT"
 lake build
