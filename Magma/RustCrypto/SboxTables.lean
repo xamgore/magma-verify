@@ -22,7 +22,7 @@ namespace Magma.RustCrypto
 theorem tc26_values_lt16 (i : Fin 8) (j : Fin 16) :
     ((tc26Table.val[i.val]!).val[j.val]!).val < 16 := by
   fin_cases i <;> fin_cases j <;>
-    ( unfold tc26Table RustCryptoTc26.sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+    ( unfold tc26Table RustCryptoTc26.sboxes.Tc26.Insts.MagmaSboxesSbox.SBOX
       decide)
 
 def tc26ExpandedSpec : Std.Array (Std.Array Std.U8 256#usize) 4#usize :=

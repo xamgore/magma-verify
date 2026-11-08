@@ -1,7 +1,7 @@
 module
 
 public import Magma.RFC8891
-public import Magma.RustCrypto.Tc26.Compat
+public import Magma.RustCrypto.Tc26
 
 @[expose] public section
 
@@ -23,13 +23,13 @@ namespace Magma.RustCrypto
 
 /-- The actual Tc26 S-box table obtained from Aeneas. -/
 def tc26Table : Aeneas.Std.Array (Aeneas.Std.Array Aeneas.Std.U8 16#usize) 8#usize :=
-  RustCryptoTc26.sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+  RustCryptoTc26.sboxes.Tc26.Insts.MagmaSboxesSbox.SBOX
 
 /-- All 8 × 16 entries of the RustCrypto Tc26 table equal the RFC 8891 tables. -/
 theorem tc26_table_matches_rfc (i : Fin 8) (j : Fin 16) :
     (((tc26Table.val[i.val]!).val[j.val]!).val) = (Magma.π'arrays i j).val := by
   fin_cases i <;> fin_cases j <;>
-    (unfold tc26Table RustCryptoTc26.sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox.SBOX
+    (unfold tc26Table RustCryptoTc26.sboxes.Tc26.Insts.MagmaSboxesSbox.SBOX
      decide)
 
 /-- The Aeneas model of Rust's wrapping addition is BitVec addition. -/
@@ -54,14 +54,13 @@ theorem rfc_add_bv (a k : BitVec 32) :
     This does not establish equivalence with the external cipher library. -/
 theorem adapter_get_in_correct
     (io : RustCryptoTc26.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize)) :
-    RustCryptoTc26.adapter.InOut.get_in io ⦃ out => out = io.input ⦄ := by
-  simp [RustCryptoTc26.adapter.InOut.get_in,
-    RustCryptoTc26.adapter.InOutABArrayU88.get_in]
+    RustCryptoTc26.adapter.InOutABArrayU88.get_in io ⦃ out => out = io.input ⦄ := by
+  simp [RustCryptoTc26.adapter.InOutABArrayU88.get_in]
 
 /-- The concrete RustCrypto Tc26 trait instance used by the generated model. -/
 def tc26SboxExt : RustCryptoTc26.sboxes.SboxExt RustCryptoTc26.sboxes.Tc26 :=
   RustCryptoTc26.sboxes.SboxExt.Blanket
-    RustCryptoTc26.sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox
+    RustCryptoTc26.sboxes.Tc26.Insts.MagmaSboxesSbox
 
 /-- If the executable S-box computation matches RFC's t, the entire
     generated Rust g implementation matches RFC's g. The premise is

@@ -56,11 +56,10 @@ theorem encrypt_block_bytes_if_g (self : RustCryptoTc26.Gost89 RustCryptoTc26.sb
       ∀ a k : Std.U32,
         RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt a k =
           ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.encrypt_block self block ⦃ out =>
+    RustCryptoTc26.Tc26.encrypt_block self block ⦃ out =>
       out.output.val = expectEncryptedBytes self.key block.input ⦄ := by
-  unfold RustCryptoTc26.Gost89Tc26.encrypt_block
-  unfold
-    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block
+  unfold RustCryptoTc26.Tc26.encrypt_block
+  unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block
   simp only [RustCryptoTc26.adapter.InOutABArrayU88.get_in, bind_ok]
   step
   have hlen0 : s.length = 4 := by simpa using s_post1

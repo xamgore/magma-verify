@@ -27,11 +27,8 @@ def method_body(source: str, impl_header: str, method: str) -> str:
 
 
 def check(root: Path) -> None:
-    upstream = (root / "rust/magma/src/lib.rs").read_text()
-    verification = (root / "rust/tc26/src/lib.rs").read_text()
-    if (root / "rust/magma/src/sboxes.rs").read_bytes() != (root / "rust/tc26/src/sboxes.rs").read_bytes():
-        raise SystemExit("Tc26 S-box source diverges from RustCrypto")
-
+    upstream = (root / "tools/magma-original-lib.rs").read_text()
+    verification = (root / "rust/magma/src/lib.rs").read_text()
     for trait, method in (
         ("BlockCipherEncBackend", "encrypt_block"),
         ("BlockCipherDecBackend", "decrypt_block"),

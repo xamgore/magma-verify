@@ -51,7 +51,7 @@ theorem tc26_g_correct (a k : Std.U32) :
 theorem encrypt_block_correct
     (self : RustCryptoTc26.Gost89 RustCryptoTc26.sboxes.Tc26)
     (block : RustCryptoTc26.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize)) :
-    RustCryptoTc26.Gost89Tc26.encrypt_block self block ⦃ out =>
+    RustCryptoTc26.Tc26.encrypt_block self block ⦃ out =>
       out.output.val = rfcEncryptedBytes self.key block.input ⦄ := by
   simpa only [expected_bytes_are_rfc] using
     (encrypt_block_bytes_if_g self block tc26_g_correct)

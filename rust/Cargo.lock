@@ -3,6 +3,12 @@
 version = 4
 
 [[package]]
+name = "blobby"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "89af0b093cc13baa4e51e64e65ec2422f7e73aea0e612e5ad3872986671622f1"
+
+[[package]]
 name = "block-buffer"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -18,6 +24,7 @@ version = "0.5.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e34d8227fe1ba289043aeb13792056ff80fd6de1a9f49137a5f499de8e8c78ea"
 dependencies = [
+ "blobby",
  "block-buffer",
  "crypto-common",
  "inout",
@@ -32,6 +39,12 @@ checksum = "77727bb15fa921304124b128af125e7e3b968275d1b108b379190264f4423710"
 dependencies = [
  "hybrid-array",
 ]
+
+[[package]]
+name = "hex-literal"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e712f64ec3850b98572bffac52e2c6f282b29fe6c5fa6d42334b30be438d95c1"
 
 [[package]]
 name = "hybrid-array"
@@ -53,10 +66,11 @@ dependencies = [
 ]
 
 [[package]]
-name = "magma_tc26_slice"
-version = "0.0.0"
+name = "magma"
+version = "0.10.0"
 dependencies = [
  "cipher",
+ "hex-literal",
 ]
 
 [[package]]

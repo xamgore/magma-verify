@@ -30,16 +30,16 @@ theorem encrypt_inner_step
     (hg :
       RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt r key =
         ok (⟨Magma.g key.bv r.bv⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0.body self it l r =
+    RustCryptoTc26.Tc26.encrypt_block_loop0_loop0.body self it l r =
       ok (cont (nextIt, r, (⟨l.bv ^^^ Magma.g key.bv r.bv⟩ : Std.U32))) := by
   have hg' :
       RustCryptoTc26.sboxes.SboxExt.g.default
         (RustCryptoTc26.sboxes.SboxExt.Blanket
-          RustCryptoTc26.sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) r key =
+          RustCryptoTc26.sboxes.Tc26.Insts.MagmaSboxesSbox) r key =
         ok (⟨Magma.g key.bv r.bv⟩ : Std.U32) := by
     simpa only [tc26SboxExt] using hg
-  simp [RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0.body,
-    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body,
+  simp [RustCryptoTc26.Tc26.encrypt_block_loop0_loop0.body,
+    RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body,
     hnext, hkey, hg', lift]
   rfl
 
@@ -56,7 +56,7 @@ theorem encrypt_inner_step_rfc
     (hsub :
       tc26SboxExt.apply_sbox (core.num.U32.wrapping_add r key) =
         ok (⟨Magma.t (r.bv + key.bv)⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0.body self it l r =
+    RustCryptoTc26.Tc26.encrypt_block_loop0_loop0.body self it l r =
       ok (cont (nextIt,
         (⟨(Magma.G key.bv (l.bv, r.bv)).1⟩ : Std.U32),
         (⟨(Magma.G key.bv (l.bv, r.bv)).2⟩ : Std.U32))) := by
@@ -76,13 +76,13 @@ theorem decrypt_forward_step_rfc
     (hsub :
       tc26SboxExt.apply_sbox (core.num.U32.wrapping_add r key) =
         ok (⟨Magma.t (r.bv + key.bv)⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.decrypt_block_loop0.body self it l r =
+    RustCryptoTc26.Tc26.decrypt_block_loop0.body self it l r =
       ok (cont (nextIt,
         (⟨(Magma.G key.bv (l.bv, r.bv)).1⟩ : Std.U32),
         (⟨(Magma.G key.bv (l.bv, r.bv)).2⟩ : Std.U32))) := by
   have hbody :
-      RustCryptoTc26.Gost89Tc26.decrypt_block_loop0.body self it l r =
-        RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0.body self it l r := by
+      RustCryptoTc26.Tc26.decrypt_block_loop0.body self it l r =
+        RustCryptoTc26.Tc26.encrypt_block_loop0_loop0.body self it l r := by
     rfl
   rw [hbody]
   exact encrypt_inner_step_rfc self it nextIt j key l r hnext hkey hsub
@@ -101,7 +101,7 @@ theorem decrypt_reverse_step_rfc
     (hsub :
       tc26SboxExt.apply_sbox (core.num.U32.wrapping_add r key) =
         ok (⟨Magma.t (r.bv + key.bv)⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.decrypt_block_loop1_loop0.body self it l r =
+    RustCryptoTc26.Tc26.decrypt_block_loop1_loop0.body self it l r =
       ok (cont (nextIt,
         (⟨(Magma.G key.bv (l.bv, r.bv)).1⟩ : Std.U32),
         (⟨(Magma.G key.bv (l.bv, r.bv)).2⟩ : Std.U32))) := by
@@ -109,11 +109,11 @@ theorem decrypt_reverse_step_rfc
   have hg' :
       RustCryptoTc26.sboxes.SboxExt.g.default
         (RustCryptoTc26.sboxes.SboxExt.Blanket
-          RustCryptoTc26.sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox) r key =
+          RustCryptoTc26.sboxes.Tc26.Insts.MagmaSboxesSbox) r key =
         ok (⟨Magma.g key.bv r.bv⟩ : Std.U32) := by
     simpa only [tc26SboxExt] using hg
-  simp [RustCryptoTc26.Gost89Tc26.decrypt_block_loop1_loop0.body,
-    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0.body,
+  simp [RustCryptoTc26.Tc26.decrypt_block_loop1_loop0.body,
+    RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0.body,
     hnext, hkey, hg', lift]
   simp [Magma.G, Magma.xor, BitVec.xor_comm]
   rfl

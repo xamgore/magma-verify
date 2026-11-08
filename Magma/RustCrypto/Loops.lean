@@ -65,15 +65,15 @@ theorem encrypt_inner_loop_spec
     (hg : ∀ a k : Std.U32,
       RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0 it self l r
+    RustCryptoTc26.Tc26.encrypt_block_loop0_loop0 it self l r
       ⦃ (outself : RustCryptoTc26.Gost89 RustCryptoTc26.sboxes.Tc26)
         (outl outr : Std.U32) =>
         outself = self ∧
           (outl.bv, outr.bv) =
             runKeyRounds self.key it.start.val (it.end.val - it.start.val)
               (l.bv, r.bv) ⦄ := by
-  unfold RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0
-  unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0
+  unfold RustCryptoTc26.Tc26.encrypt_block_loop0_loop0
+  unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0
   apply loop.spec_decr_nat
     (measure := fun s => s.1.end.val - s.1.start.val)
     (inv := fun s =>
@@ -92,7 +92,7 @@ theorem encrypt_inner_loop_spec
           simpa only [hend] using hstep
         omega
       have hnext := rust_usize_range_next it' hstep
-      unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
+      unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
       step with hnext
       subst o
       have hkey := rust_key_index_ok self.key it'.start hi
@@ -100,7 +100,7 @@ theorem encrypt_inner_loop_spec
       have hg' :
           RustCryptoTc26.sboxes.SboxExt.g.default
             (RustCryptoTc26.sboxes.SboxExt.Blanket
-              RustCryptoTc26.sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox)
+              RustCryptoTc26.sboxes.Tc26.Insts.MagmaSboxesSbox)
             right' (self.key.val[it'.start.val]!) =
             ok (⟨Magma.g (self.key.val[it'.start.val]!).bv right'.bv⟩ : Std.U32) := by
         simpa only [tc26SboxExt] using hg0
@@ -123,7 +123,7 @@ theorem encrypt_inner_loop_spec
         omega
     · have hnone : it'.end.val ≤ it'.start.val := by omega
       have hnext := rust_usize_range_next_none it' hnone
-      unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
+      unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
       step with hnext
       subst o
       simp only [WP.spec_ok, true_and]
@@ -142,7 +142,7 @@ theorem decrypt_forward_loop_spec
     (hg : ∀ a k : Std.U32,
       RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.decrypt_block_loop0 it self l r
+    RustCryptoTc26.Tc26.decrypt_block_loop0 it self l r
       ⦃ (outself : RustCryptoTc26.Gost89 RustCryptoTc26.sboxes.Tc26)
         (outl outr : Std.U32) =>
         outself = self ∧
@@ -150,8 +150,8 @@ theorem decrypt_forward_loop_spec
             runKeyRounds self.key it.start.val (it.end.val - it.start.val)
               (l.bv, r.bv) ⦄ := by
   have same_loop :
-      RustCryptoTc26.Gost89Tc26.decrypt_block_loop0 it self l r =
-        RustCryptoTc26.Gost89Tc26.encrypt_block_loop0_loop0 it self l r := by
+      RustCryptoTc26.Tc26.decrypt_block_loop0 it self l r =
+        RustCryptoTc26.Tc26.encrypt_block_loop0_loop0 it self l r := by
     rfl
   rw [same_loop]
   exact encrypt_inner_loop_spec self it l r hb hg

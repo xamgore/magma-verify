@@ -1,6 +1,5 @@
 # Generated Lean belongs to Aeneas, not the formatter.
 exclude = [
-  "Magma/RustCrypto/Code/**",
   "Magma/RustCrypto/Tc26/**",
 ]
 

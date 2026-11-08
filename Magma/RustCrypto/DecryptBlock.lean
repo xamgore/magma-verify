@@ -42,11 +42,10 @@ theorem decrypt_block_bytes_if_g (self : RustCryptoTc26.Gost89 RustCryptoTc26.sb
       ∀ a k : Std.U32,
         RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt a k =
           ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.decrypt_block self block ⦃ out =>
+    RustCryptoTc26.Tc26.decrypt_block self block ⦃ out =>
       out.output.val = expectDecryptedBytes self.key block.input ⦄ := by
-  unfold RustCryptoTc26.Gost89Tc26.decrypt_block
-  unfold
-    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block
+  unfold RustCryptoTc26.Tc26.decrypt_block
+  unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block
   simp only [RustCryptoTc26.adapter.InOutABArrayU88.get_in, bind_ok]
   step
   have hlen0 : s.length = 4 := by simpa using s_post1
@@ -90,7 +89,7 @@ theorem decrypt_block_bytes_if_g (self : RustCryptoTc26.Gost89 RustCryptoTc26.sb
 theorem decrypt_block_correct
     (self : RustCryptoTc26.Gost89 RustCryptoTc26.sboxes.Tc26)
     (block : RustCryptoTc26.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize)) :
-    RustCryptoTc26.Gost89Tc26.decrypt_block self block ⦃ out =>
+    RustCryptoTc26.Tc26.decrypt_block self block ⦃ out =>
       out.output.val = rfcDecryptedBytes self.key block.input ⦄ := by
   simpa only [expected_decrypted_bytes_are_rfc] using
     (decrypt_block_bytes_if_g self block tc26_g_correct)

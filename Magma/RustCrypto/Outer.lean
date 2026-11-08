@@ -62,12 +62,11 @@ theorem encrypt_three_loops_spec (self : RustCryptoTc26.Gost89 RustCryptoTc26.sb
       ∀ a k : Std.U32,
         RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt a k =
           ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.encrypt_block_loop0 { start := 0#i32, «end» := 3#i32 } self l r ⦃
+    RustCryptoTc26.Tc26.encrypt_block_loop0 { start := 0#i32, «end» := 3#i32 } self l r ⦃
       (outself : RustCryptoTc26.Gost89 RustCryptoTc26.sboxes.Tc26) (outl outr : Std.U32) =>
       outself = self ∧ (outl.bv, outr.bv) = repeat8Rounds self.key 3 (l.bv, r.bv) ⦄ := by
-  unfold RustCryptoTc26.Gost89Tc26.encrypt_block_loop0
-  unfold
-    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0
+  unfold RustCryptoTc26.Tc26.encrypt_block_loop0
+  unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0
   apply
     loop.spec_decr_nat (measure := fun s => (3 - s.1.start.val).toNat) (inv := fun s =>
       s.1.end = 3#i32 ∧
@@ -88,7 +87,7 @@ theorem encrypt_three_loops_spec (self : RustCryptoTc26.Gost89 RustCryptoTc26.sb
             have hval := congrArg IScalar.val hend
             omega)
       unfold
-        RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0.body
+        RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0.body
       step with hnext
       subst o
       subst self'
@@ -112,7 +111,7 @@ theorem encrypt_three_loops_spec (self : RustCryptoTc26.Gost89 RustCryptoTc26.sb
       have hge : it'.end.val ≤ it'.start.val := by omega
       have hnext := rust_i32_range_next_none it' hge
       unfold
-        RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0.body
+        RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0.body
       step with hnext
       subst o
       simp only [WP.spec_ok]

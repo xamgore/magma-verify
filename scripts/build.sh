@@ -6,33 +6,16 @@ BIN="$ROOT/tools/aeneas"
 CRATE="$ROOT/rust/magma"
 
 "$ROOT/scripts/fetch-magma.sh"
-"$ROOT/scripts/prepare-tc26.sh"
+"$ROOT/scripts/patch-magma.sh"
 "$ROOT/scripts/fetch-aeneas.sh"
 python3 "$ROOT/scripts/patch_aeneas_backend.py" "$BIN/backends/lean" "$ROOT/lean-toolchain"
 python3 "$ROOT/scripts/check-tc26-source.py" "$ROOT"
 
 export CARGO_TARGET_DIR="$ROOT/tools/cargo-target"
 cd "$CRATE"
-cargo fmt --all --check
-
-PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --dest-file="$ROOT/tools/magma-full.llbc"
-pretty="$(mktemp "$ROOT/tools/charon-pretty.XXXXXX")"
-trap 'rm -f "$pretty"' EXIT
-"$BIN/charon" pretty-print "$ROOT/tools/magma-full.llbc" > "$pretty"
-grep -q '::encrypt_block' "$pretty"
-grep -q '::decrypt_block' "$pretty"
-
-PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::sboxes --dest-file="$ROOT/tools/magma-sboxes.llbc"
-"$BIN/aeneas" -backend lean "$ROOT/tools/magma-sboxes.llbc" -dest "$ROOT" -subdir /Magma/RustCrypto/Code -split-files -namespace RustCrypto
-
-# The safe Tc26 verification view is regenerated from the original RustCrypto
-# lib.rs by patches/tc26.patch; adapter.rs is the only handwritten Rust module.
-# Check that the original round expressions remain unchanged.
-cargo fmt --manifest-path "$ROOT/rust/tc26/Cargo.toml" --all --check
-cargo check --manifest-path "$ROOT/rust/tc26/Cargo.toml" --locked
-cd "$ROOT/rust/tc26"
-PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::adapter::verify_encrypt,crate::adapter::verify_decrypt --dest-file="$ROOT/tools/magma-tc26.llbc"
-"$BIN/aeneas" -backend lean "$ROOT/tools/magma-tc26.llbc" -dest "$ROOT" -subdir /Magma/RustCrypto/Tc26 -namespace RustCryptoTc26 -split-files
+cargo check --locked --all-features
+PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::adapter::verify_encrypt,crate::adapter::verify_decrypt --dest-file="$ROOT/tools/magma.llbc"
+"$BIN/aeneas" -backend lean "$ROOT/tools/magma.llbc" -dest "$ROOT" -subdir /Magma/RustCrypto/Tc26 -namespace RustCryptoTc26 -split-files
 
 cd "$ROOT"
 lake build

@@ -1,14 +1,16 @@
 # RustCrypto Tc26 verification
 
-`Code/` is Aeneas output for the original RustCrypto Magma S-boxes.
-`Tc26/` is Aeneas output for the checked Tc26-specialized source in
-`rust/tc26/src/lib.rs`. Generated files must not be edited manually.
+`Tc26/` contains the Aeneas-generated model of the original RustCrypto
+`magma` crate with the small patch from `rust/src/tc26.patch` applied.
+The adapter is maintained in `rust/src/adapter.rs` and copied into the
+fetched `rust/magma/src/` directory at build time. Generated Lean files
+must not be edited manually.
 
-The specialized Rust `encrypt_block` and `decrypt_block` preserve
-the original nested loops, reverse traversal, key accesses, Feistel
-rounds, and byte packing. `scripts/check-tc26-source.py` rejects
-unpermitted source changes. The verification-only I/O adapter lives
-in `rust/tc26/src/adapter.rs`.
+The Rust `encrypt_block` and `decrypt_block` method bodies remain
+unchanged, including their generic `S::g` dispatch, nested loops, key
+accesses and byte packing. `scripts/check-tc26-source.py` checks this
+against the unpatched archive source. `Tc26.lean` specializes the
+extracted generic methods to the concrete Tc26 S-box.
 
 ## Lean proofs
 

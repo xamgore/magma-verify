@@ -19,14 +19,14 @@ theorem decrypt_reverse_loop_spec
     (hg : ∀ a k : Std.U32,
       RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.decrypt_block_loop1_loop0 it self l r
+    RustCryptoTc26.Tc26.decrypt_block_loop1_loop0 it self l r
       ⦃ (outself : RustCryptoTc26.Gost89 RustCryptoTc26.sboxes.Tc26)
         (outl outr : Std.U32) =>
         outself = self ∧ (outl.bv, outr.bv) =
           runReverseRounds self.key it.iter.start.val
             (it.iter.end.val-it.iter.start.val) (l.bv, r.bv) ⦄ := by
-  unfold RustCryptoTc26.Gost89Tc26.decrypt_block_loop1_loop0
-  unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0
+  unfold RustCryptoTc26.Tc26.decrypt_block_loop1_loop0
+  unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0
   apply loop.spec_decr_nat
     (measure := fun s => s.1.iter.end.val - s.1.iter.start.val)
     (inv := fun s =>
@@ -43,7 +43,7 @@ theorem decrypt_reverse_loop_spec
     dsimp only [Prod.fst, Prod.snd] at *
     by_cases hstep : it'.iter.start.val < it'.iter.end.val
     · have hnext := rust_reverse_next_some it' hstep hend
-      unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0.body
+      unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0.body
       step with hnext
       subst o
       have hi : iter1.iter.end.val < 8 := by omega
@@ -52,7 +52,7 @@ theorem decrypt_reverse_loop_spec
       have hg' :
           RustCryptoTc26.sboxes.SboxExt.g.default
             (RustCryptoTc26.sboxes.SboxExt.Blanket
-              RustCryptoTc26.sboxes.Tc26.Insts.Magma_tc26_sliceSboxesSbox)
+              RustCryptoTc26.sboxes.Tc26.Insts.MagmaSboxesSbox)
             right' (self.key.val[iter1.iter.end.val]!) =
             ok (⟨Magma.g (self.key.val[iter1.iter.end.val]!).bv right'.bv⟩ : Std.U32) := by
         simpa only [tc26SboxExt] using hg0
@@ -78,7 +78,7 @@ theorem decrypt_reverse_loop_spec
         omega
     · have hge : it'.iter.end.val ≤ it'.iter.start.val := by omega
       have hnext := rust_reverse_next_none it' hge
-      unfold RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0.body
+      unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0.body
       step with hnext
       subst o
       simp only [WP.spec_ok]
@@ -109,12 +109,11 @@ theorem decrypt_three_reverse_loops_spec (self : RustCryptoTc26.Gost89 RustCrypt
       ∀ a k : Std.U32,
         RustCryptoTc26.sboxes.SboxExt.g.default tc26SboxExt a k =
           ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    RustCryptoTc26.Gost89Tc26.decrypt_block_loop1 { start := 0#i32, «end» := 3#i32 } self l r ⦃
+    RustCryptoTc26.Tc26.decrypt_block_loop1 { start := 0#i32, «end» := 3#i32 } self l r ⦃
       (outl outr : Std.U32) =>
       (outl.bv, outr.bv) = repeatReverse8Rounds self.key 3 (l.bv, r.bv) ⦄ := by
-  unfold RustCryptoTc26.Gost89Tc26.decrypt_block_loop1
-  unfold
-    RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1
+  unfold RustCryptoTc26.Tc26.decrypt_block_loop1
+  unfold RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1
   apply
     loop.spec_decr_nat (measure := fun s => (3 - s.1.start.val).toNat) (inv := fun s =>
       s.1.end = 3#i32 ∧
@@ -135,7 +134,7 @@ theorem decrypt_three_reverse_loops_spec (self : RustCryptoTc26.Gost89 RustCrypt
             have hval := congrArg IScalar.val hend
             omega)
       unfold
-        RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1.body
+        RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1.body
       step with hnext
       subst o
       subst self'
@@ -161,7 +160,7 @@ theorem decrypt_three_reverse_loops_spec (self : RustCryptoTc26.Gost89 RustCrypt
       have hge : it'.end.val ≤ it'.start.val := by omega
       have hnext := rust_i32_range_next_none it' hge
       unfold
-        RustCryptoTc26.Gost89.Insts.Magma_tc26_sliceAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1.body
+        RustCryptoTc26.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1.body
       step with hnext
       subst o
       simp only [WP.spec_ok]
