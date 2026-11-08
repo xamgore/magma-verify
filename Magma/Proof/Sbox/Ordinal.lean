@@ -31,10 +31,10 @@ def expectedExpByte (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize) (r : 
 def writeOrdinal (r : Fin 4) (c : Fin 256) : Nat :=
   r.val * 256 + (c.val % 16) * 16 + c.val / 16
 
-private theorem colBound (j k : Std.Usize) (hj : j.val < 16) (hk : k.val < 16) :
+private lemma colBound (j k : Std.Usize) (hj : j.val < 16) (hk : k.val < 16) :
     j.val + k.val * 16 < 256 := by omega
 
-private theorem usizeIndex (j k : Std.Usize) (hj : j.val < 16) (hk : k.val < 16) :
+private lemma usizeIndex (j k : Std.Usize) (hj : j.val < 16) (hk : k.val < 16) :
     (⟨BitVec.ofNat _ (j.val + k.val * 16)⟩ : Std.Usize).val = j.val + k.val * 16 := by
   change (j.val + k.val * 16) % (2 ^ System.Platform.numBits) = j.val + k.val * 16
   rcases System.Platform.numBits_eq with h | h
@@ -43,7 +43,7 @@ private theorem usizeIndex (j k : Std.Usize) (hj : j.val < 16) (hk : k.val < 16)
   · simp only [h]
     omega
 
-private theorem expectedExpByte_source (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
+private lemma expectedExpByte_source (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
     (i j k : Std.Usize) (_hi : i.val < 4) (hj : j.val < 16) (_hk : k.val < 16) (r : Fin 4)
     (c : Fin 256) (hr : r.val = i.val) (hc : c.val = j.val + k.val * 16) :
     expectedExpByte sbox r c = expSourceByte sbox i j k := by
@@ -51,7 +51,7 @@ private theorem expectedExpByte_source (sbox : Std.Array (Std.Array Std.U8 16#us
   have hdiv : (j.val + k.val * 16) / 16 = k.val := by omega
   simp only [expectedExpByte, expSourceByte, hr, hc, hmod, hdiv]
 
-theorem writeOrdinal_eq (r : Fin 4) (c : Fin 256) (i j k : Std.Usize) (hi : i.val < 4)
+lemma write_ordinal_matches_cell (r : Fin 4) (c : Fin 256) (i j k : Std.Usize) (hi : i.val < 4)
     (hj : j.val < 16) (hk : k.val < 16) :
     writeOrdinal r c = i.val * 256 + j.val * 16 + k.val ↔
       r.val = i.val ∧ c.val = j.val + k.val * 16 := by
@@ -71,7 +71,7 @@ theorem writeOrdinal_eq (r : Fin 4) (c : Fin 256) (i j k : Std.Usize) (hi : i.va
     omega
 
 /-- Exact functional write at one unique ordinal, all other bytes unchanged. -/
-theorem expWrite_pointwise
+lemma expWrite_pointwise
     (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
     (out : ExpTable) (i j k : Std.Usize)
     (hi : i.val < 4) (hj : j.val < 16) (hk : k.val < 16)
@@ -80,7 +80,7 @@ theorem expWrite_pointwise
       if writeOrdinal r c = i.val * 256 + j.val * 16 + k.val then
         expectedExpByte sbox r c else expCell out r c := by
   have hsrc := expectedExpByte_source sbox i j k hi hj hk r c
-  have hord := writeOrdinal_eq r c i j k hi hj hk
+  have hord := write_ordinal_matches_cell r c i j k hi hj hk
   unfold expWrite
   change expCell (writeCell out i
     (⟨BitVec.ofNat _ (j.val + k.val * 16)⟩ : Std.Usize)

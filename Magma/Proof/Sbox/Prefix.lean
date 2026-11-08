@@ -21,12 +21,12 @@ namespace Magma.Proof
 def writeTime (i j k : Std.Usize) : Nat :=
   i.val * 256 + j.val * 16 + k.val
 
-theorem writeTime_next (i j k : Std.Usize) (hk : k.val < 16) :
+lemma writeTime_next (i j k : Std.Usize) (hk : k.val < 16) :
     writeTime i j (expNextK k) = writeTime i j k + 1 := by
-  simp only [writeTime, expNextK_val k hk]
+  simp only [writeTime, expanded_sbox_inner_index_increments k hk]
   omega
 
-theorem expFillK_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize) (i j : Std.Usize)
+lemma expFillK_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize) (i j : Std.Usize)
     (hi : i.val < 4) (hj : j.val < 16) (n : Nat) :
     ∀ (k : Std.Usize) (out : ExpTable),
       k.val + n ≤ 16 →
@@ -43,7 +43,7 @@ theorem expFillK_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize
     intro k out hk r c
     have hlt : k.val < 16 := by omega
     have hnext : (expNextK k).val + n ≤ 16 := by
-      rw [expNextK_val k hlt]
+      rw [expanded_sbox_inner_index_increments k hlt]
       omega
     have hind := ih (expNextK k) (expWrite sbox out i j k) hnext r c
     simp only [expFillK]
@@ -64,7 +64,7 @@ theorem expFillK_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize
       · have hB : ¬(st ≤ x ∧ x < st + (n + 1)) := by omega
         simp only [ite_eq_right hA, ite_eq_right hC, ite_eq_right hB]
 
-private theorem extendInterval (p step n x : Nat) (yes no : α) :
+private lemma extendInterval (p step n x : Nat) (yes no : α) :
     (if p + step ≤ x ∧ x < p + step + step * n then yes
       else if p ≤ x ∧ x < p + step then yes else no) =
       if p ≤ x ∧ x < p + step * (n + 1) then yes else no := by
@@ -87,12 +87,12 @@ private theorem extendInterval (p step n x : Nat) (yes no : α) :
 def jStart (i j : Std.Usize) : Nat :=
   i.val * 256 + j.val * 16
 
-private theorem jStart_next (i j : Std.Usize) (hj : j.val < 16) :
+private lemma jStart_next (i j : Std.Usize) (hj : j.val < 16) :
     jStart i (expNextK j) = jStart i j + 16 := by
-  simp only [jStart, expNextK_val j hj]
+  simp only [jStart, expanded_sbox_inner_index_increments j hj]
   omega
 
-private theorem expFillK16_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
+private lemma expFillK16_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
     (i j : Std.Usize) (hi : i.val < 4) (hj : j.val < 16) (out : ExpTable) (r : Fin 4)
     (c : Fin 256) :
     expCell (expFillK sbox i j 16 0#usize out) r c =
@@ -103,7 +103,7 @@ private theorem expFillK16_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usiz
   simp only [writeTime, jStart, show (0#usize).val = 0 by rfl, Nat.add_zero] at h ⊢
   exact h
 
-theorem expFillJ_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize) (i : Std.Usize)
+lemma expFillJ_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize) (i : Std.Usize)
     (hi : i.val < 4) (n : Nat) :
     ∀ (j : Std.Usize) (out : ExpTable),
       j.val + n ≤ 16 →
@@ -120,7 +120,7 @@ theorem expFillJ_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize
     intro j out hj r c
     have hlt : j.val < 16 := by omega
     have hnext : (expNextK j).val + n ≤ 16 := by
-      rw [expNextK_val j hlt]
+      rw [expanded_sbox_inner_index_increments j hlt]
       omega
     have hind := ih (expNextK j) (expFillK sbox i j 16 0#usize out) hnext r c
     simp only [expFillJ]
@@ -132,12 +132,12 @@ theorem expFillJ_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize
 def iStart (i : Std.Usize) : Nat :=
   i.val * 256
 
-private theorem iStart_next (i : Std.Usize) (hi : i.val < 4) :
+private lemma iStart_next (i : Std.Usize) (hi : i.val < 4) :
     iStart (expNextK i) = iStart i + 256 := by
-  simp only [iStart, expNextK_val i (by omega)]
+  simp only [iStart, expanded_sbox_inner_index_increments i (by omega)]
   omega
 
-private theorem expFillJ16_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
+private lemma expFillJ16_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
     (i : Std.Usize) (hi : i.val < 4) (out : ExpTable) (r : Fin 4) (c : Fin 256) :
     expCell (expFillJ sbox i 16 0#usize out) r c =
       if iStart i ≤ writeOrdinal r c ∧ writeOrdinal r c < iStart i + 256 then
@@ -148,7 +148,7 @@ private theorem expFillJ16_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usiz
   norm_num at h ⊢
   exact h
 
-theorem expFillI_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize) (n : Nat) :
+lemma expFillI_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize) (n : Nat) :
     ∀ (i : Std.Usize) (out : ExpTable),
       i.val + n ≤ 4 →
         ∀ (r : Fin 4) (c : Fin 256),
@@ -164,7 +164,7 @@ theorem expFillI_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize
     intro i out hi r c
     have hlt : i.val < 4 := by omega
     have hnext : (expNextK i).val + n ≤ 4 := by
-      rw [expNextK_val i (by omega)]
+      rw [expanded_sbox_inner_index_increments i (by omega)]
       omega
     have hind := ih (expNextK i) (expFillJ sbox i 16 0#usize out) hnext r c
     simp only [expFillI]
@@ -173,7 +173,7 @@ theorem expFillI_pointwise (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize
       extendInterval (iStart i) 256 n (writeOrdinal r c) (expectedExpByte sbox r c)
         (expCell out r c)
 
-theorem tc26Expanded_cell (r : Fin 4) (c : Fin 256) :
+theorem tc26_expanded_table_cell_correct (r : Fin 4) (c : Fin 256) :
     expCell tc26Expanded r c = expectedExpByte tc26Table r c := by
   have h :=
     expFillI_pointwise tc26Table 4 0#usize

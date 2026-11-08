@@ -17,7 +17,7 @@ open Aeneas Aeneas.Std Result ControlFlow
 
 namespace Magma.Proof
 
-private theorem inner_lookup_bound (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
+private lemma inner_lookup_bound (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
     (row col : Std.Usize) (hr : row.val < 8) (hc : col.val < 16) (a : Std.Array Std.U8 16#usize)
     (v : Std.U8) (ha : a = sbox.val[row.val]'(by simpa using hr))
     (hv : v = a.val[col.val]'(by simpa using hc))
@@ -30,12 +30,12 @@ private theorem inner_lookup_bound (sbox : Std.Array (Std.Array Std.U8 16#usize)
   rw [getElem!_pos (sbox.val[row.val]'hrow).val col.val (by simpa [ha] using hcol)] at hsmall
   simpa [ha, hv] using hsmall
 
-private theorem u8_shl4 (x : Std.U8) (hx : x.val < 16) : (x.bv <<< 4).toNat = x.val * 16 := by
+private lemma u8_shl4 (x : Std.U8) (hx : x.val < 16) : (x.bv <<< 4).toNat = x.val * 16 := by
   simp only [BitVec.toNat_shiftLeft, Nat.shiftLeft_eq]
   change (x.val * 16) % 256 = x.val * 16
   omega
 
-private theorem usize_shl4 (x : Std.Usize) (hx : x.val < 16) : (x.bv <<< 4).toNat = x.val * 16 := by
+private lemma usize_shl4 (x : Std.Usize) (hx : x.val < 16) : (x.bv <<< 4).toNat = x.val * 16 := by
   simp only [BitVec.toNat_shiftLeft, Nat.shiftLeft_eq]
   change (x.val * 16) % (2 ^ System.Platform.numBits) = x.val * 16
   rcases System.Platform.numBits_eq with h | h
@@ -58,7 +58,7 @@ def expNextK (k : Std.Usize) : Std.Usize :=
 
 /-- A successful original inner-loop step writes the expanded Tc26 entry,
     increments k, and has no overflow or bounds failure. -/
-theorem gen_exp_inner_step
+lemma expanded_sbox_generation_inner_step
     (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
     (out : Std.Array (Std.Array Std.U8 256#usize) 4#usize)
     (i j k : Std.Usize)

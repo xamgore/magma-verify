@@ -20,7 +20,7 @@ open Aeneas Aeneas.Std Result ControlFlow
 
 namespace Magma.Proof
 
-private theorem byteExtractionBound (a : BitVec 32) (s : Nat) :
+private lemma byteExtractionBound (a : BitVec 32) (s : Nat) :
     ((a &&& ((255 : BitVec 32) <<< s)) >>> s).toNat < 256 := by
   let mask : BitVec 32 := (255 : BitVec 32) <<< s
   have hm : mask.toNat ≤ 255 * 2 ^ s := by
@@ -37,14 +37,14 @@ private theorem byteExtractionBound (a : BitVec 32) (s : Nat) :
   simpa only [mask, BitVec.toNat_ushiftRight, Nat.shiftRight_eq_div_pow] using
     (show ((a &&& mask).toNat) / 2 ^ s < 256 by omega)
 
-private theorem shiftedU32Bound (b : Std.U32) (hb : b.val < 256) (s : Nat) :
+private lemma shiftedU32Bound (b : Std.U32) (hb : b.val < 256) (s : Nat) :
     (b.bv <<< s).toNat ≤ 255 * 2 ^ s := by
   simp only [BitVec.toNat_shiftLeft, Nat.shiftLeft_eq]
   calc
     (b.val * 2 ^ s) % (2 ^ 32) ≤ b.val * 2 ^ s := Nat.mod_le _ _
     _ ≤ 255 * 2 ^ s := Nat.mul_le_mul_right _ (by omega)
 
-private theorem castU8toU32_lt256 (b : Std.U8) : (UScalar.cast .U32 b).val < 256 := by
+private lemma castU8toU32_lt256 (b : Std.U8) : (UScalar.cast .U32 b).val < 256 := by
   have hb : b.val < 256 := by
     have h := UScalar.hBounds b
     simp only [UScalarTy.U8_numBits_eq] at h
@@ -57,7 +57,7 @@ private theorem castU8toU32_lt256 (b : Std.U8) : (UScalar.cast .U32 b).val < 256
     omega
   simpa only [Nat.mod_eq_of_lt hc] using hb
 
-private theorem byteStepSumBound (v b shifted : Std.U32) (n shift : Nat) (hv : v.val < 2 ^ (8 * n))
+private lemma byteStepSumBound (v b shifted : Std.U32) (n shift : Nat) (hv : v.val < 2 ^ (8 * n))
     (hb : b.val < 256) (hshift : shift = 8 * n) (hsh : shifted.bv = b.bv <<< shift) :
     v.val + shifted.val < 2 ^ (8 * (n + 1)) := by
   have hbound : shifted.val ≤ 255 * 2 ^ shift := by
@@ -72,7 +72,7 @@ private theorem byteStepSumBound (v b shifted : Std.U32) (n shift : Nat) (hv : v
   omega
 
 /-- Correct and terminating one-step transition, with byte-bound preservation. -/
-theorem apply_sbox_step_total
+lemma apply_sbox_step_succeeds
     (a v : Std.U32)
     (iter : core.ops.range.Range Std.Usize)
     (hi : iter.start.val < iter.end.val)
@@ -83,11 +83,11 @@ theorem apply_sbox_step_total
         it'.start.val = iter.start.val + 1 ∧ it'.end = iter.end ∧
         v'.val < 2 ^ (8 * it'.start.val) ⦄ := by
   unfold Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop.body
-  have hnext := rust_usize_range_next iter hi
+  have hnext := usize_range_next_some iter hi
   step with hnext
   subst o
   step*
-  simp only [tc26_exp_sbox_correct, bind_ok]
+  simp only [tc26_expanded_sbox_constant_correct, bind_ok]
   step*
   case hbound =>
     have hbits : i3.bv =

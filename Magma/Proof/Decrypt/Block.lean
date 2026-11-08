@@ -22,7 +22,7 @@ def rfcDecryptedBytes (key : Aeneas.Std.Array Std.U32 8#usize)
   let halves := Magma.Internal.split 32 32 out
   (halves.1.toBEBytes ++ halves.2.toBEBytes).map (fun b => (⟨b⟩ : Std.U8))
 
-theorem expected_decrypted_bytes_are_rfc (key : Aeneas.Std.Array Std.U32 8#usize)
+lemma decrypted_bytes_match_rfc (key : Aeneas.Std.Array Std.U32 8#usize)
     (ciphertext : Aeneas.Std.Array Std.U8 8#usize) :
     expectDecryptedBytes key ciphertext = rfcDecryptedBytes key ciphertext := by
   let out :=
@@ -31,12 +31,13 @@ theorem expected_decrypted_bytes_are_rfc (key : Aeneas.Std.Array Std.U32 8#usize
     Magma.Internal.split 32 32
         (Magma.decrypt (rfcKeyOfWords key) (readWord ciphertext 0 ++ readWord ciphertext 4)) =
       (out.2, out.1) := by
-    rw [← pure_decrypt_32_rounds_match_rfc key (readWord ciphertext 0) (readWord ciphertext 4)]
+    rw [← decrypt_round_schedule_matches_rfc key (readWord ciphertext 0) (readWord ciphertext 4)]
     exact Magma.concat_split ⟨32, out.2⟩ ⟨32, out.1⟩
   simp only [rfcDecryptedBytes, expectDecryptedBytes]
   rw [hs]
 
-theorem decrypt_block_bytes_if_g (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
+theorem decrypt_block_matches_expected_bytes_of_g_correct
+    (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (block : Magma.Rust.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize))
     (hg :
       ∀ a k : Std.U32,
@@ -48,15 +49,15 @@ theorem decrypt_block_bytes_if_g (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc2
   simp only [Magma.Rust.adapter.InOutABArrayU88.get_in, bind_ok]
   step
   have hlen0 : s.length = 4 := by simpa using s_post1
-  step with(to_u32_spec s hlen0)
+  step with(to_u32_reads_big_endian_bytes s hlen0)
   step
   have hlen1 : s1.length = 4 := by simpa using s1_post1
-  step with(to_u32_spec s1 hlen1)
+  step with(to_u32_reads_big_endian_bytes s1 hlen1)
   have hfirst :=
-    decrypt_forward_loop_spec self { start := 0#usize, «end» := 8#usize } i i1 (by decide) hg
+    decrypt_forward_loop_correct self { start := 0#usize, «end» := 8#usize } i i1 (by decide) hg
   step with hfirst
   subst self1
-  have houter := decrypt_three_reverse_loops_spec self i2 i3 hg
+  have houter := decrypt_repeated_reverse_loops_correct self i2 i3 hg
   step with houter
   simp only [Magma.Rust.adapter.InOut.get_out, bind_ok]
   step*
@@ -72,9 +73,9 @@ theorem decrypt_block_bytes_if_g (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc2
   have hs0 : s.val = block.input.val.slice 0 4 := by simpa only [Array.val_to_slice] using s_post
   have hs1 : s1.val = block.input.val.slice 4 8 := by simpa only [Array.val_to_slice] using s1_post
   have hi0 : i.bv = readWord block.input 0 :=
-    i_post.trans (sliceWord_matches_readWord block.input s hlen0 0 hs0)
+    i_post.trans (slice_word_equals_block_word block.input s hlen0 0 hs0)
   have hi1 : i1.bv = readWord block.input 4 :=
-    i1_post.trans (sliceWord_matches_readWord block.input s1 hlen1 4 hs1)
+    i1_post.trans (slice_word_equals_block_word block.input s1 hlen1 4 hs1)
   have hstates :
     (i4.bv, i5.bv) =
       repeatReverse8Rounds self.key 3
@@ -90,7 +91,7 @@ theorem decrypt_block_correct
     (block : Magma.Rust.adapter.InOut (Aeneas.Std.Array Std.U8 8#usize)) :
     Magma.Proof.Tc26.decrypt_block self block ⦃ out =>
       out.output.val = rfcDecryptedBytes self.key block.input ⦄ := by
-  simpa only [expected_decrypted_bytes_are_rfc] using
-    (decrypt_block_bytes_if_g self block tc26_g_correct)
+  simpa only [decrypted_bytes_match_rfc] using
+    (decrypt_block_matches_expected_bytes_of_g_correct self block tc26_g_correct)
 
 end Magma.Proof

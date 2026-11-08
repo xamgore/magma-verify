@@ -28,7 +28,7 @@ def loCol (c : Fin 256) : Fin 16 :=
 def hiCol (c : Fin 256) : Fin 16 :=
   ⟨c.val / 16, by omega⟩
 
-theorem expectedExpByte_matches_rfc (r : Fin 4) (c : Fin 256) :
+lemma expectedExpByte_matches_rfc (r : Fin 4) (c : Fin 256) :
     (expectedExpByte tc26Table r c).val =
       (Magma.π'arrays (loRow r) (loCol c)).val + 16 * (Magma.π'arrays (hiRow r) (hiCol c)).val := by
   let lo := (tc26Table.val[2 * r.val]!).val[c.val % 16]!
@@ -37,8 +37,8 @@ theorem expectedExpByte_matches_rfc (r : Fin 4) (c : Fin 256) :
     tc26_table_matches_rfc (loRow r) (loCol c)
   have hhi : hi.val = (Magma.π'arrays (hiRow r) (hiCol c)).val :=
     tc26_table_matches_rfc (hiRow r) (hiCol c)
-  have hloBound : lo.val < 16 := tc26_values_lt16 (loRow r) (loCol c)
-  have hhiBound : hi.val < 16 := tc26_values_lt16 (hiRow r) (hiCol c)
+  have hloBound : lo.val < 16 := tc26_sbox_entries_lt16 (loRow r) (loCol c)
+  have hhiBound : hi.val < 16 := tc26_sbox_entries_lt16 (hiRow r) (hiCol c)
   change (lo.bv + (hi.bv <<< 4)).toNat = _
   simp only [BitVec.toNat_add, BitVec.toNat_shiftLeft, Nat.shiftLeft_eq]
   change (lo.val + (hi.val * 16) % 256) % 256 = _
@@ -49,13 +49,13 @@ theorem expectedExpByte_matches_rfc (r : Fin 4) (c : Fin 256) :
   rw [hlo, hhi]
   omega
 
-theorem tc26Expanded_matches_rfc (r : Fin 4) (c : Fin 256) :
+theorem tc26_expanded_sbox_matches_rfc (r : Fin 4) (c : Fin 256) :
     (expCell tc26Expanded r c).val =
       (Magma.π'arrays (loRow r) (loCol c)).val + 16 * (Magma.π'arrays (hiRow r) (hiCol c)).val := by
-  rw [tc26Expanded_cell]
+  rw [tc26_expanded_table_cell_correct]
   exact expectedExpByte_matches_rfc r c
 
-theorem rfc_pi_numeric (i : Fin 8) (v : BitVec 4) :
+lemma rfc_sbox_value_as_nat (i : Fin 8) (v : BitVec 4) :
     (Magma.π i v).toNat = (Magma.π'arrays i ⟨v.toNat, v.isLt⟩).val := by
   have hfin : (ZMod.finEquiv 16).symm (v.toNat : ZMod 16) = v.toFin := by
     apply Fin.ext
@@ -67,10 +67,10 @@ theorem rfc_pi_numeric (i : Fin 8) (v : BitVec 4) :
   rw [hfin, BitVec.toNat_ofNat]
   exact Nat.mod_eq_of_lt (ZMod.val_lt (Magma.π'arrays i v.toFin))
 
-theorem rfc_pi_bv (i : Fin 8) (v : BitVec 4) :
+lemma rfc_sbox_value_as_bitvec (i : Fin 8) (v : BitVec 4) :
     Magma.π i v = BitVec.ofNat 4 (Magma.π'arrays i ⟨v.toNat, v.isLt⟩).val := by
   apply BitVec.eq_of_toNat_eq
-  rw [rfc_pi_numeric, BitVec.toNat_ofNat]
+  rw [rfc_sbox_value_as_nat, BitVec.toNat_ofNat]
   exact (Nat.mod_eq_of_lt (ZMod.val_lt (Magma.π'arrays i v.toFin))).symm
 
 end Magma.Proof

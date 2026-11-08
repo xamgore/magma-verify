@@ -22,19 +22,19 @@ def tc26Steps (a : Std.U32) : Nat → Std.Usize → Std.U32 → Std.U32
   | 0, _, v => v
   | n + 1, i, v => tc26Steps a n (expNextK i) (tc26Step a i v)
 
-theorem tc26Steps_step (a v : Std.U32) (i : Std.Usize) (endIdx : Nat) (hi : i.val < endIdx)
+lemma tc26_steps_succ (a v : Std.U32) (i : Std.Usize) (endIdx : Nat) (hi : i.val < endIdx)
     (hend : endIdx ≤ 4) :
     tc26Steps a (endIdx - i.val) i v =
       tc26Steps a (endIdx - (expNextK i).val) (expNextK i) (tc26Step a i v) := by
   have hn : endIdx - i.val = endIdx - (expNextK i).val + 1 := by
     have hi16 : i.val < 16 := by omega
-    rw [expNextK_val i hi16]
+    rw [expanded_sbox_inner_index_increments i hi16]
     omega
   rw [hn]
   rfl
 
 /-- Exact full-loop result and termination. -/
-theorem apply_sbox_loop_value (a v : Std.U32)
+lemma apply_sbox_loop_matches_accumulator (a v : Std.U32)
     (iter : core.ops.range.Range Std.Usize)
     (hb : iter.start.val ≤ iter.end.val ∧ iter.end.val ≤ 4)
     (hv : v.val < 2^(8*iter.start.val)) :
@@ -59,11 +59,11 @@ theorem apply_sbox_loop_value (a v : Std.U32)
       simp only [r_post]
       have hnew : it'.start = expNextK it.start := by
         apply UScalar.eq_of_val_eq
-        rw [r_post1, expNextK_val it.start (by omega)]
+        rw [r_post1, expanded_sbox_inner_index_increments it.start (by omega)]
       have hrec : tc26Steps a (iter.end.val - it'.start.val) it'.start v' =
           tc26Steps a (iter.end.val - it.start.val) it.start acc := by
         rw [hnew, v'_post]
-        exact (tc26Steps_step a acc it.start iter.end.val
+        exact (tc26_steps_succ a acc it.start iter.end.val
           (by have he := congrArg UScalar.val hend; omega) hb.2).symm
       refine ⟨r_post2.trans hend, ?_, r_post3, hrec.trans hacc, ?_⟩
       · have he := congrArg UScalar.val hend
@@ -71,7 +71,7 @@ theorem apply_sbox_loop_value (a v : Std.U32)
       · have he := congrArg UScalar.val r_post2
         omega
     · have hnone : it.end.val ≤ it.start.val := by omega
-      have hnext := rust_usize_range_next_none it hnone
+      have hnext := usize_range_next_none it hnone
       unfold Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop.body
       step with hnext
       subst o
@@ -85,14 +85,14 @@ theorem apply_sbox_loop_value (a v : Std.U32)
 /-- Pure value of the original four-step Tc26 substitution. -/
 def tc26ApplyModel (a : Std.U32) : Std.U32 := tc26Steps a 4 0#usize 0#u32
 
-theorem tc26_apply_model_spec (a : Std.U32) :
+lemma tc26_apply_sbox_matches_pure_model (a : Std.U32) :
     tc26SboxExt.apply_sbox a ⦃ out => out = tc26ApplyModel a ⦄ := by
   change
     Magma.Rust.sboxes.SboxExt.apply_sbox.default tc26SboxExt a ⦃ out => out = tc26ApplyModel a ⦄
   unfold Magma.Rust.sboxes.SboxExt.apply_sbox.default
   step
-    with(apply_sbox_loop_value a 0#u32 { start := 0#usize, «end» := 4#usize } (by decide)
-      (by decide))
+    with(apply_sbox_loop_matches_accumulator a 0#u32 { start := 0#usize, «end» := 4#usize }
+      (by decide) (by decide))
   simpa only [tc26ApplyModel, show (4#usize).val = 4 by rfl, show (0#usize).val = 0 by rfl,
     Nat.sub_zero] using out_post
 

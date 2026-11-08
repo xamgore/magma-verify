@@ -15,7 +15,8 @@ open Aeneas Aeneas.Std Result
 
 namespace Magma.Proof
 
-theorem rust_reverse_next_some (it : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
+lemma reverse_usize_range_next_some
+    (it : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
     (hlt : it.iter.start.val < it.iter.end.val) (hbound : it.iter.end.val ≤ 8) :
     core.iter.adapters.rev.Rev.Insts.CoreIterTraitsIteratorIterator.next
         (core.ops.range.Range.Insts.DoubleEndedIterator core.iter.range.StepUsize) it ⦃
@@ -35,7 +36,8 @@ theorem rust_reverse_next_some (it : core.iter.adapters.rev.Rev (core.ops.range.
   simp [UScalar.ofNatCore_val_eq]
   omega
 
-theorem rust_reverse_next_none (it : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
+lemma reverse_usize_range_next_none
+    (it : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
     (hge : it.iter.end.val ≤ it.iter.start.val) :
     core.iter.adapters.rev.Rev.Insts.CoreIterTraitsIteratorIterator.next
         (core.ops.range.Range.Insts.DoubleEndedIterator core.iter.range.StepUsize) it ⦃
@@ -56,7 +58,7 @@ def runReverseRounds (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize)
   | n + 1, state =>
     runReverseRounds key start n (Magma.G (key.val[start+n]!).bv state)
 
-theorem runReverseRounds_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (start finish : Nat)
+lemma runReverseRounds_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (start finish : Nat)
     (s : BitVec 32 × BitVec 32) (h : start < finish) :
     runReverseRounds key start (finish - start) s =
       runReverseRounds key start (finish - 1 - start) (Magma.G (key.val[finish - 1]!).bv s) := by
@@ -67,7 +69,7 @@ theorem runReverseRounds_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (s
   rw [hk]
 
 /-- All eight descending key rounds of the generated encryption loop. -/
-theorem encrypt_reverse_loop_spec
+lemma encrypt_reverse_loop_correct
     (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (it : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
     (l r : Std.U32)
@@ -97,12 +99,12 @@ theorem encrypt_reverse_loop_spec
     rcases hs with ⟨hstart,hbound,hend,hpure⟩
     dsimp only [Prod.fst, Prod.snd] at *
     by_cases hstep : it'.iter.start.val < it'.iter.end.val
-    · have hnext := rust_reverse_next_some it' hstep hend
+    · have hnext := reverse_usize_range_next_some it' hstep hend
       unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop1.body
       step with hnext
       subst o
       have hi : iter1.iter.end.val < 8 := by omega
-      have hkey := rust_key_index_ok self.key iter1.iter.end hi
+      have hkey := key_index_in_bounds self.key iter1.iter.end hi
       have hg0 := hg right' (self.key.val[iter1.iter.end.val]!)
       have hg' :
           Magma.Rust.sboxes.SboxExt.g.default
@@ -132,7 +134,7 @@ theorem encrypt_reverse_loop_spec
       · have hs := congrArg UScalar.val o_post1
         omega
     · have hge : it'.iter.end.val ≤ it'.iter.start.val := by omega
-      have hnext := rust_reverse_next_none it' hge
+      have hnext := reverse_usize_range_next_none it' hge
       unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop1.body
       step with hnext
       subst o

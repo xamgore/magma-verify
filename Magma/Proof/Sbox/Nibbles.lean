@@ -18,7 +18,7 @@ namespace Magma.Proof
 def rUsize (r : Fin 4) : Std.Usize :=
   ⟨BitVec.ofNat _ r.val⟩
 
-theorem rUsize_val (r : Fin 4) : (rUsize r).val = r.val := by
+lemma row_index_usize_value (r : Fin 4) : (rUsize r).val = r.val := by
   unfold rUsize
   change r.val % (2 ^ System.Platform.numBits) = r.val
   rcases System.Platform.numBits_eq with h | h
@@ -27,13 +27,13 @@ theorem rUsize_val (r : Fin 4) : (rUsize r).val = r.val := by
   · simp only [h]
     omega
 
-theorem byteIndex_extract (a : Std.U32) (r : Fin 4) :
+lemma byteIndex_extract (a : Std.U32) (r : Fin 4) :
     byteIndex a (rUsize r) = (BitVec.extractLsb' (8 * r.val) 8 a.bv).toNat := by
   unfold byteIndex
-  rw [rUsize_val, mask_byte_extract]
+  rw [row_index_usize_value, mask_byte_extract]
   exact BitVec.toNat_setWidth_of_le (by decide)
 
-theorem byteIndex_nibbles (a : Std.U32) (r : Fin 4) :
+lemma byteIndex_nibbles (a : Std.U32) (r : Fin 4) :
     (Magma.Internal.nibble a.bv (loRow r)).toNat = byteIndex a (rUsize r) % 16 ∧
       (Magma.Internal.nibble a.bv (hiRow r)).toNat = byteIndex a (rUsize r) / 16 := by
   constructor

@@ -23,43 +23,43 @@ namespace Magma.Verification
 
 #check Magma.Proof.tc26_table_matches_rfc
 
-#check Magma.Proof.tc26_g_if_substitution
+#check Magma.Proof.round_function_matches_rfc_of_substitution
 
-#check Magma.Proof.encrypt_inner_step_rfc
+#check Magma.Proof.encrypt_inner_loop_step_matches_rfc
 
-#check Magma.Proof.rfc_round_key_of_words
+#check Magma.Proof.round_key_matches_rust_schedule
 
-#check Magma.Proof.encrypt_inner_loop_spec
+#check Magma.Proof.encrypt_inner_loop_correct
 
-#check Magma.Proof.encrypt_three_loops_spec
+#check Magma.Proof.encrypt_repeated_forward_loops_correct
 
-#check Magma.Proof.encrypt_reverse_loop_spec
+#check Magma.Proof.encrypt_reverse_loop_correct
 
-#check Magma.Proof.pure_32_rounds_match_rfc
+#check Magma.Proof.encrypt_round_schedule_matches_rfc
 
-#check Magma.Proof.to_u32_spec
+#check Magma.Proof.to_u32_reads_big_endian_bytes
 
-#check Magma.Proof.encrypt_block_bytes_if_g
+#check Magma.Proof.encrypt_block_matches_expected_bytes_of_g_correct
 
-#check Magma.Proof.gen_exp_inner_step
+#check Magma.Proof.expanded_sbox_generation_inner_step
 
-#check Magma.Proof.gen_exp_sbox_full
+#check Magma.Proof.expanded_sbox_generation_correct
 
-#check Magma.Proof.tc26_gen_exp_correct
+#check Magma.Proof.tc26_expanded_sbox_generation_correct
 
-#check Magma.Proof.apply_sbox_step_total
+#check Magma.Proof.apply_sbox_step_succeeds
 
-#check Magma.Proof.apply_sbox_total
+#check Magma.Proof.apply_sbox_terminates
 
 #check Magma.Proof.apply_sbox_step_value
 
-#check Magma.Proof.apply_sbox_loop_value
+#check Magma.Proof.apply_sbox_loop_matches_accumulator
 
 #check Magma.Proof.expWrite_pointwise
 
-#check Magma.Proof.tc26Expanded_cell
+#check Magma.Proof.tc26_expanded_table_cell_correct
 
-#check Magma.Proof.tc26Expanded_matches_rfc
+#check Magma.Proof.tc26_expanded_sbox_matches_rfc
 
 #check Magma.Proof.tc26_model_matches_rfc
 

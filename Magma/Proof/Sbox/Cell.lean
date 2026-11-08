@@ -25,7 +25,7 @@ def writeCell (out : ExpTable) (row col : Std.Usize) (v : Std.U8) : ExpTable :=
   out.set row ((out.val[row.val]!).set col v)
 
 /-- One write changes only the selected row/column. -/
-theorem writeCell_pointwise (out : ExpTable) (row col : Std.Usize)
+lemma writeCell_pointwise (out : ExpTable) (row col : Std.Usize)
     (v : Std.U8) (r : Fin 4) (c : Fin 256) :
     expCell (writeCell out row col v) r c =
       if row.val = r.val ∧ col.val = c.val then v else expCell out r c := by

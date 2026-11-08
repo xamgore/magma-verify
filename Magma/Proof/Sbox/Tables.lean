@@ -19,7 +19,7 @@ open Aeneas Aeneas.Std Result ControlFlow
 
 namespace Magma.Proof
 
-theorem tc26_values_lt16 (i : Fin 8) (j : Fin 16) :
+lemma tc26_sbox_entries_lt16 (i : Fin 8) (j : Fin 16) :
     ((tc26Table.val[i.val]!).val[j.val]!).val < 16 := by
   fin_cases i <;> fin_cases j <;>
     ( unfold tc26Table Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox.SBOX
@@ -44,7 +44,7 @@ private def outZero : Std.Array (Std.Array Std.U8 256#usize) 4#usize :=
 def tc26Expanded : Std.Array (Std.Array Std.U8 256#usize) 4#usize :=
   expFillI tc26Table 4 0#usize outZero
 
-private theorem result_eq_ok_of_spec {α : Type} (p : Result α) (x : α) (h : p ⦃ out => out = x ⦄) :
+private lemma result_eq_ok_of_spec {α : Type} (p : Result α) (x : α) (h : p ⦃ out => out = x ⦄) :
     p = ok x := by
   induction p using Result.cases with
   | ret v =>
@@ -53,15 +53,16 @@ private theorem result_eq_ok_of_spec {α : Type} (p : Result α) (x : α) (h : p
   | vis e k => exact False.elim ((WP.spec_vis ..).mp h)
   | div => exact False.elim ((WP.spec_div).mp h)
 
-theorem tc26_gen_exp_correct : Magma.Rust.sboxes.gen_exp_sbox tc26Table = ok tc26Expanded := by
-  exact result_eq_ok_of_spec _ _ (gen_exp_sbox_full tc26Table tc26_values_lt16)
+lemma tc26_expanded_sbox_generation_correct :
+    Magma.Rust.sboxes.gen_exp_sbox tc26Table = ok tc26Expanded := by
+  exact result_eq_ok_of_spec _ _ (expanded_sbox_generation_correct tc26Table tc26_sbox_entries_lt16)
 
-theorem tc26_exp_sbox_correct : tc26SboxExt.EXP_SBOX = ok tc26Expanded := by
+theorem tc26_expanded_sbox_constant_correct : tc26SboxExt.EXP_SBOX = ok tc26Expanded := by
   change
     (do
         let a ← ok tc26Table;
         Magma.Rust.sboxes.gen_exp_sbox a) =
       ok tc26Expanded
-  simpa only [bind_ok] using tc26_gen_exp_correct
+  simpa only [bind_ok] using tc26_expanded_sbox_generation_correct
 
 end Magma.Proof

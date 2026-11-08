@@ -20,7 +20,7 @@ namespace Magma.Proof
 def pack8Words (w : Fin 8 → BitVec 32) : BitVec 256 :=
   w 0 ++ w 1 ++ w 2 ++ w 3 ++ w 4 ++ w 5 ++ w 6 ++ w 7
 
-theorem pack8Words_round_key (w : Fin 8 → BitVec 32) (i : Fin 8) :
+lemma base_round_key_of_packed_words (w : Fin 8 → BitVec 32) (i : Fin 8) :
     Magma.baseRoundKey (pack8Words w) i = w i := by
   fin_cases i <;>
     ( simp only [Magma.baseRoundKey, Magma.substring, pack8Words]
@@ -34,9 +34,9 @@ theorem pack8Words_round_key (w : Fin 8 → BitVec 32) (i : Fin 8) :
 def rfcKeyOfWords (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) : BitVec 256 :=
   pack8Words (fun i => (key.val[i.val]!).bv)
 
-theorem rfc_base_round_key_of_words (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (i : Fin 8) :
+lemma base_round_key_of_word_array (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (i : Fin 8) :
     Magma.baseRoundKey (rfcKeyOfWords key) i = (key.val[i.val]!).bv := by
-  exact pack8Words_round_key (fun i => (key.val[i.val]!).bv) i
+  exact base_round_key_of_packed_words (fun i => (key.val[i.val]!).bv) i
 
 /-- RustCrypto's key scheduling expressed with the 8 machine words. -/
 def rustRoundKeyBV (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize)
@@ -46,12 +46,12 @@ def rustRoundKeyBV (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize)
   else
     (key.val[7 - r.val % 8]!).bv
 
-theorem rfc_round_key_of_words (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (r : Fin 32) :
-    Magma.roundKey (rfcKeyOfWords key) r = rustRoundKeyBV key r := by
-  simp [Magma.roundKey, rustRoundKeyBV, rfc_base_round_key_of_words]
+theorem round_key_matches_rust_schedule (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize)
+    (r : Fin 32) : Magma.roundKey (rfcKeyOfWords key) r = rustRoundKeyBV key r := by
+  simp [Magma.roundKey, rustRoundKeyBV, base_round_key_of_word_array]
 
 /-- Every in-bounds Rust key-array read succeeds. -/
-theorem rust_key_index_ok
+lemma key_index_in_bounds
     (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize)
     (j : Std.Usize) (hj : j.val < 8) :
     Array.index_usize key j = ok (key.val[j.val]!) := by

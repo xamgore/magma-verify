@@ -24,7 +24,7 @@ def runKeyRounds (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize)
     runKeyRounds key (start + 1) n
       (Magma.G (key.val[start]!).bv state)
 
-theorem runKeyRounds_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (start finish : Nat)
+lemma run_key_rounds_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (start finish : Nat)
     (state : BitVec 32 × BitVec 32) (h : start < finish) :
     runKeyRounds key start (finish - start) state =
       runKeyRounds key (start + 1) (finish - (start + 1)) (Magma.G (key.val[start]!).bv state) := by
@@ -32,13 +32,12 @@ theorem runKeyRounds_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (start
   rw [hn]
   rfl
 
-private theorem cloneUsize_exact (x : Std.Usize) : core.clone.CloneUsize.clone x = ok x := by rfl
+private lemma cloneUsize_exact (x : Std.Usize) : core.clone.CloneUsize.clone x = ok x := by rfl
 
-private theorem ltUsize_exact (x y : Std.Usize) :
+private lemma ltUsize_exact (x y : Std.Usize) :
     core.cmp.PartialOrdUsize.lt x y = ok (decide (x.val < y.val)) := by rfl
 
-theorem rust_usize_range_next (it : core.ops.range.Range Std.Usize)
-    (h : it.start.val < it.end.val) :
+lemma usize_range_next_some (it : core.ops.range.Range Std.Usize) (h : it.start.val < it.end.val) :
     core.iter.range.IteratorRange.next core.iter.range.StepUsize it ⦃
       (o : Option Std.Usize) (it' : core.ops.range.Range Std.Usize) =>
       o = some it.start ∧ it'.start.val = it.start.val + 1 ∧ it'.end = it.end ⦄ := by
@@ -46,7 +45,7 @@ theorem rust_usize_range_next (it : core.ops.range.Range Std.Usize)
     (core.iter.range.IteratorRange.next_UScalar_some_spec cloneUsize_exact ltUsize_exact it h)
 
 /-- Out-of-range iterator returns none and leaves the range unchanged. -/
-theorem rust_usize_range_next_none
+lemma usize_range_next_none
     (it : core.ops.range.Range Std.Usize)
     (h : it.end.val ≤ it.start.val) :
     core.iter.range.IteratorRange.next core.iter.range.StepUsize it
@@ -58,7 +57,7 @@ theorem rust_usize_range_next_none
 
 /-- Full correctness and termination of the generated eight-step inner
     encryption loop, conditional on the Rust g operation agreeing with RFC g. -/
-theorem encrypt_inner_loop_spec
+lemma encrypt_inner_loop_correct
     (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (it : core.ops.range.Range Std.Usize) (l r : Std.U32)
     (hb : it.start.val ≤ it.end.val ∧ it.end.val ≤ 8)
@@ -91,11 +90,11 @@ theorem encrypt_inner_loop_spec
         have hlt : it'.start.val < it.end.val := by
           simpa only [hend] using hstep
         omega
-      have hnext := rust_usize_range_next it' hstep
+      have hnext := usize_range_next_some it' hstep
       unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
       step with hnext
       subst o
-      have hkey := rust_key_index_ok self.key it'.start hi
+      have hkey := key_index_in_bounds self.key it'.start hi
       have hg0 := hg right' (self.key.val[it'.start.val]!)
       have hg' :
           Magma.Rust.sboxes.SboxExt.g.default
@@ -117,12 +116,12 @@ theorem encrypt_inner_loop_spec
       · have he := congrArg UScalar.val (o_post2.trans hend)
         omega
       · rw [o_post1, hfeistel]
-        exact (runKeyRounds_step self.key it'.start.val it.end.val
+        exact (run_key_rounds_step self.key it'.start.val it.end.val
           (left'.bv, right'.bv) hlt).symm.trans hpure
       · have he := congrArg UScalar.val o_post2
         omega
     · have hnone : it'.end.val ≤ it'.start.val := by omega
-      have hnext := rust_usize_range_next_none it' hnone
+      have hnext := usize_range_next_none it' hnone
       unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
       step with hnext
       subst o
@@ -135,7 +134,7 @@ theorem encrypt_inner_loop_spec
   · simp [hb]
 
 /-- The first eight decryption rounds reuse the very same generated body. -/
-theorem decrypt_forward_loop_spec
+lemma decrypt_forward_loop_correct
     (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (it : core.ops.range.Range Std.Usize) (l r : Std.U32)
     (hb : it.start.val ≤ it.end.val ∧ it.end.val ≤ 8)
@@ -154,6 +153,6 @@ theorem decrypt_forward_loop_spec
         Magma.Proof.Tc26.encrypt_block_loop0_loop0 it self l r := by
     rfl
   rw [same_loop]
-  exact encrypt_inner_loop_spec self it l r hb hg
+  exact encrypt_inner_loop_correct self it l r hb hg
 
 end Magma.Proof

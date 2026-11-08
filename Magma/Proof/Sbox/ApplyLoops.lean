@@ -21,7 +21,7 @@ open Aeneas Aeneas.Std Result ControlFlow
 namespace Magma.Proof
 
 /-- End-of-loop bound after each completed byte, with total termination. -/
-theorem apply_sbox_loop_total
+lemma apply_sbox_loop_terminates
     (a v : Std.U32) (iter : core.ops.range.Range Std.Usize)
     (hb : iter.start.val ≤ iter.end.val ∧ iter.end.val ≤ 4)
     (hv : v.val < 2^(8*iter.start.val)) :
@@ -39,7 +39,7 @@ theorem apply_sbox_loop_total
     dsimp only [Prod.fst, Prod.snd] at *
     by_cases hstep : iter'.start.val < iter'.end.val
     · have hlt : iter'.end.val ≤ 4 := by simpa [hend] using hb.2
-      have hbody := apply_sbox_step_total a v' iter' hstep hlt hval
+      have hbody := apply_sbox_step_succeeds a v' iter' hstep hlt hval
       step with hbody
       simp only [r_post]
       refine ⟨r_post2.trans hend, ?_, r_post3, ?_⟩
@@ -52,7 +52,7 @@ theorem apply_sbox_loop_total
         have hs : it'.start.val = iter'.start.val + 1 := r_post1
         omega
     · have hnone : iter'.end.val ≤ iter'.start.val := by omega
-      have hnext := rust_usize_range_next_none iter' hnone
+      have hnext := usize_range_next_none iter' hnone
       unfold Magma.Rust.sboxes.SboxExt.apply_sbox.default_loop.body
       step with hnext
       subst o
@@ -64,12 +64,12 @@ theorem apply_sbox_loop_total
   · exact ⟨rfl, hb.1, hv⟩
 
 /-- The generated RustCrypto Tc26 apply_sbox succeeds on every input. -/
-theorem apply_sbox_total (a : Std.U32) :
+lemma apply_sbox_terminates (a : Std.U32) :
     tc26SboxExt.apply_sbox a ⦃ _ => True ⦄ := by
   change Magma.Rust.sboxes.SboxExt.apply_sbox.default tc26SboxExt a
     ⦃ _ => True ⦄
   unfold Magma.Rust.sboxes.SboxExt.apply_sbox.default
-  step with (apply_sbox_loop_total a 0#u32
+  step with (apply_sbox_loop_terminates a 0#u32
     { start := 0#usize, «end» := 4#usize } (by decide) (by decide))
 
 end Magma.Proof

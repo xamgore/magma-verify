@@ -15,7 +15,7 @@ open Aeneas Aeneas.Std Result ControlFlow
 
 namespace Magma.Proof
 
-theorem rust_i32_range_next (it : core.ops.range.Range Std.I32) (hlt : it.start.val < it.end.val)
+lemma i32_range_next_some (it : core.ops.range.Range Std.I32) (hlt : it.start.val < it.end.val)
     (hmax : it.end.val ≤ 3) :
     core.iter.range.IteratorRange.next core.iter.range.StepI32 it ⦃
       (o : Option Std.I32) (it' : core.ops.range.Range Std.I32) =>
@@ -32,8 +32,7 @@ theorem rust_i32_range_next (it : core.ops.range.Range Std.I32) (hlt : it.start.
   simp only [hfwd, ↓reduceDIte, bind_ok, WP.spec_ok]
   simp
 
-theorem rust_i32_range_next_none (it : core.ops.range.Range Std.I32)
-    (hge : it.end.val ≤ it.start.val) :
+lemma i32_range_next_none (it : core.ops.range.Range Std.I32) (hge : it.end.val ≤ it.start.val) :
     core.iter.range.IteratorRange.next core.iter.range.StepI32 it ⦃
       (o : Option Std.I32) (it' : core.ops.range.Range Std.I32) => o = none ∧ it' = it ⦄ := by
   simp only [core.iter.range.IteratorRange.next, core.iter.range.StepI32,
@@ -48,7 +47,7 @@ def repeat8Rounds (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize)
   | n + 1, state =>
     repeat8Rounds key n (runKeyRounds key 0 8 state)
 
-theorem repeat8Rounds_int_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (j : Int)
+lemma repeat8Rounds_int_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (j : Int)
     (state : BitVec 32 × BitVec 32) (h : 0 ≤ j ∧ j < 3) :
     repeat8Rounds key (3 - j).toNat state =
       repeat8Rounds key (3 - (j + 1)).toNat (runKeyRounds key 0 8 state) := by
@@ -56,7 +55,8 @@ theorem repeat8Rounds_int_step (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) (
   rw [hj]
   rfl
 
-theorem encrypt_three_loops_spec (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26) (l r : Std.U32)
+lemma encrypt_repeated_forward_loops_correct (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
+    (l r : Std.U32)
     (hg :
       ∀ a k : Std.U32,
         Magma.Rust.sboxes.SboxExt.g.default tc26SboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
@@ -80,7 +80,7 @@ theorem encrypt_three_loops_spec (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc2
     by_cases hstep : it'.start.val < it'.end.val
     · have hthree : (3#i32).val = 3 := by rfl
       have hnext :=
-        rust_i32_range_next it' hstep
+        i32_range_next_some it' hstep
           (by
             have hval := congrArg IScalar.val hend
             omega)
@@ -90,8 +90,8 @@ theorem encrypt_three_loops_spec (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc2
       subst o
       subst self'
       have hinner :=
-        encrypt_inner_loop_spec self { start := 0#usize, «end» := 8#usize } left' right' (by decide)
-          hg
+        encrypt_inner_loop_correct self { start := 0#usize, «end» := 8#usize } left' right'
+          (by decide) hg
       step with hinner
       have hlt : it'.start.val < 3 := by
         have hh := congrArg IScalar.val hend
@@ -107,7 +107,7 @@ theorem encrypt_three_loops_spec (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc2
       · omega
     · have hthree : (3#i32).val = 3 := by rfl
       have hge : it'.end.val ≤ it'.start.val := by omega
-      have hnext := rust_i32_range_next_none it' hge
+      have hnext := i32_range_next_none it' hge
       unfold
         Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0.body
       step with hnext

@@ -21,7 +21,7 @@ def sliceWord (s : Slice Std.U8) (hlen : s.length = 4) : BitVec 32 :=
       have hh : s.val.length = 4 := by simpa [Slice.length] using hlen
       simp [hh])
 
-theorem to_u32_spec (s : Slice Std.U8) (hlen : s.length = 4) :
+lemma to_u32_reads_big_endian_bytes (s : Slice Std.U8) (hlen : s.length = 4) :
     Magma.Rust.to_u32 s ⦃ out => out.bv = sliceWord s hlen ⦄ := by
   unfold Magma.Rust.to_u32
   step*

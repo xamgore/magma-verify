@@ -19,7 +19,7 @@ namespace Magma.Proof
 
 /-- A successful generated Rust loop-body step computes the Feistel update,
     provided the called Rust `g` returned the RFC value. -/
-theorem encrypt_inner_step
+lemma encrypt_inner_loop_step
     (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (it nextIt : core.ops.range.Range Std.Usize)
     (j : Std.Usize) (key l r : Std.U32)
@@ -45,7 +45,7 @@ theorem encrypt_inner_step
 
 /-- Under a correctly implemented S-box, that same *generated loop body*
     performs exactly one RFC 8891 `Magma.G` Feistel round. -/
-theorem encrypt_inner_step_rfc
+lemma encrypt_inner_loop_step_matches_rfc
     (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (it nextIt : core.ops.range.Range Std.Usize)
     (j : Std.Usize) (key l r : Std.U32)
@@ -60,12 +60,12 @@ theorem encrypt_inner_step_rfc
       ok (cont (nextIt,
         (⟨(Magma.G key.bv (l.bv, r.bv)).1⟩ : Std.U32),
         (⟨(Magma.G key.bv (l.bv, r.bv)).2⟩ : Std.U32))) := by
-  have hg := tc26_g_if_substitution r key hsub
-  rw [encrypt_inner_step self it nextIt j key l r hnext hkey hg]
+  have hg := round_function_matches_rfc_of_substitution r key hsub
+  rw [encrypt_inner_loop_step self it nextIt j key l r hnext hkey hg]
   simp [Magma.G, Magma.xor, BitVec.xor_comm]
 
 /-- The generated first decryption loop performs the same RFC Feistel step. -/
-theorem decrypt_forward_step_rfc
+lemma decrypt_forward_loop_step_matches_rfc
     (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (it nextIt : core.ops.range.Range Std.Usize)
     (j : Std.Usize) (key l r : Std.U32)
@@ -85,10 +85,10 @@ theorem decrypt_forward_step_rfc
         Magma.Proof.Tc26.encrypt_block_loop0_loop0.body self it l r := by
     rfl
   rw [hbody]
-  exact encrypt_inner_step_rfc self it nextIt j key l r hnext hkey hsub
+  exact encrypt_inner_loop_step_matches_rfc self it nextIt j key l r hnext hkey hsub
 
 /-- The generated reverse-key decryption loop also computes one RFC Feistel step. -/
-theorem decrypt_reverse_step_rfc
+lemma decrypt_reverse_loop_step_matches_rfc
     (self : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
     (it nextIt : core.iter.adapters.rev.Rev (core.ops.range.Range Std.Usize))
     (j : Std.Usize) (key l r : Std.U32)
@@ -105,7 +105,7 @@ theorem decrypt_reverse_step_rfc
       ok (cont (nextIt,
         (⟨(Magma.G key.bv (l.bv, r.bv)).1⟩ : Std.U32),
         (⟨(Magma.G key.bv (l.bv, r.bv)).2⟩ : Std.U32))) := by
-  have hg := tc26_g_if_substitution r key hsub
+  have hg := round_function_matches_rfc_of_substitution r key hsub
   have hg' :
       Magma.Rust.sboxes.SboxExt.g.default
         (Magma.Rust.sboxes.SboxExt.Blanket

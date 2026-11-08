@@ -16,12 +16,12 @@ open Aeneas Aeneas.Std Result
 
 namespace Magma.Proof
 
-private theorem mask255_bit (i : Nat) : ((255 : BitVec 32)).getLsbD i = decide (i < 8) := by
+private lemma mask255_bit (i : Nat) : ((255 : BitVec 32)).getLsbD i = decide (i < 8) := by
   change (BitVec.ofNat 32 (2 ^ 8 - 1)).getLsbD i = decide (i < 8)
   rw [BitVec.getLsbD_ofNat, Nat.testBit_two_pow_sub_one]
   by_cases h : i < 8 <;> simp [h] <;> omega
 
-private theorem mask_byte_generic (a : BitVec 32) (s : Nat) (hs : s ≤ 24) :
+private lemma mask_byte_generic (a : BitVec 32) (s : Nat) (hs : s ≤ 24) :
     (a &&& ((255 : BitVec 32) <<< s)) >>> s = (BitVec.extractLsb' s 8 a).zeroExtend 32 := by
   apply BitVec.eq_of_getLsbD_eq
   intro i hi
@@ -34,26 +34,26 @@ private theorem mask_byte_generic (a : BitVec 32) (s : Nat) (hs : s ≤ 24) :
     simp [hi, h, h2]
   · simp [hi, h]
 
-theorem mask_byte_extract (a : BitVec 32) (r : Fin 4) :
+lemma mask_byte_extract (a : BitVec 32) (r : Fin 4) :
     ((a &&& ((255 : BitVec 32) <<< (8 * r.val))) >>> (8 * r.val)) =
       (BitVec.extractLsb' (8 * r.val) 8 a).zeroExtend 32 := by
   exact mask_byte_generic a (8 * r.val) (by omega)
 
-private theorem extract_nested_lo (a : BitVec 32) (s : Nat) :
+private lemma extract_nested_lo (a : BitVec 32) (s : Nat) :
     (a.extractLsb' s 8).extractLsb' 0 4 = a.extractLsb' s 4 := by
   apply BitVec.eq_of_getLsbD_eq
   intro i hi
   simp only [BitVec.getLsbD_extractLsb']
   simp [hi, show i < 8 by omega, show 4 + i < 8 by omega, Nat.add_assoc]
 
-private theorem extract_nested_hi (a : BitVec 32) (s : Nat) :
+private lemma extract_nested_hi (a : BitVec 32) (s : Nat) :
     (a.extractLsb' s 8).extractLsb' 4 4 = a.extractLsb' (s + 4) 4 := by
   apply BitVec.eq_of_getLsbD_eq
   intro i hi
   simp only [BitVec.getLsbD_extractLsb']
   simp [hi, show i < 8 by omega, show 4 + i < 8 by omega, Nat.add_assoc]
 
-theorem low_nibble_extract (a : BitVec 32) (r : Fin 4) :
+lemma low_nibble_extract (a : BitVec 32) (r : Fin 4) :
     Magma.Internal.nibble a (loRow r) =
       BitVec.extractLsb' 0 4 (BitVec.extractLsb' (8 * r.val) 8 a) := by
   change a.extractLsb' (4 * (loRow r).val) 4 = _
@@ -63,7 +63,7 @@ theorem low_nibble_extract (a : BitVec 32) (r : Fin 4) :
   rw [hs]
   exact (extract_nested_lo a (8 * r.val)).symm
 
-theorem high_nibble_extract (a : BitVec 32) (r : Fin 4) :
+lemma high_nibble_extract (a : BitVec 32) (r : Fin 4) :
     Magma.Internal.nibble a (hiRow r) =
       BitVec.extractLsb' 4 4 (BitVec.extractLsb' (8 * r.val) 8 a) := by
   change a.extractLsb' (4 * (hiRow r).val) 4 = _
