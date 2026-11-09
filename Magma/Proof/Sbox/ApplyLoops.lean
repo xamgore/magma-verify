@@ -63,7 +63,7 @@ lemma apply_sbox_loop_terminates
       simpa [hfinal] using hval
   · exact ⟨rfl, hb.1, hv⟩
 
-/-- The generated RustCrypto RustCrypto apply_sbox succeeds on every input. -/
+/-- For every 32-bit input, the extracted substitution loop terminates without a bounds error. -/
 lemma apply_sbox_terminates (a : Std.U32) :
     rustSboxExt.apply_sbox a ⦃ _ => True ⦄ := by
   change Magma.Rust.sboxes.SboxExt.apply_sbox.default rustSboxExt a

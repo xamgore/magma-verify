@@ -9,7 +9,7 @@ public import Magma.Proof.Sbox.Generation
 
 All 4×16×16 iterations are proved to terminate, have in-bounds accesses,
 and produce the exact `expWrite` sequence from the Aeneas-translated
-RustCrypto source. No source-loop unrolling and no additional proof assumptions.
+original Rust source. No loop unrolling or additional proof assumptions.
 -/
 
 open Aeneas Aeneas.Std Result ControlFlow

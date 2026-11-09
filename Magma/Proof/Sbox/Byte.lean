@@ -4,7 +4,7 @@ public import Magma.Proof.Sbox.Nibbles
 
 @[expose] public section
 
-/-! # Each source-derived RustCrypto byte equals two RFC nibble substitutions.
+/-! # Each expanded lookup byte combines the appropriate two RFC nibbles.
 
 This proves the original expanded-table lookup for every possible 32-bit
 input and each of four bytes, in the *same* orientation as RFC 8891.

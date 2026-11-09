@@ -28,7 +28,7 @@ namespace Magma.Rust
 def core.marker.PhantomData (T : Type _) := Unit
 
 /-- [magma::adapter::InOut]
-    Source: 'src/adapter.rs', lines 4:0-7:1
+    Source: 'src/adapter.rs', lines 6:0-9:1
     Visibility: public -/
 structure adapter.InOut (T : Type _) where
   input : T

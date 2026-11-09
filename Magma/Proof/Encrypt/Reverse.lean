@@ -5,7 +5,7 @@ public import Magma.Proof.Encrypt.Outer
 @[expose] public section
 
 /-!
-# Entire reverse-key pass of the original RustCrypto encryption loop
+# Final encryption pass through eight reversed key indices
 
 The Aeneas `Rev<Range<Usize>>` iterator is checked directly, including the
 decrement of its upper bound. No Rust cipher rounds are rewritten.
@@ -77,12 +77,12 @@ lemma encrypt_reverse_loop_correct
     (hg : ∀ a k : Std.U32,
       Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Crate.encrypt_block_loop1 it self l r
+    Rust.encrypt_block_loop1 it self l r
       ⦃ (outl outr : Std.U32) =>
         (outl.bv, outr.bv) =
           runReverseRounds self.key it.iter.start.val
             (it.iter.end.val-it.iter.start.val) (l.bv, r.bv) ⦄ := by
-  unfold Magma.Proof.Crate.encrypt_block_loop1
+  unfold Rust.encrypt_block_loop1
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop1
   apply loop.spec_decr_nat
     (measure := fun s => s.1.iter.end.val - s.1.iter.start.val)

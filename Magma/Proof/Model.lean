@@ -1,66 +1,66 @@
--- Crate instance of the generic RustCrypto block backend.
--- These definitions specialize the extracted generic Rust methods, not their algorithm.
+-- Specialize the extracted generic block methods to the concrete S-box.
+-- The original Feistel operations remain defined in the generated Rust model.
 module
 public import Magma.Rust.Funs
 
 @[expose] public section
 
-namespace Magma.Proof
+namespace Magma.Rust
 
-abbrev Crate.encrypt_block_loop0_loop0.body :=
+abbrev encrypt_block_loop0_loop0.body :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0.body
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.encrypt_block_loop0_loop0 :=
+abbrev encrypt_block_loop0_loop0 :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.encrypt_block_loop0.body :=
+abbrev encrypt_block_loop0.body :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0.body
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.encrypt_block_loop0 :=
+abbrev encrypt_block_loop0 :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.encrypt_block_loop1.body :=
+abbrev encrypt_block_loop1.body :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop1.body
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.encrypt_block_loop1 :=
+abbrev encrypt_block_loop1 :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop1
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.encrypt_block :=
+abbrev encrypt_block :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.decrypt_block_loop0.body :=
+abbrev decrypt_block_loop0.body :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop0.body
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.decrypt_block_loop0 :=
+abbrev decrypt_block_loop0 :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop0
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.decrypt_block_loop1_loop0.body :=
+abbrev decrypt_block_loop1_loop0.body :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0.body
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.decrypt_block_loop1_loop0 :=
+abbrev decrypt_block_loop1_loop0 :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.decrypt_block_loop1.body :=
+abbrev decrypt_block_loop1.body :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1.body
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.decrypt_block_loop1 :=
+abbrev decrypt_block_loop1 :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-abbrev Crate.decrypt_block :=
+abbrev decrypt_block :=
   Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
-end Magma.Proof
+end Magma.Rust

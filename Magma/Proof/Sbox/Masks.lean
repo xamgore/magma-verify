@@ -7,7 +7,7 @@ public import Magma.Proof.Sbox.RFC
 /-!
 # Kernel-checked byte and nibble extraction
 
-Relates the original RustCrypto byte-mask-and-shift operation to
+Relates the extracted byte-mask-and-shift operation to
 the RFC's four-bit slices for every arbitrary 32-bit input word.
 Uses BitVec's verified bit rules, not native SAT reflection.
 -/

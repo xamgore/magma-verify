@@ -5,7 +5,7 @@ public import Magma.Proof.Sbox.Ordinal
 @[expose] public section
 
 /-!
-# All 1024 generated RustCrypto S-box entries, proved pointwise
+# Pointwise correctness of all 4 × 256 expanded lookup entries
 
 Induction over each of the original three nested loops shows exactly
 which logical output cells are written and proves the final expanded

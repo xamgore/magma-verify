@@ -5,7 +5,7 @@ public import Magma.Proof.Encrypt.Equivalence
 @[expose] public section
 
 /-!
-# Original RustCrypto `gen_exp_sbox` innermost loop body
+# Innermost expansion loop: construct each lookup byte from two nibbles
 
 These proofs use the source-derived Aeneas body, including checked arithmetic,
 array bounds, and mutation. They prove each interior loop step for S-boxes
@@ -56,7 +56,7 @@ def expWrite (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)
 def expNextK (k : Std.Usize) : Std.Usize :=
   UScalar.wrapping_add k 1#usize
 
-/-- A successful original inner-loop step writes the expanded RustCrypto entry,
+/-- A successful innermost step writes the expected expanded lookup entry,
     increments k, and has no overflow or bounds failure. -/
 lemma expanded_sbox_generation_inner_step
     (sbox : Std.Array (Std.Array Std.U8 16#usize) 8#usize)

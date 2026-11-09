@@ -8,7 +8,7 @@ public import Magma.Proof.Common.Ranges
 # Aeneas-generated inner encryption loop, all eight rounds
 
 This is an actual total-correctness lemma for the original, *not unrolled*
-inner RustCrypto encryption loop. The g-correctness premise is explicit;
+inner eight-round encryption loop. The g-correctness premise is explicit;
 the S-box implementation proof needed to discharge it is separate.
 -/
 
@@ -41,14 +41,14 @@ lemma encrypt_inner_loop_correct
     (hg : ∀ a k : Std.U32,
       Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Crate.encrypt_block_loop0_loop0 it self l r
+    Rust.encrypt_block_loop0_loop0 it self l r
       ⦃ (outself : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
         (outl outr : Std.U32) =>
         outself = self ∧
           (outl.bv, outr.bv) =
             runKeyRounds self.key it.start.val (it.end.val - it.start.val)
               (l.bv, r.bv) ⦄ := by
-  unfold Magma.Proof.Crate.encrypt_block_loop0_loop0
+  unfold Rust.encrypt_block_loop0_loop0
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0_loop0
   apply loop.spec_decr_nat
     (measure := fun s => s.1.end.val - s.1.start.val)
@@ -118,7 +118,7 @@ lemma decrypt_forward_loop_correct
     (hg : ∀ a k : Std.U32,
       Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Crate.decrypt_block_loop0 it self l r
+    Rust.decrypt_block_loop0 it self l r
       ⦃ (outself : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
         (outl outr : Std.U32) =>
         outself = self ∧
@@ -126,8 +126,8 @@ lemma decrypt_forward_loop_correct
             runKeyRounds self.key it.start.val (it.end.val - it.start.val)
               (l.bv, r.bv) ⦄ := by
   have same_loop :
-      Magma.Proof.Crate.decrypt_block_loop0 it self l r =
-        Magma.Proof.Crate.encrypt_block_loop0_loop0 it self l r := by
+      Rust.decrypt_block_loop0 it self l r =
+        Rust.encrypt_block_loop0_loop0 it self l r := by
     rfl
   rw [same_loop]
   exact encrypt_inner_loop_correct self it l r hb hg

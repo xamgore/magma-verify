@@ -5,7 +5,7 @@ public import Magma.Proof.Sbox.Loops
 @[expose] public section
 
 /-!
-# Concrete RustCrypto S-box expansion
+# Constructing the four 256-entry substitution lookup tables
 
 The generated three nested loops produce the exact pure table
 `rustExpandedSbox`. Every one of the 128 4-bit source entries is bounded by 15.

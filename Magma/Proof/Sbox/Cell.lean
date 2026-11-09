@@ -5,7 +5,7 @@ public import Magma.Proof.Sbox.Tables
 @[expose] public section
 
 /-!
-# Pointwise array writes for exact expanded RustCrypto S-box values
+# Each expanded table cell contains its two expected 4-bit substitutions
 
 Elementary functional lemma for the Aeneas two-dimensional array type,
 with both in-bounds and outside-cell cases.

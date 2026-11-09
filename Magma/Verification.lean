@@ -8,10 +8,10 @@ public import Magma.Proof.Decrypt.Block
 @[expose] public section
 
 /-!
-# RFC 8891 and the RustCrypto crate
+# RFC 8891 correspondence for the extracted Magma cipher
 
-The source-derived RustCrypto S-box, 32-round cipher and byte encoding are proved
-equivalent to RFC 8891 for all keys and blocks.
+The extracted substitution table, Feistel rounds, key schedule and block
+encoding agree with RFC 8891 for every key and input block.
 Both block methods are proved correct and terminating. Equivalence to the
 external `cipher` adapter is not claimed.
 -/

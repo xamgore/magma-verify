@@ -5,7 +5,7 @@ public import Magma.Proof.Encrypt.Cipher
 @[expose] public section
 
 /-!
-# Original RustCrypto big-endian 4-byte input conversion
+# Decoding four consecutive input bytes into a big-endian 32-bit word
 
 Aeneas's source-derived `Magma.Rust.to_u32` is verified to terminate
 for four-byte slices and to return the exact big-endian BitVec word.

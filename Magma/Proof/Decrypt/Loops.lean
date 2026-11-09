@@ -19,13 +19,13 @@ lemma decrypt_reverse_loop_correct
     (hg : ∀ a k : Std.U32,
       Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
         ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Crate.decrypt_block_loop1_loop0 it self l r
+    Rust.decrypt_block_loop1_loop0 it self l r
       ⦃ (outself : Magma.Rust.Gost89 Magma.Rust.sboxes.Tc26)
         (outl outr : Std.U32) =>
         outself = self ∧ (outl.bv, outr.bv) =
           runReverseRounds self.key it.iter.start.val
             (it.iter.end.val-it.iter.start.val) (l.bv, r.bv) ⦄ := by
-  unfold Magma.Proof.Crate.decrypt_block_loop1_loop0
+  unfold Rust.decrypt_block_loop1_loop0
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1_loop0
   apply loop.spec_decr_nat
     (measure := fun s => s.1.iter.end.val - s.1.iter.start.val)
@@ -108,10 +108,9 @@ lemma decrypt_repeated_reverse_loops_correct (self : Magma.Rust.Gost89 Magma.Rus
     (hg :
       ∀ a k : Std.U32,
         Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32)) :
-    Magma.Proof.Crate.decrypt_block_loop1 { start := 0#i32, «end» := 3#i32 } self l r ⦃
-      (outl outr : Std.U32) =>
+    Rust.decrypt_block_loop1 { start := 0#i32, «end» := 3#i32 } self l r ⦃ (outl outr : Std.U32) =>
       (outl.bv, outr.bv) = repeatReverse8Rounds self.key 3 (l.bv, r.bv) ⦄ := by
-  unfold Magma.Proof.Crate.decrypt_block_loop1
+  unfold Rust.decrypt_block_loop1
   unfold Magma.Rust.Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1
   apply
     loop.spec_decr_nat (measure := fun s => (3 - s.1.start.val).toNat) (inv := fun s =>

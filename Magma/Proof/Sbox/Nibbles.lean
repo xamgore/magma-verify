@@ -8,7 +8,7 @@ public import Magma.Proof.Sbox.ApplyValueLoop
 /-! # Four bytes and their RFC nibble positions
 
 A symbolic 32-bit input is split into the exact byte used by the
-RustCrypto `apply_sbox` body, then into its two RFC 4-bit components.
+extracted `apply_sbox` loop body, then into its two RFC 4-bit components.
 -/
 
 open Aeneas Aeneas.Std Result

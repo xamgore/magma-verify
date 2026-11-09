@@ -5,7 +5,7 @@ public import Magma.Proof.Common.Rounds
 @[expose] public section
 
 /-!
-# 256-bit master key / eight RustCrypto words
+# Master-key representation and 32-round key selection
 
 These are the *representation* and key-selection lemmas. Full loop iterator
 correctness is proved separately; this module does not assert that executing
@@ -30,7 +30,7 @@ lemma base_round_key_of_packed_words (w : Fin 8 → BitVec 32) (i : Fin 8) :
       | simp
       all_goals simp)
 
-/-- The RFC 256-bit key represented by eight high-to-low RustCrypto words. -/
+/-- Concatenate eight 32-bit words in high-to-low order to represent the RFC master key. -/
 def rfcKeyOfWords (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize) : BitVec 256 :=
   pack8Words (fun i => (key.val[i.val]!).bv)
 
@@ -38,7 +38,7 @@ lemma base_round_key_of_word_array (key : Aeneas.Std.Array Aeneas.Std.U32 8#usiz
     Magma.baseRoundKey (rfcKeyOfWords key) i = (key.val[i.val]!).bv := by
   exact base_round_key_of_packed_words (fun i => (key.val[i.val]!).bv) i
 
-/-- RustCrypto's key scheduling expressed with the 8 machine words. -/
+/-- The first 24 rounds repeat the eight words; the final eight use them in reverse order. -/
 def rustRoundKeyBV (key : Aeneas.Std.Array Aeneas.Std.U32 8#usize)
     (r : Fin 32) : BitVec 32 :=
   if r.val < 24 then

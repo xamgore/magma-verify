@@ -82,7 +82,7 @@ lemma apply_sbox_loop_matches_accumulator (a v : Std.U32)
       simpa [hfinal, rustSboxSteps] using hacc
   · exact ⟨rfl, hb.1, hv, rfl⟩
 
-/-- Pure value of the original four-step RustCrypto substitution. -/
+/-- Pure result of the four-iteration byte-substitution loop. -/
 def rustSboxModel (a : Std.U32) : Std.U32 := rustSboxSteps a 4 0#usize 0#u32
 
 lemma rust_apply_sbox_matches_pure_model (a : Std.U32) :

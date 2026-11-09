@@ -6,7 +6,7 @@ public import Magma.Proof.Model
 @[expose] public section
 
 /-!
-# RustCrypto RustCrypto: first correspondence lemmas
+# The extracted substitution table and word arithmetic versus RFC 8891
 
 These statements use the Aeneas-generated definitions, not a handwritten
 Rust cipher model. The table equality covers every one of the 128 S-box
@@ -21,11 +21,11 @@ open Aeneas Aeneas.Std Result
 
 namespace Magma.Proof
 
-/-- The actual RustCrypto S-box table obtained from Aeneas. -/
+/-- The eight 16-entry substitution rows extracted by Aeneas. -/
 def rustSboxTable : Aeneas.Std.Array (Aeneas.Std.Array Aeneas.Std.U8 16#usize) 8#usize :=
   Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox.SBOX
 
-/-- All 8 × 16 entries of the RustCrypto RustCrypto table equal the RFC 8891 tables. -/
+/-- For every row and column, the extracted S-box entry equals RFC 8891’s corresponding π entry. -/
 theorem rust_table_matches_rfc (i : Fin 8) (j : Fin 16) :
     (((rustSboxTable.val[i.val]!).val[j.val]!).val) = (Magma.π'arrays i j).val := by
   fin_cases i <;> fin_cases j <;>
@@ -57,7 +57,7 @@ lemma adapter_get_in_returns_input
     Magma.Rust.adapter.InOutABArrayU88.get_in io ⦃ out => out = io.input ⦄ := by
   simp [Magma.Rust.adapter.InOutABArrayU88.get_in]
 
-/-- The concrete RustCrypto RustCrypto trait instance used by the generated model. -/
+/-- The S-box extension instance used by the extracted substitution and round functions. -/
 def rustSboxExt : Magma.Rust.sboxes.SboxExt Magma.Rust.sboxes.Tc26 :=
   Magma.Rust.sboxes.SboxExt.Blanket
     Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox

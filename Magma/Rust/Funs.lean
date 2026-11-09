@@ -22,7 +22,7 @@ set_option maxRecDepth 2048
 namespace Magma.Rust
 
 /-- [magma::adapter::{magma::adapter::InOut<'a, 'b, [u8; 8usize]>}::get_in]:
-    Source: 'src/adapter.rs', lines 9:4-11:5
+    Source: 'src/adapter.rs', lines 11:4-13:5
     Visibility: public -/
 def adapter.InOutABArrayU88.get_in
   (self : adapter.InOut (Array Std.U8 8#usize)) :
@@ -31,7 +31,7 @@ def adapter.InOutABArrayU88.get_in
   ok self.input
 
 /-- [magma::adapter::{magma::adapter::InOut<'a, 'b, T>}::get_out]:
-    Source: 'src/adapter.rs', lines 14:4-16:5
+    Source: 'src/adapter.rs', lines 16:4-18:5
     Visibility: public -/
 def adapter.InOut.get_out
   {T : Type _} (self : adapter.InOut T) :
@@ -466,7 +466,7 @@ def Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block
   ok { block with output := (get_out_back1 io).output }
 
 /-- [magma::adapter::verify_encrypt]:
-    Source: 'src/adapter.rs', lines 53:0-58:1
+    Source: 'src/adapter.rs', lines 55:0-60:1
     Visibility: public -/
 def adapter.verify_encrypt
   (self_ : Gost89 sboxes.Tc26) (block : adapter.InOut (Array Std.U8 8#usize)) :
@@ -646,7 +646,7 @@ def Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block
   ok { block with output := (get_out_back1 io).output }
 
 /-- [magma::adapter::verify_decrypt]:
-    Source: 'src/adapter.rs', lines 59:0-64:1
+    Source: 'src/adapter.rs', lines 61:0-66:1
     Visibility: public -/
 def adapter.verify_decrypt
   (self_ : Gost89 sboxes.Tc26) (block : adapter.InOut (Array Std.U8 8#usize)) :
@@ -710,7 +710,7 @@ def Gost89.Insts.MagmaAdapterKeyInit.new
   ok { key := key_u321, _p := () }
 
 /-- [magma::adapter::verify_key_init]:
-    Source: 'src/adapter.rs', lines 71:0-73:1
+    Source: 'src/adapter.rs', lines 73:0-75:1
     Visibility: public -/
 def adapter.verify_key_init
   (key : Array Std.U8 32#usize) : Result (Gost89 sboxes.Tc26) := do

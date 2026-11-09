@@ -8,7 +8,7 @@ public import Magma.Proof.Sbox.ApplyLoops
 # Exact original apply_sbox loop-body refinement
 
 One original Aeneas-translated `apply_sbox` iteration reads the
-corresponding input byte, indexes the expanded RustCrypto table, shifts
+corresponding input byte, looks up its substitution in the expanded table, shifts
 the substituted byte into place, and adds it without overflow.
 The `rustSboxStep` model is proved equal to the original body for
 every bounded partial accumulator; it is not a replacement Rust body.
@@ -76,7 +76,7 @@ private lemma byteStepSumBound (v b shifted : Std.U32) (n shift : Nat) (hv : v.v
   rw [hpow]
   omega
 
-/-- Exact result and overflow/bounds safety of an original RustCrypto S-box step. -/
+/-- One loop step computes the substituted byte while satisfying arithmetic and index bounds. -/
 lemma apply_sbox_step_value
     (a v : Std.U32)
     (iter : core.ops.range.Range Std.Usize)

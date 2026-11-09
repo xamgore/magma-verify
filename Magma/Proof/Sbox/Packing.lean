@@ -5,7 +5,7 @@ public import Magma.Proof.Sbox.Byte
 @[expose] public section
 
 /-!
-# Complete RFC substitution equality of original RustCrypto apply_sbox
+# Reassemble four substituted bytes into the RFC 8891 word `t`
 
 All four original S-box bytes are concatenated in RFC order. Each byte
 was already proved to be the pair of source-generated RFC nibbles.

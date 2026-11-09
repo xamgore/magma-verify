@@ -5,7 +5,7 @@ public import Magma.Proof.Sbox.Prefix
 @[expose] public section
 
 /-!
-# Expanded RustCrypto bytes equal pairs of RFC 8891 nibble substitutions
+# Each expanded lookup byte combines two RFC 8891 nibble substitutions
 
 Each generated expanded byte's numeric value equals the RFC
 substitution for the corresponding lower and upper nibble.

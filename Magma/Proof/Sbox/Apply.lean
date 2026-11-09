@@ -5,7 +5,7 @@ public import Magma.Proof.Sbox.Tables
 @[expose] public section
 
 /-!
-# One original RustCrypto apply_sbox loop-body iteration
+# A single iteration of the extracted four-byte substitution loop
 
 The source-derived loop body safely reads a byte of the input,
 fetches its expanded S-box value, and updates the result without

@@ -112,7 +112,7 @@ lemma key_init_words_correct (key : Aeneas.Std.Array Std.U8 32#usize) :
   intro j
   exact out_post j j.isLt
 
-/-- Big-endian interpretation of a 32-byte RustCrypto master key. -/
+/-- Pack the 32 input bytes into the 256-bit RFC key in network byte order. -/
 def rfcKeyOfBytes (key : Aeneas.Std.Array Std.U8 32#usize) : BitVec 256 :=
   pack8Words (fun i => keyWord key i.val)
 
