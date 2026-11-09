@@ -61,7 +61,11 @@ def check(root: Path) -> None:
         "            .zip(key_u32.iter_mut())\n"
         "            .for_each(|(chunk, v)| *v = to_u32(chunk));",
         "for i in 0..8 {\n"
-        "            key_u32[i] = to_u32(&key[(i * 4)..(i * 4 + 4)]);\n"
+        "            let start = i * 4;\n"
+        "            let end = start + 4;\n"
+        "            let chunk = &key[start..end];\n"
+        "            let word = to_u32(chunk);\n"
+        "            key_u32[i] = word;\n"
         "        }",
     )
     if expected == original or expected != method_body(verification, header, "new"):

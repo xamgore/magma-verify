@@ -53,16 +53,16 @@ private lemma key_init_loop_spec (key : Aeneas.Std.Array Std.U8 32#usize)
       step with hnext
       subst o
       step*
-      have hlen : s.length = 4 := by omega
-      step with(to_u32_reads_big_endian_bytes s hlen)
+      have hlen : chunk.length = 4 := by omega
+      step with(to_u32_reads_big_endian_bytes chunk hlen)
       have hi : it.start.val < w.length := by
         simp; omega
-      step with(Array.update_spec w it.start i3 hi)
-      have hslice : s.val = key.val.slice (it.start.val * 4) (it.start.val * 4 + 4) := by
-        have he : i2.val = it.start.val * 4 + 4 := by omega
-        simpa only [Array.val_to_slice, i1_post, he] using s_post
-      have hword : i3.bv = keyWord key it.start.val :=
-        i3_post.trans (slice_word_eq_key_word key it.start.val s hlen hslice)
+      step with(Array.update_spec w it.start word hi)
+      have hslice : chunk.val = key.val.slice (it.start.val * 4) (it.start.val * 4 + 4) := by
+        have he : «end».val = it.start.val * 4 + 4 := by omega
+        simpa only [Array.val_to_slice, start_post, he] using chunk_post
+      have hword : word.bv = keyWord key it.start.val :=
+        word_post.trans (slice_word_eq_key_word key it.start.val chunk hlen hslice)
       refine ⟨?_, ?_, ?_, ?_⟩
       · simpa [o_post2] using hend
       · omega
@@ -70,18 +70,18 @@ private lemma key_init_loop_spec (key : Aeneas.Std.Array Std.U8 32#usize)
         change (a.val[j.val]!).bv = keyWord key j.val
         rw [a_post]
         by_cases hji : j.val = it.start.val
-        · have hset : ((w.set it.start i3).val[j.val]!).bv = i3.bv := by
+        · have hset : ((w.set it.start word).val[j.val]!).bv = word.bv := by
             simpa only [Array.getElem!_Nat_eq] using
               congrArg (fun x : Std.U32 => x.bv)
-                (Array.getElem!_Nat_set_eq w it.start j.val i3 ⟨hji.symm, by simp⟩)
+                (Array.getElem!_Nat_set_eq w it.start j.val word ⟨hji.symm, by simp⟩)
           rw [hset]
           simpa [hji] using hword
         · have hprev : j.val < it.start.val := by omega
           have hvalue := hpre j hprev
-          have hset : ((w.set it.start i3).val[j.val]!).bv = (w.val[j.val]!).bv := by
+          have hset : ((w.set it.start word).val[j.val]!).bv = (w.val[j.val]!).bv := by
             simpa only [Array.getElem!_Nat_eq] using
               congrArg (fun x : Std.U32 => x.bv)
-                (Array.getElem!_Nat_set_ne w it.start j.val i3 (Ne.symm hji))
+                (Array.getElem!_Nat_set_ne w it.start j.val word (Ne.symm hji))
           rw [hset]
           exact hvalue
       · omega

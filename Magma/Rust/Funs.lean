@@ -290,7 +290,7 @@ impl_def sboxes.SboxExt.Blanket {T : Type _} (SboxInst1 : sboxes.Sbox T) :
 }
 
 /-- [magma::to_u32]:
-    Source: 'src/lib.rs', lines 212:0-214:1 -/
+    Source: 'src/lib.rs', lines 216:0-218:1 -/
 def to_u32 (chunk : Slice Std.U8) : Result Std.U32 := do
   let r ←
     core.array.TryFromArrayCopySlice.try_from 4#usize core.marker.CopyU8 chunk
@@ -298,7 +298,7 @@ def to_u32 (chunk : Slice Std.U8) : Result Std.U32 := do
   ok (core.num.U32.from_be_bytes a)
 
 /-- [magma::{impl magma::adapter::BlockCipherEncBackend<[u8; 8usize]> for magma::Gost89<S>}::encrypt_block]: loop body 1:
-    Source: 'src/lib.rs', lines 107:12-109:13
+    Source: 'src/lib.rs', lines 111:12-113:13
     Visibility: public -/
 @[rust_loop_body]
 def
@@ -320,7 +320,7 @@ def
     ok (cont (iter1, i1, i5))
 
 /-- [magma::{impl magma::adapter::BlockCipherEncBackend<[u8; 8usize]> for magma::Gost89<S>}::encrypt_block]: loop 1:
-    Source: 'src/lib.rs', lines 107:12-109:13
+    Source: 'src/lib.rs', lines 111:12-113:13
     Visibility: public -/
 @[rust_loop]
 def
@@ -337,7 +337,7 @@ def
     (iter, i, i1)
 
 /-- [magma::{impl magma::adapter::BlockCipherEncBackend<[u8; 8usize]> for magma::Gost89<S>}::encrypt_block]: loop body 0:
-    Source: 'src/lib.rs', lines 106:8-110:9
+    Source: 'src/lib.rs', lines 110:8-114:9
     Visibility: public -/
 @[rust_loop_body]
 def
@@ -359,7 +359,7 @@ def
     ok (cont (iter1, self1, i2, i3))
 
 /-- [magma::{impl magma::adapter::BlockCipherEncBackend<[u8; 8usize]> for magma::Gost89<S>}::encrypt_block]: loop 0:
-    Source: 'src/lib.rs', lines 106:8-110:9
+    Source: 'src/lib.rs', lines 110:8-114:9
     Visibility: public -/
 @[rust_loop]
 def Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0
@@ -375,7 +375,7 @@ def Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop0
     (iter, self, i, i1)
 
 /-- [magma::{impl magma::adapter::BlockCipherEncBackend<[u8; 8usize]> for magma::Gost89<S>}::encrypt_block]: loop body 2:
-    Source: 'src/lib.rs', lines 111:8-113:9
+    Source: 'src/lib.rs', lines 115:8-117:9
     Visibility: public -/
 @[rust_loop_body]
 def
@@ -400,7 +400,7 @@ def
     ok (cont (iter1, i1, i5))
 
 /-- [magma::{impl magma::adapter::BlockCipherEncBackend<[u8; 8usize]> for magma::Gost89<S>}::encrypt_block]: loop 2:
-    Source: 'src/lib.rs', lines 111:8-113:9
+    Source: 'src/lib.rs', lines 115:8-117:9
     Visibility: public -/
 @[rust_loop]
 def Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop1
@@ -416,7 +416,7 @@ def Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block_loop1
     (iter, i, i1)
 
 /-- [magma::{impl magma::adapter::BlockCipherEncBackend<[u8; 8usize]> for magma::Gost89<S>}::encrypt_block]:
-    Source: 'src/lib.rs', lines 103:4-117:5
+    Source: 'src/lib.rs', lines 107:4-121:5
     Visibility: public -/
 def Gost89.Insts.MagmaAdapterBlockCipherEncBackendArrayU88.encrypt_block
   {S : Type _} (sboxesSboxInst : sboxes.Sbox S) (self : Gost89 S)
@@ -478,7 +478,7 @@ def adapter.verify_encrypt
   ok { block with output := io.output }
 
 /-- [magma::{impl magma::adapter::BlockCipherDecBackend<[u8; 8usize]> for magma::Gost89<S>}::decrypt_block]: loop body 0:
-    Source: 'src/lib.rs', lines 133:8-135:9
+    Source: 'src/lib.rs', lines 137:8-139:9
     Visibility: public -/
 @[rust_loop_body]
 def
@@ -500,7 +500,7 @@ def
     ok (cont (iter1, i1, i5))
 
 /-- [magma::{impl magma::adapter::BlockCipherDecBackend<[u8; 8usize]> for magma::Gost89<S>}::decrypt_block]: loop 0:
-    Source: 'src/lib.rs', lines 133:8-135:9
+    Source: 'src/lib.rs', lines 137:8-139:9
     Visibility: public -/
 @[rust_loop]
 def Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop0
@@ -516,7 +516,7 @@ def Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop0
     (iter, i, i1)
 
 /-- [magma::{impl magma::adapter::BlockCipherDecBackend<[u8; 8usize]> for magma::Gost89<S>}::decrypt_block]: loop body 2:
-    Source: 'src/lib.rs', lines 138:12-140:13
+    Source: 'src/lib.rs', lines 142:12-144:13
     Visibility: public -/
 @[rust_loop_body]
 def
@@ -541,7 +541,7 @@ def
     ok (cont (iter1, i1, i5))
 
 /-- [magma::{impl magma::adapter::BlockCipherDecBackend<[u8; 8usize]> for magma::Gost89<S>}::decrypt_block]: loop 2:
-    Source: 'src/lib.rs', lines 138:12-140:13
+    Source: 'src/lib.rs', lines 142:12-144:13
     Visibility: public -/
 @[rust_loop]
 def
@@ -558,7 +558,7 @@ def
     (iter, i, i1)
 
 /-- [magma::{impl magma::adapter::BlockCipherDecBackend<[u8; 8usize]> for magma::Gost89<S>}::decrypt_block]: loop body 1:
-    Source: 'src/lib.rs', lines 137:8-141:9
+    Source: 'src/lib.rs', lines 141:8-145:9
     Visibility: public -/
 @[rust_loop_body]
 def
@@ -585,7 +585,7 @@ def
     ok (cont (iter1, self1, i2, i3))
 
 /-- [magma::{impl magma::adapter::BlockCipherDecBackend<[u8; 8usize]> for magma::Gost89<S>}::decrypt_block]: loop 1:
-    Source: 'src/lib.rs', lines 137:8-141:9
+    Source: 'src/lib.rs', lines 141:8-145:9
     Visibility: public -/
 @[rust_loop]
 def Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1
@@ -601,7 +601,7 @@ def Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block_loop1
     (iter, self, i, i1)
 
 /-- [magma::{impl magma::adapter::BlockCipherDecBackend<[u8; 8usize]> for magma::Gost89<S>}::decrypt_block]:
-    Source: 'src/lib.rs', lines 129:4-145:5
+    Source: 'src/lib.rs', lines 133:4-149:5
     Visibility: public -/
 def Gost89.Insts.MagmaAdapterBlockCipherDecBackendArrayU88.decrypt_block
   {S : Type _} (sboxesSboxInst : sboxes.Sbox S) (self : Gost89 S)
@@ -658,7 +658,7 @@ def adapter.verify_decrypt
   ok { block with output := io.output }
 
 /-- [magma::{impl magma::adapter::KeyInit for magma::Gost89<S>}::new]: loop body 0:
-    Source: 'src/lib.rs', lines 83:8-85:9
+    Source: 'src/lib.rs', lines 83:8-89:9
     Visibility: public -/
 @[rust_loop_body]
 def Gost89.Insts.MagmaAdapterKeyInit.new_loop.body
@@ -672,18 +672,18 @@ def Gost89.Insts.MagmaAdapterKeyInit.new_loop.body
   match o with
   | none => ok (done key_u32)
   | some i =>
-    let i1 ← i * 4#usize
-    let i2 ← i1 + 4#usize
-    let s ←
+    let start ← i * 4#usize
+    let «end» ← start + 4#usize
+    let chunk ←
       core.array.Array.index (core.ops.index.IndexSlice
         (core.slice.index.SliceIndexRangeUsizeSlice Std.U8)) key
-        { start := i1, «end» := i2 }
-    let i3 ← to_u32 s
-    let a ← Array.update key_u32 i i3
+        { start, «end» }
+    let word ← to_u32 chunk
+    let a ← Array.update key_u32 i word
     ok (cont (iter1, a))
 
 /-- [magma::{impl magma::adapter::KeyInit for magma::Gost89<S>}::new]: loop 0:
-    Source: 'src/lib.rs', lines 83:8-85:9
+    Source: 'src/lib.rs', lines 83:8-89:9
     Visibility: public -/
 @[rust_loop]
 def Gost89.Insts.MagmaAdapterKeyInit.new_loop
@@ -697,7 +697,7 @@ def Gost89.Insts.MagmaAdapterKeyInit.new_loop
     (iter, key_u32)
 
 /-- [magma::{impl magma::adapter::KeyInit for magma::Gost89<S>}::new]:
-    Source: 'src/lib.rs', lines 81:4-90:5
+    Source: 'src/lib.rs', lines 81:4-94:5
     Visibility: public -/
 def Gost89.Insts.MagmaAdapterKeyInit.new
   {S : Type _} (sboxesSboxInst : sboxes.Sbox S) (key : Array Std.U8 32#usize) :

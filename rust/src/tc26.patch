@@ -24,7 +24,7 @@
  mod sboxes;
  
  pub use sboxes::Sbox;
-@@ -75,11 +78,11 @@
+@@ -75,11 +78,15 @@
  
  impl<S: Sbox> KeyInit for Gost89<S> {
      #[inline]
@@ -35,7 +35,11 @@
 -            .zip(key_u32.iter_mut())
 -            .for_each(|(chunk, v)| *v = to_u32(chunk));
 +        for i in 0..8 {
-+            key_u32[i] = to_u32(&key[(i * 4)..(i * 4 + 4)]);
++            let start = i * 4;
++            let end = start + 4;
++            let chunk = &key[start..end];
++            let word = to_u32(chunk);
++            key_u32[i] = word;
 +        }
          Self {
              key: key_u32,
