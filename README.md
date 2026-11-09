@@ -14,7 +14,7 @@ Because any concrete Rust trace maps to a corresponding Lean trace, proving a pr
 
 #### What is proved
 
-The crate's [`encrypt_block`](https://docs.rs/magma/0.10.0/src/magma/lib.rs.html#98-115) and [`decrypt_block`](https://docs.rs/magma/0.10.0/src/magma/lib.rs.html#124-143) method bodies match RFC 8891 for every possible secret key and text input. Both methods terminate without panics from out-of-bounds access, checked arithmetic overflow or failed byte conversions.
+The crate's [`encrypt_block`](https://docs.rs/magma/0.10.0/src/magma/lib.rs.html#98-115) and [`decrypt_block`](https://docs.rs/magma/0.10.0/src/magma/lib.rs.html#124-143) method bodies match RFC 8891 for every possible secret key and text input. Both methods terminate without panics from out-of-bounds access, checked arithmetic overflow or failed byte conversions. Key initialization also preserves the RFC 8891 key when converting 32 bytes into eight big-endian words.
 
 #### What is open
 
@@ -22,7 +22,7 @@ The MIR/LLBC-level model omits timing and microarchitectural effects, so the pro
 
 ### Limitations
 
-Aeneas cannot translate the `unsafe` code behind the pointer-based [`InOut`](https://docs.rs/inout/0.2.2/inout/struct.InOut.html), so we replace it with a safe I/O adapter. [`Block<Self>`](https://docs.rs/cipher/0.5.1/cipher/type.Block.html) depends on [`hybrid-array`](https://docs.rs/hybrid-array/0.4.10/hybrid_array/struct.Array.html)'s generic associated types, which Aeneas cannot handle under its default `--lift-associated-types` flag; we use `[u8; 8]` instead. We also specialize `S::g` to the specific [`Tc26`](https://docs.rs/magma/0.10.0/src/magma/sboxes.rs.html#49-55) implementation.
+Aeneas cannot translate the `unsafe` code behind the pointer-based [`InOut`](https://docs.rs/inout/0.2.2/inout/struct.InOut.html), so we replace it with a safe I/O adapter. [`Block<Self>`](https://docs.rs/cipher/0.5.1/cipher/type.Block.html) depends on [`hybrid-array`](https://docs.rs/hybrid-array/0.4.10/hybrid_array/struct.Array.html)'s generic associated types, which Aeneas cannot handle under its default `--lift-associated-types` flag; we use `[u8; 8]` instead. We also specialize `S::g` to the specific [`Tc26`](https://docs.rs/magma/0.10.0/src/magma/sboxes.rs.html#49-55) implementation. For `KeyInit`, we replace chained iterators with an eight-iteration `for` loop.
 
 ### Aeneas backend patches
 
@@ -40,6 +40,6 @@ These changes do not affect the correctness of Magma's verification.
 ./scripts/build.sh
 ```
 
-The script fetches `magma 0.10.0` and the pinned [Aeneas/Charon](https://github.com/AeneasVerif/aeneas/releases/tag/nightly-2026.11.06-4acbb6d) release, applies Aeneas backend patches, checks the Rust specialization, extracts LLBC, generates Lean, and runs Rust compilation/format checks, `lake build`, `lake lint` and the axiom audit.
+The script fetches `magma 0.10.0` and the pinned [Aeneas/Charon](https://github.com/AeneasVerif/aeneas/releases/tag/nightly-2026.11.06-4acbb6d) release, applies Aeneas backend patches, checks the Rust specialization, extracts LLBC, generates Lean, and runs Rust compilation checks, `lake build`, `lake lint` and the axiom audit.
 
 `fetch-aeneas.sh` selects the release archive for macOS ARM64, Linux ARM64 or Linux x86-64. Other platforms can pass `AENEAS_ARCHIVE_URL` and `AENEAS_ARCHIVE_SHA256` environment variables to the script.
