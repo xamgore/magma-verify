@@ -44,8 +44,7 @@ lemma rotate_left_11_eq_rfc (x : Std.U32) :
 
 /-- RFC addition in ZMod(2^32) is BitVec addition of the same words. -/
 lemma rfc_modular_add_eq_bitvec_add (a k : BitVec 32) :
-    Magma.Vec_s 32 (Magma.add₃₂ (Magma.Int_s 32 a) (Magma.Int_s 32 k)) =
-      a + k := by
+    Magma.Vec_s 32 (Magma.add₃₂ (Magma.Int_s 32 a) (Magma.Int_s 32 k)) = a + k := by
   simp [Magma.Vec_s, Magma.add₃₂, Magma.Int_s, ZMod.val_add]
   apply BitVec.eq_of_toNat_eq
   simp [BitVec.toNat_add, BitVec.toNat_ofNat]
@@ -59,18 +58,15 @@ lemma adapter_get_in_returns_input
 
 /-- The S-box extension instance used by the extracted substitution and round functions. -/
 def rustSboxExt : Magma.Rust.sboxes.SboxExt Magma.Rust.sboxes.Tc26 :=
-  Magma.Rust.sboxes.SboxExt.Blanket
-    Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
+  Magma.Rust.sboxes.SboxExt.Blanket Magma.Rust.sboxes.Tc26.Insts.MagmaSboxesSbox
 
 /-- If the executable S-box computation matches RFC's t, the entire
     generated Rust g implementation matches RFC's g. The premise is
     deliberately explicit and still requires a separate loop proof. -/
-lemma round_function_matches_rfc_of_substitution (a k : Std.U32)
-    (hsub :
-      rustSboxExt.apply_sbox (core.num.U32.wrapping_add a k) =
-      ok (⟨Magma.t (a.bv + k.bv)⟩ : Std.U32)) :
-    Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k =
-      ok (⟨Magma.g k.bv a.bv⟩ : Std.U32) := by
+lemma round_function_matches_rfc_of_substitution
+    (a k : Std.U32)
+    (hsub : rustSboxExt.apply_sbox (core.num.U32.wrapping_add a k) = ok (⟨Magma.t (a.bv + k.bv)⟩ : Std.U32)) :
+    Magma.Rust.sboxes.SboxExt.g.default rustSboxExt a k = ok (⟨Magma.g k.bv a.bv⟩ : Std.U32) := by
   have hs : rustSboxExt.apply_sbox (⟨a.bv + k.bv⟩ : Std.U32) =
       ok (⟨Magma.t (a.bv + k.bv)⟩ : Std.U32) := by
     simpa [core.num.U32.wrapping_add, UScalar.wrapping_add] using hsub

@@ -16,13 +16,10 @@ open Aeneas Aeneas.Std Result
 namespace Magma.Proof
 
 /-- RFC ciphertext bytes, packed in network order. -/
-def rfcEncryptedBytes (key : Aeneas.Std.Array Std.U32 8#usize)
-    (plain : Aeneas.Std.Array Std.U8 8#usize) : List Std.U8 :=
-  let c := Magma.encrypt (rfcKeyOfWords key)
-    (readWord plain 0 ++ readWord plain 4)
+def rfcEncryptedBytes (key : Aeneas.Std.Array Std.U32 8#usize) (plain : Aeneas.Std.Array Std.U8 8#usize) : List Std.U8 :=
+  let c := Magma.encrypt (rfcKeyOfWords key) (readWord plain 0 ++ readWord plain 4)
   let halves := Magma.Internal.split 32 32 c
-  (halves.1.toBEBytes ++ halves.2.toBEBytes).map
-    (fun b => (⟨b⟩ : Std.U8))
+  (halves.1.toBEBytes ++ halves.2.toBEBytes).map (fun b => (⟨b⟩ : Std.U8))
 
 lemma encrypted_bytes_match_rfc (key : Aeneas.Std.Array Std.U32 8#usize)
     (plain : Aeneas.Std.Array Std.U8 8#usize) :
