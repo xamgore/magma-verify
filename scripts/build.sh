@@ -8,7 +8,20 @@ CRATE="$ROOT/rust/magma"
 "$ROOT/scripts/fetch-magma.sh"
 "$ROOT/scripts/patch-magma.sh"
 "$ROOT/scripts/fetch-aeneas.sh"
-python3 "$ROOT/scripts/patch_aeneas_backend.py" "$BIN/backends/lean" "$ROOT/lean-toolchain"
+
+BACKEND="$BIN/backends/lean"
+PATCH="$ROOT/scripts/aeneas-backend.patch"
+if git -C "$ROOT" apply --reverse --check --directory=tools/aeneas/backends/lean "$PATCH" 2>/dev/null; then
+  echo "Aeneas backend patch already applied."
+else
+  git -C "$ROOT" apply --check --directory=tools/aeneas/backends/lean "$PATCH"
+  git -C "$ROOT" apply --directory=tools/aeneas/backends/lean "$PATCH"
+  # The bundled cache and manifest target the old Lean/Mathlib versions.
+  rm -rf "$BACKEND/.lake"
+  rm -f "$BACKEND/lake-manifest.json"
+  echo "Applied Aeneas backend patch."
+fi
+cmp "$ROOT/lean-toolchain" "$BACKEND/lean-toolchain"
 
 export CARGO_TARGET_DIR="$ROOT/tools/cargo-target"
 cd "$CRATE"

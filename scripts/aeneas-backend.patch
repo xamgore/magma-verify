@@ -1,0 +1,69 @@
+diff --git a/lakefile.lean b/lakefile.lean
+--- a/lakefile.lean
++++ b/lakefile.lean
+@@ -3,10 +3,10 @@
+ 
+ -- Important: mathlib imports std4 and quote4: we mustn't add a `require std4` line
+ require mathlib from git
+-  "https://github.com/leanprover-community/mathlib4.git" @ "v4.35.0"
++  "https://github.com/leanprover-community/mathlib4.git" @ "v4.36.0-rc2"
+ 
+ package «aeneas» where
+-  preferReleaseBuild := true
++  preferReleaseBuild := false
+   buildArchive := s!"lean-build-aeneas-{System.Platform.target}.tar.gz"
+   -- Models of the Rust standard library mirror Rust paths (e.g. `core.clone.Clone.clone`)
+   leanOptions := #[⟨`weak.linter.dupNamespace, false⟩]
+diff --git a/lean-toolchain b/lean-toolchain
+--- a/lean-toolchain
++++ b/lean-toolchain
+@@ -1 +1 @@
+-leanprover/lean4:v4.35.0
++leanprover/lean4:v4.36.0-rc2
+diff --git a/AeneasMeta/BvEnumToBitVec.lean b/AeneasMeta/BvEnumToBitVec.lean
+--- a/AeneasMeta/BvEnumToBitVec.lean
++++ b/AeneasMeta/BvEnumToBitVec.lean
+@@ -73,8 +73,9 @@
+   enableRealizationsForConst declName
+   /- The realisers are private to `Lean.Meta.Tactic.BVDecide.Normalize.Enums`: we
+      trigger them through their registered reserved-name actions instead. -/
+-  for suffix in [enumToBitVecSuffix, "enumToBitVec_le", "eq_iff_enumToBitVec_eq"] do
+-    executeReservedNameAction (.str declName suffix)
++  let env ← getEnv
++  for suffix in ["enumToBitVec", "enumToBitVec_le", "eq_iff_enumToBitVec_eq"] do
++    executeReservedNameAction (mkPrivateName env (.str declName suffix))
+ 
+ /-- `#define_bv_decide_toBitVec T` eagerly realises `bv_decide`'s enum
+ conversion constants for the enum inductive `T` in the current module.
+diff --git a/Aeneas/Tactic/Solver/ScalarTac/Lemmas.lean b/Aeneas/Tactic/Solver/ScalarTac/Lemmas.lean
+--- a/Aeneas/Tactic/Solver/ScalarTac/Lemmas.lean
++++ b/Aeneas/Tactic/Solver/ScalarTac/Lemmas.lean
+@@ -372,17 +372,17 @@
+ -/
+ attribute [scalar_tac_simps] Set.Mem
+ 
+-@[scalar_tac_simps] theorem Set.mem_insert_nat s x y :
+-  @insert ℕ (Set ℕ) Set.instInsert x s y ↔ y = x ∨ s y := by rfl
+-
+-@[scalar_tac_simps] theorem Set.mem_singleton_nat x y :
+-  @singleton ℕ (Set ℕ) Set.instSingletonSet x y ↔ y = x := by rfl
+-
+-@[scalar_tac_simps] theorem Set.mem_insert_int s x y :
+-  @insert ℤ (Set ℤ) Set.instInsert x s y ↔ y = x ∨ s y := by rfl
+-
+-@[scalar_tac_simps] theorem Set.mem_singleton_int x y :
+-  @singleton ℤ (Set ℤ) Set.instSingletonSet x y ↔ y = x := by rfl
++@[scalar_tac_simps] theorem Set.mem_insert_nat (s : Set ℕ) (x y : ℕ) :
++  y ∈ insert x s ↔ y = x ∨ y ∈ s := by simp
++
++@[scalar_tac_simps] theorem Set.mem_singleton_nat (x y : ℕ) :
++  y ∈ ({x} : Set ℕ) ↔ y = x := by simp
++
++@[scalar_tac_simps] theorem Set.mem_insert_int (s : Set ℤ) (x y : ℤ) :
++  y ∈ insert x s ↔ y = x ∨ y ∈ s := by simp
++
++@[scalar_tac_simps] theorem Set.mem_singleton_int (x y : ℤ) :
++  y ∈ ({x} : Set ℤ) ↔ y = x := by simp
+ 
+ /-!
+ # Subtypes
