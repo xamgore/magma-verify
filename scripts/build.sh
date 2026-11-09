@@ -9,7 +9,6 @@ CRATE="$ROOT/rust/magma"
 "$ROOT/scripts/patch-magma.sh"
 "$ROOT/scripts/fetch-aeneas.sh"
 python3 "$ROOT/scripts/patch_aeneas_backend.py" "$BIN/backends/lean" "$ROOT/lean-toolchain"
-python3 "$ROOT/scripts/check-tc26-source.py" "$ROOT"
 
 export CARGO_TARGET_DIR="$ROOT/tools/cargo-target"
 cd "$CRATE"

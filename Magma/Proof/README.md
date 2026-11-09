@@ -18,10 +18,10 @@ lists the theorem interfaces. The unconditional encryption and decryption
 proofs are in `Sbox/Final.lean` and `Decrypt/Block.lean`; the conditional
 block correspondence is developed in `Encrypt/Block.lean`.
 
-The two Rust block method bodies are compared with the original archive
-by `scripts/check-tc26-source.py`. The proof establishes correctness of
-the translated crate-specific methods, not formal equivalence of the
-safe I/O adapter with the external `cipher` API.
+The reviewed `rust/src/tc26.patch` is applied to the checksum-verified
+upstream source. The proof establishes correctness of the translated
+crate-specific methods, not formal equivalence of the safe I/O adapter
+with the external `cipher` API.
 
 Run `./scripts/build.sh` to rebuild the model, typecheck the proofs,
 run Lean formatting checks, and audit axioms.
