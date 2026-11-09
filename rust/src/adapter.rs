@@ -1,5 +1,7 @@
+#![allow(dead_code)]
+
 //! Minimal safe verification-only interface matching the backend signatures.
-use cipher::{BlockSizeUser, ParBlocksSizeUser};
+use cipher::BlockSizeUser;
 
 pub struct InOut<'a, 'b, T> {
     pub(crate) input: &'a T,
