@@ -32,6 +32,6 @@ PATH="$BIN:$PATH" "$BIN/charon" cargo --preset=aeneas --start-from=crate::adapte
 cd "$ROOT"
 lake build
 lake lint
-python3 "$ROOT/scripts/audit-lean-axioms.py"
+lake exe axiom-audit --root Magma --modules-from Magma
 echo "Verified Tc26 block encryption and decryption against RFC 8891."
 echo "Scope: upstream cipher adapter equivalence is not proved."
